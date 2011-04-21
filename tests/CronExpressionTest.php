@@ -2,37 +2,47 @@
 
 namespace Cron\Tests;
 
-use Cron\Parser;
+use Cron\CronExpression;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class ParserTest extends \PHPUnit_Framework_TestCase
+class CronExpressionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers Cron\Parser::__construct
-     * @covers Cron\Parser::getExpression
+     * @covers Cron\CronExpression::factory
+     */
+    public function testFactoryRecognizesTemplates()
+    {
+        $this->assertEquals('0 0 1 1 *', CronExpression::factory('@annually')->getExpression());
+        $this->assertEquals('0 0 1 1 *', CronExpression::factory('@yearly')->getExpression());
+        $this->assertEquals('0 0 * * 0', CronExpression::factory('@weekly')->getExpression());
+    }
+
+    /**
+     * @covers Cron\CronExpression::__construct
+     * @covers Cron\CronExpression::getExpression
      */
     public function testParsesCronSchedule()
     {
-        $cron = new Parser('1 2-4 * 4,5,6 */3', '2010-09-10 12:00:00');
-        $this->assertEquals('1', $cron->getExpression(Parser::MINUTE));
-        $this->assertEquals('2-4', $cron->getExpression(Parser::HOUR));
-        $this->assertEquals('*', $cron->getExpression(Parser::DAY));
-        $this->assertEquals('4,5,6', $cron->getExpression(Parser::MONTH));
-        $this->assertEquals('*/3', $cron->getExpression(Parser::WEEKDAY));
+        $cron = new CronExpression('1 2-4 * 4,5,6 */3', '2010-09-10 12:00:00');
+        $this->assertEquals('1', $cron->getExpression(CronExpression::MINUTE));
+        $this->assertEquals('2-4', $cron->getExpression(CronExpression::HOUR));
+        $this->assertEquals('*', $cron->getExpression(CronExpression::DAY));
+        $this->assertEquals('4,5,6', $cron->getExpression(CronExpression::MONTH));
+        $this->assertEquals('*/3', $cron->getExpression(CronExpression::WEEKDAY));
         $this->assertEquals('1 2-4 * 4,5,6 */3', $cron->getExpression());
         $this->assertNull($cron->getExpression('foo'));
     }
 
     /**
-     * @covers Cron\Parser::__construct
+     * @covers Cron\CronExpression::__construct
      * @expectedException InvalidArgumentException
      */
     public function testInvalidCronsWillFail()
     {
         // Only four values
-        $cron = new Parser('* * * 1');
+        $cron = new CronExpression('* * * 1');
     }
 
     /**
@@ -64,14 +74,14 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Cron\Parser::isDue
-     * @covers Cron\Parser::getNextRunDate
-     * @covers Cron\Parser::unitSatisfiesCron
+     * @covers Cron\CronExpression::isDue
+     * @covers Cron\CronExpression::getNextRunDate
+     * @covers Cron\CronExpression::unitSatisfiesCron
      * @dataProvider scheduleProvider
      */
     public function testDeterminesIfCronIsDue($schedule, $relativeTime, $nextRun, $isDue)
     {
-        $cron = new Parser($schedule);
+        $cron = new CronExpression($schedule);
         if (is_string($relativeTime)) {
             $relativeTime = new \DateTime($relativeTime);
         } else if (is_int($relativeTime)) {
@@ -82,11 +92,11 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
     
     /**
-     * @covers Cron\Parser::isDue
+     * @covers Cron\CronExpression::isDue
      */
     public function testIsDueHandlesDifferentDates()
     {
-        $cron = new Parser('* * * * *');
+        $cron = new CronExpression('* * * * *');
         $this->assertTrue($cron->isDue());
         $this->assertTrue($cron->isDue('now'));
         $this->assertTrue($cron->isDue(new \DateTime('now')));

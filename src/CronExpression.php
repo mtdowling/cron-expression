@@ -11,7 +11,8 @@ use InvalidArgumentException;
  * due to run and the next run date of a cron schedule.  The determinations made
  * by this class are accurate if checked run once per minute.
  *
- * The parser can handle ranges (10-12) and intervals (*\/10).
+ * The parser can handle ranges (10-12), intervals (*\/10), comma separated
+ * values (e.g. 12,15), special predefined values (e.g. @yearly), 
  *
  * Schedule parts must map to:
  * minute [0-59], hour [0-23], day of month, month [1-12], day of week [1-7]
@@ -19,7 +20,7 @@ use InvalidArgumentException;
  * @author Michael Dowling <mtdowling@gmail.com>
  * @link http://en.wikipedia.org/wiki/Cron
  */
-class Parser
+class CronExpression
 {
     const MINUTE = 0;
     const HOUR = 1;
@@ -31,6 +32,39 @@ class Parser
      * @var array CRON expression parts
      */
     private $cronParts;
+
+    /**
+     * Factory method to create a new CronExpression.
+     *
+     * @param string $expression The CRON expression to create.  There are
+     *      several special predefined values which can be used to substitute the
+     *      CRON expression:
+     *
+     *      @yearly, @annually) - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
+     *      @monthly - Run once a month, midnight, first of month - 0 0 1 * *
+     *      @weekly - Run once a week, midnight on Sun - 0 0 * * 0
+     *      @daily - Run once a day, midnight - 0 0 * * *
+     *      @hourly - Run once an hour, first minute - 0 * * * *
+     *
+     * @return CronExpression
+     */
+    public static function factory($expression)
+    {
+        $mappings = array(
+            '@yearly' => '0 0 1 1 *',
+            '@annually' => '0 0 1 1 *',
+            '@monthly' => '0 0 1 * *',
+            '@weekly' => '0 0 * * 0',
+            '@daily' => '0 0 * * *',
+            '@hourly' => '0 * * * *'
+        );
+        
+        if (isset($mappings[$expression])) {
+            $expression = $mappings[$expression];
+        }
+
+        return new self($expression);
+    }
 
     /**
      * Parse a CRON expression
