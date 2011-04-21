@@ -6,8 +6,8 @@ The Cron\Parser class can parse a CRON expression, determine if it is due to run
 Requirements
 ------------
 
-#. PHP 5.3+
-#. PHPUnit is required to run the unit tests
+- PHP 5.3+
+- PHPUnit is required to run the unit tests
 
 CRON Expressions
 ----------------
@@ -29,7 +29,7 @@ TODO
 
 Here are the features lacking in the current implementation:
 
-#. Implement complex increment ranges (e.g. 3-59/15)
-#. Implement L for last day of the week and last day of the month
-#. Implement W to find the closest day of the week for a day of the month (e.g. 1W)
-#. Implement the pound sign for the day of the week field to handle things like "the second friday of a given month"
+1. Implement complex increment ranges (e.g. 3-59/15)
+2. Implement L for last day of the week and last day of the month
+3. Implement W to find the closest day of the week for a day of the month (e.g. 1W)
+4. Implement the pound sign for the day of the week field to handle things like "the second friday of a given month"
