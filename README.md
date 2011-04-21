@@ -9,6 +9,20 @@ Requirements
 - PHP 5.3+
 - PHPUnit is required to run the unit tests
 
+Usage
+-----
+
+    <?php
+
+    // Works with predefined scheduling definitions
+    $cron = Cron\CronExpression::factory('@daily');
+    $cron->isDue();
+    echo $cron->getNextRunDate();
+    
+    // Works with complex expressions
+    $cron = new Cron\CronExpression('15 2,6-12 */15 1 2-5');
+    echo $cron->getNextRunDate();
+
 CRON Expressions
 ----------------
 
