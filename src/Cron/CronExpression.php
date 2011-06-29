@@ -120,7 +120,8 @@ class CronExpression
             }
 
             // Adjust the day of week by incrementing the day until it matches.  Resest time.
-            if (!$this->unitSatisfiesCron($nextRun, 'N', $this->getExpression(self::WEEKDAY))) {
+            // According cron implementation, 0 si we use 'w' format
+            if (!$this->unitSatisfiesCron($nextRun, 'w', $this->getExpression(self::WEEKDAY))) {
                 $nextRun->add(new DateInterval('P1D'));
                 $nextRun->setTime(0, 0, 0);
                 continue;
@@ -216,6 +217,12 @@ class CronExpression
         }
 
         $unitValue = (int) $nextRun->format($unit);
+        
+        // According cron implementation, 0|7 = sunday, so we replace it
+        if ( $unit == 'w' && strpos($schedule, '7') !== false ) 
+        {
+        	$schedule = str_replace('7','0', $schedule);
+        }
 
         // Check increments of ranges
         if (strpos($schedule, '*/') !== false) {
@@ -226,6 +233,10 @@ class CronExpression
         // Check intervals
         if (strpos($schedule, '-')) {
             list($first, $last) = explode('-', $schedule);
+            if ( $unit == 'w' && $last == 0 )
+            {
+            	return $this->unitSatisfiesCron($nextRun, $unit, sprintf('0,%u-6',$first));
+            }
             return $unitValue >= $first && $unitValue <= $last;
         }
 
