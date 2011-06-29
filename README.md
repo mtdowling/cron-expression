@@ -1,7 +1,7 @@
-Cron Parser
-===========
+Cron Expression
+===============
 
-The Cron\Parser class can parse a CRON expression, determine if it is due to run, and calculate the next run date of the expression.  The parser can handle simple increment of ranges (e.g. */12), intervals (e.g. 0-9), and lists (e.g. 1,2,3).
+PHP cron expression parser that can parse a CRON expression, determine if it is due to run, and calculate the next run date of the expression.  The parser can handle simple increment of ranges (e.g. */12), intervals (e.g. 0-9), and lists (e.g. 1,2,3).
 
 Requirements
 ------------
@@ -18,7 +18,7 @@ Usage
     $cron = Cron\CronExpression::factory('@daily');
     $cron->isDue();
     echo $cron->getNextRunDate();
-    
+
     // Works with complex expressions
     $cron = new Cron\CronExpression('15 2,6-12 */15 1 2-5');
     echo $cron->getNextRunDate();

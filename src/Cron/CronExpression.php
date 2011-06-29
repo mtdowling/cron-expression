@@ -12,7 +12,7 @@ use InvalidArgumentException;
  * by this class are accurate if checked run once per minute.
  *
  * The parser can handle ranges (10-12), intervals (*\/10), comma separated
- * values (e.g. 12,15), special predefined values (e.g. @yearly), 
+ * values (e.g. 12,15), special predefined values (e.g. @yearly),
  *
  * Schedule parts must map to:
  * minute [0-59], hour [0-23], day of month, month [1-12], day of week [1-7]
@@ -58,7 +58,7 @@ class CronExpression
             '@daily' => '0 0 * * *',
             '@hourly' => '0 * * * *'
         );
-        
+
         if (isset($mappings[$expression])) {
             $expression = $mappings[$expression];
         }
@@ -76,7 +76,7 @@ class CronExpression
     public function __construct($schedule)
     {
         $this->cronParts = explode(' ', $schedule);
-        
+
         if (count($this->cronParts) != 5) {
             throw new InvalidArgumentException(
                 $schedule . ' is not a valid CRON expression'
@@ -100,7 +100,7 @@ class CronExpression
 
         $nextRun = clone $currentDate;
         $nextRun->setTime($nextRun->format('H'), $nextRun->format('i'), 0);
-        
+
         // Set a hard limit to bail on an impossible date
         for ($i = 0; $i < 10000; $i++) {
 
@@ -217,11 +217,10 @@ class CronExpression
         }
 
         $unitValue = (int) $nextRun->format($unit);
-        
+
         // According cron implementation, 0|7 = sunday, so we replace it
-        if ( $unit == 'w' && strpos($schedule, '7') !== false ) 
-        {
-        	$schedule = str_replace('7','0', $schedule);
+        if ($unit == 'w' && strpos($schedule, '7') !== false) {
+            $schedule = str_replace('7','0', $schedule);
         }
 
         // Check increments of ranges
@@ -233,9 +232,8 @@ class CronExpression
         // Check intervals
         if (strpos($schedule, '-')) {
             list($first, $last) = explode('-', $schedule);
-            if ( $unit == 'w' && $last == 0 )
-            {
-            	return $this->unitSatisfiesCron($nextRun, $unit, sprintf('0,%u-6',$first));
+            if ($unit == 'w' && $last == 0) {
+                return $this->unitSatisfiesCron($nextRun, $unit, sprintf('0,%u-6',$first));
             }
             return $unitValue >= $first && $unitValue <= $last;
         }
