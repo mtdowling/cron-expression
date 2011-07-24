@@ -223,8 +223,7 @@ class CronExpression
             $schedule = str_replace('7','0', $schedule);
         }
 
-		// Check lists of values
-		// must be handle before everything else (Thanks to Abhoryo)
+        // Check lists of values. Must be handled first. (Abhoryo)
         if (strpos($schedule, ',')) {
             foreach (array_map('trim', explode(',', $schedule)) as $test) {
                 if ($this->unitSatisfiesCron($nextRun, $unit, $test)) {
