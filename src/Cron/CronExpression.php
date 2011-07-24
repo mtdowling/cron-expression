@@ -223,6 +223,18 @@ class CronExpression
             $schedule = str_replace('7','0', $schedule);
         }
 
+		// Check lists of values
+		// must be handle before everything else (Thanks to Abhoryo)
+        if (strpos($schedule, ',')) {
+            foreach (array_map('trim', explode(',', $schedule)) as $test) {
+                if ($this->unitSatisfiesCron($nextRun, $unit, $test)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         // Check increments of ranges
         if (strpos($schedule, '*/') !== false) {
             list($delimiter, $interval) = explode('*/', $schedule);
@@ -236,17 +248,6 @@ class CronExpression
                 return $this->unitSatisfiesCron($nextRun, $unit, sprintf('0,%u-6',$first));
             }
             return $unitValue >= $first && $unitValue <= $last;
-        }
-
-        // Check lists of values
-        if (strpos($schedule, ',')) {
-            foreach (array_map('trim', explode(',', $schedule)) as $test) {
-                if ($this->unitSatisfiesCron($nextRun, $unit, $test)) {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         return $unitValue == (int) $schedule;
