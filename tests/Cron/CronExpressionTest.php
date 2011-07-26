@@ -25,7 +25,8 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testParsesCronSchedule()
     {
-        $cron = new CronExpression('1 2-4 * 4,5,6 */3', '2010-09-10 12:00:00');
+        // '2010-09-10 12:00:00'
+        $cron = CronExpression::factory('1 2-4 * 4,5,6 */3');
         $this->assertEquals('1', $cron->getExpression(CronExpression::MINUTE));
         $this->assertEquals('2-4', $cron->getExpression(CronExpression::HOUR));
         $this->assertEquals('*', $cron->getExpression(CronExpression::DAY));
@@ -33,6 +34,12 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('*/3', $cron->getExpression(CronExpression::WEEKDAY));
         $this->assertEquals('1 2-4 * 4,5,6 */3', $cron->getExpression());
         $this->assertNull($cron->getExpression('foo'));
+
+        try {
+            $cron = CronExpression::factory('A 1 2 3 4');
+            $this->fail('Validation exception not thrown');
+        } catch (\InvalidArgumentException $e) {
+        }
     }
 
     /**
@@ -42,7 +49,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
     public function testInvalidCronsWillFail()
     {
         // Only four values
-        $cron = new CronExpression('* * * 1');
+        $cron = CronExpression::factory('* * * 1');
     }
 
     /**
@@ -54,7 +61,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array('*/2 */2 * * *', '2015-08-10 21:47:27', '2015-08-10 22:00:00', false),
-            array('* * * * *', '2015-08-10 21:50:37', '2015-08-10 21:51:00', true),
+            array('* * * * *', '2015-08-10 21:50:37', '2015-08-10 21:50:00', true),
             array('* 20,21,22 * * *', '2015-08-10 21:50:00', '2015-08-10 21:50:00', true),
             // Handles CSV values
             array('* 20,22 * * *', '2015-08-10 21:50:00', '2015-08-10 22:00:00', false),
@@ -69,13 +76,14 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             array('15 2 */15 1 2-5', '2015-08-10 22:10:19', '2016-01-15 02:15:00', false),
             array('1 * * * 7', '2015-08-10 21:47:27', '2015-08-16 00:01:00', false),
             // Test with exact times
-            array('47 21 * * *', strtotime('2015-08-10 21:47:30'), '2015-08-11 21:47:00', false),
+            array('47 21 * * *', strtotime('2015-08-10 21:47:30'), '2015-08-10 21:47:00', true),
             // Test Day of the week (issue #1)
             // According cron implementation, 0|7 = sunday, 1 => monday, etc
             array('* * * * 0', strtotime('2011-06-15 23:09:00'), '2011-06-19 00:00:00', false),
             array('* * * * 7', strtotime('2011-06-15 23:09:00'), '2011-06-19 00:00:00', false),
             array('* * * * 1', strtotime('2011-06-15 23:09:00'), '2011-06-20 00:00:00', false),
             // Should return the sunday date as 7 equals 0
+            array('0 0 * * MON,SUN', strtotime('2011-06-15 23:09:00'), '2011-06-19 00:00:00', false),
             array('0 0 * * 1,7', strtotime('2011-06-15 23:09:00'), '2011-06-19 00:00:00', false),
             array('0 0 * * 0-4', strtotime('2011-06-15 23:09:00'), '2011-06-16 00:00:00', false),
             array('0 0 * * 7-4', strtotime('2011-06-15 23:09:00'), '2011-06-16 00:00:00', false),
@@ -90,19 +98,37 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             array('0 0 * * 4-7', strtotime('2011-07-19 00:00:00'), '2011-07-21 00:00:00', false),
             // Test Day of the Week and the Day of the Month (issue #1)
             array('0 0 1 1 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false),
+            array('0 0 1 JAN 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false),
             array('0 0 1 * 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false),
+            array('0 0 L * *', strtotime('2011-07-15 00:00:00'), '2011-07-31 00:00:00', false),
+            // Test the W day of the week modifier for day of the month field
+            array('0 0 2W * *', strtotime('2011-07-01 00:00:00'), '2011-07-01 00:00:00', true),
+            array('0 0 1W * *', strtotime('2011-05-01 00:00:00'), '2011-05-02 00:00:00', false),
+            array('0 0 1W * *', strtotime('2011-07-01 00:00:00'), '2011-07-01 00:00:00', true),
+            array('0 0 3W * *', strtotime('2011-07-01 00:00:00'), '2011-07-04 00:00:00', false),
+            array('0 0 16W * *', strtotime('2011-07-01 00:00:00'), '2011-07-15 00:00:00', false),
+            array('0 0 28W * *', strtotime('2011-07-01 00:00:00'), '2011-07-28 00:00:00', false),
+            array('0 0 30W * *', strtotime('2011-07-01 00:00:00'), '2011-07-29 00:00:00', false),
+            array('0 0 31W * *', strtotime('2011-07-01 00:00:00'), '2011-07-29 00:00:00', false),
+            // Test the year field
+            array('* * * * * 2012', strtotime('2011-05-01 00:00:00'), '2012-01-01 00:00:00', false),
         );
     }
 
     /**
      * @covers Cron\CronExpression::isDue
      * @covers Cron\CronExpression::getNextRunDate
-     * @covers Cron\CronExpression::unitSatisfiesCron
+     * @covers Cron\DayOfMonthField
+     * @covers Cron\DayOfWeekField
+     * @covers Cron\MinutesField
+     * @covers Cron\HoursField
+     * @covers Cron\MonthField
+     * @covers Cron\YearField
      * @dataProvider scheduleProvider
      */
     public function testDeterminesIfCronIsDue($schedule, $relativeTime, $nextRun, $isDue)
     {
-        $cron = new CronExpression($schedule);
+        $cron = CronExpression::factory($schedule);
         if (is_string($relativeTime)) {
             $relativeTime = new \DateTime($relativeTime);
         } else if (is_int($relativeTime)) {
@@ -117,7 +143,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsDueHandlesDifferentDates()
     {
-        $cron = new CronExpression('* * * * *');
+        $cron = CronExpression::factory('* * * * *');
         $this->assertTrue($cron->isDue());
         $this->assertTrue($cron->isDue('now'));
         $this->assertTrue($cron->isDue(new \DateTime('now')));

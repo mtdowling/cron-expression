@@ -4,6 +4,7 @@ namespace Cron;
 
 use DateInterval;
 use DateTime;
+use RuntimeException;
 use InvalidArgumentException;
 
 /**
@@ -11,11 +12,9 @@ use InvalidArgumentException;
  * due to run and the next run date of a cron schedule.  The determinations made
  * by this class are accurate if checked run once per minute.
  *
- * The parser can handle ranges (10-12), intervals (*\/10), comma separated
- * values (e.g. 12,15), special predefined values (e.g. @yearly),
- *
  * Schedule parts must map to:
- * minute [0-59], hour [0-23], day of month, month [1-12], day of week [1-7]
+ * minute [0-59], hour [0-23], day of month, month [1-12|JAN-DEC], day of week
+ * [1-7|MON-SUN], and an optional year.
  *
  * @author Michael Dowling <mtdowling@gmail.com>
  * @link http://en.wikipedia.org/wiki/Cron
@@ -27,11 +26,22 @@ class CronExpression
     const DAY = 2;
     const MONTH = 3;
     const WEEKDAY = 4;
+    const YEAR = 5;
 
     /**
      * @var array CRON expression parts
      */
     private $cronParts;
+
+    /**
+     * @var FieldFactory CRON field factory
+     */
+    private $fieldFactory;
+
+    /**
+     * @var array Order in which to test of cron parts
+     */
+    private static $order = array(self::YEAR, self::MONTH, self::DAY, self::WEEKDAY, self::HOUR, self::MINUTE);
 
     /**
      * Factory method to create a new CronExpression.
@@ -45,10 +55,12 @@ class CronExpression
      *      @weekly - Run once a week, midnight on Sun - 0 0 * * 0
      *      @daily - Run once a day, midnight - 0 0 * * *
      *      @hourly - Run once an hour, first minute - 0 * * * *
+     * @param FieldFactory $fieldFactory (optional) Field factory to use with
+     *      the expression.  Leave NULL to use the default factory.
      *
      * @return CronExpression
      */
-    public static function factory($expression)
+    public static function factory($expression, FieldFactory $fieldFactory = null)
     {
         $mappings = array(
             '@yearly' => '0 0 1 1 *',
@@ -63,24 +75,34 @@ class CronExpression
             $expression = $mappings[$expression];
         }
 
-        return new self($expression);
+        return new self($expression, $fieldFactory ?: new FieldFactory());
     }
 
     /**
      * Parse a CRON expression
      *
      * @param string $schedule CRON expression schedule string (e.g. '8 * * * *')
+     * @param FieldFactory $fieldFactory Factory to create cron fields
      *
      * @throws InvalidArgumentException if not a valid CRON expression
      */
-    public function __construct($schedule)
+    public function __construct($schedule, FieldFactory $fieldFactory)
     {
         $this->cronParts = explode(' ', $schedule);
+        $this->fieldFactory = $fieldFactory;
 
-        if (count($this->cronParts) != 5) {
+        if (count($this->cronParts) < 5) {
             throw new InvalidArgumentException(
                 $schedule . ' is not a valid CRON expression'
             );
+        }
+
+        foreach ($this->cronParts as $position => $part) {
+            if (!$this->fieldFactory->getField($position)->validate($part)) {
+                throw new InvalidArgumentException(
+                    'Invalid CRON field value ' . $part . ' as position ' . $position
+                );
+            }
         }
     }
 
@@ -102,54 +124,42 @@ class CronExpression
         $nextRun->setTime($nextRun->format('H'), $nextRun->format('i'), 0);
 
         // Set a hard limit to bail on an impossible date
-        for ($i = 0; $i < 10000; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
 
-            // Adjust the month until it matches.  Reset day to 1 and reset time.
-            if (!$this->unitSatisfiesCron($nextRun, 'm', $this->getExpression(self::MONTH))) {
-                $nextRun->add(new DateInterval('P1M'));
-                $nextRun->setDate($nextRun->format('Y'), $nextRun->format('m'), 1);
-                $nextRun->setTime(0, 0, 0);
-                continue;
+            foreach (self::$order as $position) {
+                $part = $this->getExpression($position);
+                if (null === $part) {
+                    continue;
+                }
+
+                $satisfied = false;
+                // Get the field object used to validate this part
+                $field = $this->fieldFactory->getField($position);
+                // Check if this is singular or a list
+                if (strpos($part, ',') === false) {
+                    $satisfied = $field->isSatisfiedBy($nextRun, $part);
+                } else {
+                    foreach (array_map('trim', explode(',', $part)) as $listPart) {
+                        if ($field->isSatisfiedBy($nextRun, $listPart)) {
+                            $satisfied = true;
+                            break;
+                        }
+                    }
+                }
+
+                // If the field is not satisfied, then start over
+                if (!$satisfied) {
+                    $field->increment($nextRun);
+                    continue 2;
+                }
             }
 
-            // Adjust the day of the month by incrementing the day until it matches. Reset time.
-            if (!$this->unitSatisfiesCron($nextRun, 'd', $this->getExpression(self::DAY))) {
-                $nextRun->add(new DateInterval('P1D'));
-                $nextRun->setTime(0, 0, 0);
-                continue;
-            }
-
-            // Adjust the day of week by incrementing the day until it matches.  Resest time.
-            // According cron implementation, 0 si we use 'w' format
-            if (!$this->unitSatisfiesCron($nextRun, 'w', $this->getExpression(self::WEEKDAY))) {
-                $nextRun->add(new DateInterval('P1D'));
-                $nextRun->setTime(0, 0, 0);
-                continue;
-            }
-
-            // Adjust the hour until it matches the set hour.  Set seconds and minutes to 0
-            if (!$this->unitSatisfiesCron($nextRun, 'H', $this->getExpression(self::HOUR))) {
-                $nextRun->add(new DateInterval('PT1H'));
-                $nextRun->setTime($nextRun->format('H'), 0, 0);
-                continue;
-            }
-
-            // Adjust the minutes until it matches a set minute
-            if (!$this->unitSatisfiesCron($nextRun, 'i', $this->getExpression(self::MINUTE))) {
-                $nextRun->add(new DateInterval('PT1M'));
-                continue;
-            }
-
-            // If the suggested next run time is not after the current time, then keep iterating
-            if ($currentTime != 'now' && $currentDate > $nextRun) {
-                $nextRun->add(new DateInterval('PT1M'));
-                continue;
-            }
-
-            break;
+            return $nextRun;
         }
 
-        return $nextRun;
+        // @codeCoverageIgnoreStart
+        throw new RuntimeException('Impossible CRON expression');
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -194,61 +204,12 @@ class CronExpression
             $currentDate = $currentTime->format('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
         } else {
-            $currentDate = $currentTime;
-            $currentTime = strtotime($currentTime);
+            $currentTime = new DateTime($currentTime);
+            $currentTime->setTime($currentTime->format('H'), $currentTime->format('i'), 0);
+            $currentDate = $currentTime->format('Y-m-d H:i');
+            $currentTime = $currentTime->getTimeStamp();
         }
 
         return $this->getNextRunDate($currentDate)->getTimestamp() == $currentTime;
-    }
-
-    /**
-     * Check if a date/time unit value satisfies a crontab unit
-     *
-     * @param DateTime $nextRun Current next run date
-     * @param string $unit Date/time unit type (e.g. Y, m, d, H, i)
-     * @param string $schedule Cron schedule variable
-     *
-     * @return bool Returns TRUE if the unit satisfies the constraint
-     */
-    protected function unitSatisfiesCron(DateTime $nextRun, $unit, $schedule)
-    {
-        if ($schedule === '*') {
-            return true;
-        }
-
-        $unitValue = (int) $nextRun->format($unit);
-
-        // According cron implementation, 0|7 = sunday, so we replace it
-        if ($unit == 'w' && strpos($schedule, '7') !== false) {
-            $schedule = str_replace('7','0', $schedule);
-        }
-
-        // Check lists of values. Must be handled first. (Abhoryo)
-        if (strpos($schedule, ',')) {
-            foreach (array_map('trim', explode(',', $schedule)) as $test) {
-                if ($this->unitSatisfiesCron($nextRun, $unit, $test)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        // Check increments of ranges
-        if (strpos($schedule, '*/') !== false) {
-            list($delimiter, $interval) = explode('*/', $schedule);
-            return $unitValue % (int) $interval == 0;
-        }
-
-        // Check intervals
-        if (strpos($schedule, '-')) {
-            list($first, $last) = explode('-', $schedule);
-            if ($unit == 'w' && $last == 0) {
-                return $this->unitSatisfiesCron($nextRun, $unit, sprintf('0,%u-6',$first));
-            }
-            return $unitValue >= $first && $unitValue <= $last;
-        }
-
-        return $unitValue == (int) $schedule;
     }
 }

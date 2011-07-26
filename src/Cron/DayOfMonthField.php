@@ -1,0 +1,125 @@
+<?php
+
+namespace Cron;
+
+use DateTime;
+use DateInterval;
+
+/**
+ * Day of month field.  Allows: * , / - ? L W
+ *
+ * 'L' stands for "last" and specifies the last day of the month.
+ *
+ * The 'W' character is used to specify the weekday (Monday-Friday) nearest the
+ * given day. As an example, if you were to specify "15W" as the value for the
+ * day-of-month field, the meaning is: "the nearest weekday to the 15th of the
+ * month". So if the 15th is a Saturday, the trigger will fire on Friday the
+ * 14th. If the 15th is a Sunday, the trigger will fire on Monday the 16th. If
+ * the 15th is a Tuesday, then it will fire on Tuesday the 15th. However if you
+ * specify "1W" as the value for day-of-month, and the 1st is a Saturday, the
+ * trigger will fire on Monday the 3rd, as it will not 'jump' over the boundary
+ * of a month's days. The 'W' character can only be specified when the
+ * day-of-month is a single day, not a range or list of days.
+ *
+ * @author Michael Dowling <mtdowling@gmail.com>
+ */
+class DayOfMonthField extends AbstractField
+{
+    /**
+     * Get the last day of the month
+     *
+     * @param DateTime $date Date object to check
+     *
+     * @param return int returns the last day of the month
+     */
+    private static function getLastDayOfMonth(DateTime $date)
+    {
+        switch ($date->format('n')) {
+            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+                return 31;
+            case 4: case 6: case 9: case 11:
+                return 30;
+            case 2:
+                return (bool) $date->format('L') ? 29 : 28;
+        }
+    }
+
+    /**
+     * Get the nearest day of the week for a given day in a month
+     *
+     * @param int $currentYear Current year
+     * @param int $currentYear Current month
+     * @param int $targetDay Target day of the month
+     *
+     * @return DateTime Returns the nearest date
+     */
+    private static function getNearestWeekday($currentYear, $currentMonth, $targetDay)
+    {
+        $tday = str_pad($targetDay, 2, '0', STR_PAD_LEFT);
+        $target = DateTime::createFromFormat('Y-m-d', "$currentYear-$currentMonth-$tday");
+        $currentWeekday = (int) $target->format('N');
+
+        if ($currentWeekday < 6) {
+            return $target;
+        }
+
+        $lastDayOfMonth = self::getLastDayOfMonth($target);
+
+        foreach (array(-1, 1, -2, 2) as $i) {
+            $adjusted = $targetDay + $i;
+            if ($adjusted > 0 && $adjusted <= $lastDayOfMonth) {
+                $target->setDate($currentYear, $currentMonth, $adjusted);
+                if ($target->format('N') < 6 && $target->format('m') == $currentMonth) {
+                    return $target;
+                }
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isSatisfiedBy(DateTime $date, $value)
+    {
+        // ? states that the field value is to be skipped
+        if ($value == '?') {
+            return true;
+        }
+
+        $fieldValue = $date->format('d');
+
+        // Check to see if this is the last day of the month
+        if ($value == 'L') {
+            return $fieldValue == self::getLastDayOfMonth($date);
+        }
+
+        // Check to see if this is the nearest weekday to a particular value
+        if (strpos($value, 'W')) {
+            // Parse the target day
+            $targetDay = substr($value, 0, strpos($value, 'W'));
+            // Find out if the current day is the nearest day of the week
+            return $date->format('j') == self::getNearestWeekday($date->format('Y'), $date->format('m'), $targetDay)->format('j');
+        }
+
+        return $this->isSatisfied($date->format('d'), $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function increment(DateTime $date)
+    {
+        $date->add(new DateInterval('P1D'));
+        $date->setTime(0, 0, 0);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validate($value)
+    {
+        return (bool) preg_match('/[\*,\/\-\?LW0-9A-Za-z]+/', $value);
+    }
+}
