@@ -32,7 +32,7 @@ class DayOfMonthField extends AbstractField
      *
      * @param return int returns the last day of the month
      */
-    private static function getLastDayOfMonth(DateTime $date)
+    public static function getLastDayOfMonth(DateTime $date)
     {
         switch ($date->format('n')) {
             case 1: case 3: case 5: case 7: case 8: case 10: case 12:

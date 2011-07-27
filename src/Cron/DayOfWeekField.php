@@ -42,6 +42,21 @@ class DayOfWeekField extends AbstractField
             'SAT' => 6
         ));
 
+        // Find out if this is the last specific weekday of the month
+        if (strpos($value, 'L')) {
+            $weekday = str_replace('7', '0', substr($value, 0, strpos($value, 'L')));
+            $lastDay = DayOfMonthField::getLastDayOfMonth($date);
+            $currentYear = $date->format('Y');
+            $currentMonth = $date->format('m');
+            $tdate = clone $date;
+            $tdate->setDate($currentYear, $currentMonth, $lastDay);
+            while ($tdate->format('w') != $weekday) {
+                $tdate->setDate($currentYear, $currentMonth, --$lastDay);
+            }
+            
+            return $date->format('j') == $lastDay;
+        }
+
         // Handle day of the week values
         if (strpos($value, '-')) {
             $parts = explode('-', $value);
