@@ -48,4 +48,3 @@ TODO
 1. Implement hash for the day of the week field to handle things like "the second friday of a given month"
 2. Add code coverage for DayOfMonth and DayOfYear
 3. Implement phar build process and autoloader
-4. Implement L to find the last weekday of a given month (e.g. last Friday)

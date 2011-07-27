@@ -11,7 +11,7 @@ use DateInterval;
  * Days of the week can be represented as a number 0-7 (0|7 = Sunday)
  * or as a three letter string: SUN, MON, TUE, WED, THU, FRI, SAT.
  *
- * @todo 'L' stands for "last". It allows you to specify constructs such as
+ * 'L' stands for "last". It allows you to specify constructs such as
  * "the last Friday" of a given month.
  *
  * @todo '#' is allowed for the day-of-week field, and must be followed by a
