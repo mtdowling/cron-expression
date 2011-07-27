@@ -4,6 +4,7 @@ namespace Cron;
 
 use DateTime;
 use DateInterval;
+use InvalidArgumentException;
 
 /**
  * Day of week field.  Allows: * / , - ? L #
@@ -14,7 +15,7 @@ use DateInterval;
  * 'L' stands for "last". It allows you to specify constructs such as
  * "the last Friday" of a given month.
  *
- * @todo '#' is allowed for the day-of-week field, and must be followed by a
+ * '#' is allowed for the day-of-week field, and must be followed by a
  * number between one and five. It allows you to specify constructs such as
  * "the second Friday" of a given month.
  *
@@ -42,19 +43,51 @@ class DayOfWeekField extends AbstractField
             'SAT' => 6
         ));
 
+        $currentYear = $date->format('Y');
+        $currentMonth = $date->format('m');
+        $lastDayOfMonth = DayOfMonthField::getLastDayOfMonth($date);
+
         // Find out if this is the last specific weekday of the month
         if (strpos($value, 'L')) {
             $weekday = str_replace('7', '0', substr($value, 0, strpos($value, 'L')));
-            $lastDay = DayOfMonthField::getLastDayOfMonth($date);
-            $currentYear = $date->format('Y');
-            $currentMonth = $date->format('m');
             $tdate = clone $date;
-            $tdate->setDate($currentYear, $currentMonth, $lastDay);
+            $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
             while ($tdate->format('w') != $weekday) {
-                $tdate->setDate($currentYear, $currentMonth, --$lastDay);
+                $tdate->setDate($currentYear, $currentMonth, --$lastDayOfMonth);
             }
             
-            return $date->format('j') == $lastDay;
+            return $date->format('j') == $lastDayOfMonth;
+        }
+
+        // Handle # hash tokens
+        if (strpos($value, '#')) {
+            list($weekday, $nth) = explode('#', $value);
+            // Validate the hash fields
+            if ($weekday < 1 || $weekday > 5) {
+                throw new InvalidArgumentException("Weekday must be a value between 1 and 5. {$weekday} given");
+            }
+            if ($nth > 5) {
+                throw new InvalidArgumentException('There are never more than 5 of a given weekday in a month');
+            }
+            // The current weekday must match the targeted weekday to proceed
+            if ($date->format('N') != $weekday) {
+                return false;
+            }
+
+            $tdate = clone $date;
+            $tdate->setDate($currentYear, $currentMonth, 1);
+            $dayCount = 0;
+            $currentDay = 1;
+            while ($currentDay < $lastDayOfMonth + 1) {
+                if ($tdate->format('N') == $weekday) {
+                    if (++$dayCount >= $nth) {
+                        break;
+                    }
+                }
+                $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
+            }
+
+            return $date->format('j') == $currentDay;
         }
 
         // Handle day of the week values

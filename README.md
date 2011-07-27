@@ -4,8 +4,9 @@ PHP Cron Expression Parser
 PHP cron expression parser that can parse a CRON expression, determine if it is
 due to run, and calculate the next run date of the expression.  The parser can
 handle increments of ranges (e.g. */12, 2-59/3), intervals (e.g. 0-9), lists
-(e.g. 1,2,3), W to find the nearest weekday for a given day of the month, and
-L to find the last day of the month.
+(e.g. 1,2,3), W to find the nearest weekday for a given day of the month, L to
+find the last day of the month, L to find the last given weekday of a month, and
+hash (#) to find the nth weekday of a given month.
 
 Usage
 -----
@@ -45,6 +46,5 @@ Requirements
 TODO
 ----
 
-1. Implement hash for the day of the week field to handle things like "the second friday of a given month"
-2. Add code coverage for DayOfMonth and DayOfYear
-3. Implement phar build process and autoloader
+1. Add code coverage for DayOfMonth and DayOfYear
+2. Implement phar build process and autoloader
