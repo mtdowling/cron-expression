@@ -160,4 +160,21 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($cron->isDue(new \DateTime('now')));
         $this->assertTrue($cron->isDue(date('Y-m-d H:i')));
     }
+
+    /**
+     * @covers Cron\CronExpression
+     */
+    public function testCanIterateOverNextRuns()
+    {
+        $cron = CronExpression::factory('@weekly');
+        $nextRun = $cron->getNextRunDate("2008-11-09 08:00:00");
+        $this->assertEquals($nextRun, new \DateTime("2008-11-16 00:00:00"));
+
+        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", true);
+        $this->assertEquals($nextRun, new \DateTime("2008-11-16 00:00:00"));
+
+        // You can iterate over them
+        $nextRun = $cron->getNextRunDate($cron->getNextRunDate("2008-11-09 00:00:00", true), true);
+        $this->assertEquals($nextRun, new \DateTime("2008-11-23 00:00:00"));
+    }
 }

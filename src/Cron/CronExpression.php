@@ -110,11 +110,13 @@ class CronExpression
      * Get the date in which the CRON will run next
      *
      * @param string $currentTime (optional) Optionally set the current date
-     *      time for testing purposes or disregarding the current second
+     *     time for testing purposes or disregarding the current second
+     * @param bool $alwaysNext (optional) Set to TRUE to rule out the current
+     *     as a possible next run date.
      *
      * @return DateTime
      */
-    public function getNextRunDate($currentTime = 'now')
+    public function getNextRunDate($currentTime = 'now', $alwaysNext = false)
     {
         $currentDate = $currentTime instanceof DateTime
             ? $currentTime
@@ -152,6 +154,12 @@ class CronExpression
                     $field->increment($nextRun);
                     continue 2;
                 }
+            }
+
+            // If the current time is not eligible, then add a minute & continue
+            if ($nextRun == $currentDate && $alwaysNext) {
+                $this->fieldFactory->getField(0)->increment($nextRun);
+                continue;
             }
 
             return $nextRun;
