@@ -170,11 +170,18 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $nextRun = $cron->getNextRunDate("2008-11-09 08:00:00");
         $this->assertEquals($nextRun, new \DateTime("2008-11-16 00:00:00"));
 
+        // true is cast to 1
         $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", true);
         $this->assertEquals($nextRun, new \DateTime("2008-11-16 00:00:00"));
 
         // You can iterate over them
-        $nextRun = $cron->getNextRunDate($cron->getNextRunDate("2008-11-09 00:00:00", true), true);
+        $nextRun = $cron->getNextRunDate($cron->getNextRunDate("2008-11-09 00:00:00", 1), 1);
         $this->assertEquals($nextRun, new \DateTime("2008-11-23 00:00:00"));
+
+        // You can skip more than one
+        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", 2);
+        $this->assertEquals($nextRun, new \DateTime("2008-11-23 00:00:00"));
+        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", 3);
+        $this->assertEquals($nextRun, new \DateTime("2008-11-30 00:00:00"));
     }
 }

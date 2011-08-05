@@ -111,12 +111,16 @@ class CronExpression
      *
      * @param string $currentTime (optional) Optionally set the current date
      *     time for testing purposes or disregarding the current second
-     * @param bool $alwaysNext (optional) Set to TRUE to rule out the current
-     *     as a possible next run date.
+     * @param int $nth (optional) The number of matches to skip before returning
+     *     a matching next run date.  0, the default, will return the current
+     *     date and time if the next run date falls on the current date and
+     *     time.  Setting this value to 1 will skip the first match and go to
+     *     the second match.  Setting this value to 2 will skip the first 2
+     *     matches and so on.
      *
      * @return DateTime
      */
-    public function getNextRunDate($currentTime = 'now', $alwaysNext = false)
+    public function getNextRunDate($currentTime = 'now', $nth = 0)
     {
         $currentDate = $currentTime instanceof DateTime
             ? $currentTime
@@ -124,6 +128,7 @@ class CronExpression
 
         $nextRun = clone $currentDate;
         $nextRun->setTime($nextRun->format('H'), $nextRun->format('i'), 0);
+        $nth = (int) $nth;
 
         // Set a hard limit to bail on an impossible date
         for ($i = 0; $i < 1000; $i++) {
@@ -156,8 +161,8 @@ class CronExpression
                 }
             }
 
-            // If the current time is not eligible, then add a minute & continue
-            if ($nextRun == $currentDate && $alwaysNext) {
+            // Skip this match if needed
+            if (--$nth > -1) {
                 $this->fieldFactory->getField(0)->increment($nextRun);
                 continue;
             }
