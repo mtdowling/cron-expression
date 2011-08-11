@@ -1,16 +1,14 @@
 <?php
 
-spl_autoload_register(function($class) {
-    if (0 === strpos($class, 'Cron\\')) {
-        if ('\\' != DIRECTORY_SEPARATOR) {
-            $class = 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
-        } else {
-            $class = 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . $class . '.php';
-        }
-        if (file_exists($class)) {
-            require $class;
-        }
-    }
-});
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'FieldInterface.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'AbstractField.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'DayOfMonthField.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'DayOfWeekField.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'HoursField.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'MinutesField.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'MonthField.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'YearField.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'FieldFactory.php';
+require_once 'phar://' . __FILE__ . DIRECTORY_SEPARATOR . 'Cron' . DIRECTORY_SEPARATOR . 'CronExpression.php';
 
 __HALT_COMPILER();
