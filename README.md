@@ -8,7 +8,7 @@ handle increments of ranges (e.g. */12, 2-59/3), intervals (e.g. 0-9), lists
 find the last day of the month, L to find the last given weekday of a month, and
 hash (#) to find the nth weekday of a given month.
 
-Download [cron.phar](https://raw.github.com/mtdowling/php-supervisor-event/master/build/php-supervisor-event.phar "cron.phar")  to start using the cron expression parser.
+Download [cron.phar](https://raw.github.com/mtdowling/cron-expression/master/build/cron.phar "cron.phar")  to start using the cron expression parser.
 
 Usage
 -----
