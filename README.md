@@ -8,12 +8,15 @@ handle increments of ranges (e.g. */12, 2-59/3), intervals (e.g. 0-9), lists
 find the last day of the month, L to find the last given weekday of a month, and
 hash (#) to find the nth weekday of a given month.
 
+Download [cron.phar](https://raw.github.com/mtdowling/php-supervisor-event/master/build/php-supervisor-event.phar "cron.phar")  to start using the cron expression parser.
+
 Usage
 -----
 
     <?php
 
     // Works with predefined scheduling definitions
+    require_once '/path/to/cron.phar';
     $cron = Cron\CronExpression::factory('@daily');
     $cron->isDue();
     echo $cron->getNextRunDate();
@@ -47,4 +50,3 @@ TODO
 ----
 
 1. Add code coverage for DayOfMonth and DayOfYear
-2. Implement phar build process and autoloader
