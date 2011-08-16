@@ -81,29 +81,59 @@ class CronExpression
     /**
      * Parse a CRON expression
      *
-     * @param string $schedule CRON expression schedule string (e.g. '8 * * * *')
+     * @param string $expression CRON expression (e.g. '8 * * * *')
      * @param FieldFactory $fieldFactory Factory to create cron fields
+     */
+    public function __construct($expression, FieldFactory $fieldFactory)
+    {
+        $this->fieldFactory = $fieldFactory;
+        $this->setExpression($expression);
+    }
+
+    /**
+     * Set or change the CRON expression
      *
+     * @param string $schedule CRON expression (e.g. 8 * * * *)
+     *
+     * @return CronExpression
      * @throws InvalidArgumentException if not a valid CRON expression
      */
-    public function __construct($schedule, FieldFactory $fieldFactory)
+    public function setExpression($value)
     {
-        $this->cronParts = explode(' ', $schedule);
-        $this->fieldFactory = $fieldFactory;
-
+        $this->cronParts = explode(' ', $value);
         if (count($this->cronParts) < 5) {
             throw new InvalidArgumentException(
-                $schedule . ' is not a valid CRON expression'
+                $value . ' is not a valid CRON expression'
             );
         }
 
         foreach ($this->cronParts as $position => $part) {
-            if (!$this->fieldFactory->getField($position)->validate($part)) {
-                throw new InvalidArgumentException(
-                    'Invalid CRON field value ' . $part . ' as position ' . $position
-                );
-            }
+            $this->setPart($position, $part);
         }
+
+        return $this;
+    }
+
+    /**
+     * Set part of the CRON expression
+     *
+     * @param int $position The position of the CRON expression to set
+     * @param string $value The value to set
+     *
+     * @return CronExpression
+     * @throws InvalidArgumentException if the value is not valid for the part
+     */
+    public function setPart($position, $value)
+    {
+        if (!$this->fieldFactory->getField($position)->validate($value)) {
+            throw new InvalidArgumentException(
+                'Invalid CRON field value ' . $value . ' as position ' . $position
+            );
+        }
+
+        $this->cronParts[$position] = $value;
+
+        return $this;
     }
 
     /**

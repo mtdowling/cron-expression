@@ -44,12 +44,25 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Cron\CronExpression::__construct
+     * @covers Cron\CronExpression::setExpression
+     * @covers Cron\CronExpression::setPart
      * @expectedException InvalidArgumentException
      */
     public function testInvalidCronsWillFail()
     {
         // Only four values
         $cron = CronExpression::factory('* * * 1');
+    }
+
+    /**
+     * @covers Cron\CronExpression::setPart
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidPartsWillFail()
+    {
+        // Only four values
+        $cron = CronExpression::factory('* * * * *');
+        $cron->setPart(1, 'abc');
     }
 
     /**
