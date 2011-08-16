@@ -1,12 +1,15 @@
 PHP Cron Expression Parser
 ==========================
 
-PHP cron expression parser that can parse a CRON expression, determine if it is
-due to run, and calculate the next run date of the expression.  The parser can
-handle increments of ranges (e.g. */12, 2-59/3), intervals (e.g. 0-9), lists
-(e.g. 1,2,3), W to find the nearest weekday for a given day of the month, L to
-find the last day of the month, L to find the last given weekday of a month, and
-hash (#) to find the nth weekday of a given month.
+The PHP cron expression parser can parse a CRON expression, determine if it is
+due to run, calculate the next run date of the expression, and calculate the previous
+run date of the expression.  You can calculate dates far into the future or past by
+skipping n number of matching dates.
+
+The parser can handle increments of ranges (e.g. */12, 2-59/3), intervals (e.g. 0-9),
+lists (e.g. 1,2,3), W to find the nearest weekday for a given day of the month, L to
+find the last day of the month, L to find the last given weekday of a month, and hash
+(#) to find the nth weekday of a given month.
 
 Download [cron.phar](https://raw.github.com/mtdowling/cron-expression/master/build/cron.phar "cron.phar")  to start using the cron expression parser.
 
@@ -20,10 +23,19 @@ Usage
     $cron = Cron\CronExpression::factory('@daily');
     $cron->isDue();
     echo $cron->getNextRunDate();
+    echo $cron->getPreviousRunDate();
 
     // Works with complex expressions
     $cron = Cron\CronExpression::factory('3-59/15 2,6-12 */15 1 2-5');
     echo $cron->getNextRunDate();
+
+    // Calculate a run date two iterations into the future
+    $cron = Cron\CronExpression::factory('@daily');
+    echo $cron->getNextRunDate(null, 2);
+
+    // Calculate a run date relative to a specific time
+    $cron = Cron\CronExpression::factory('@monthly');
+    echo $cron->getNextRunDate(strtotime('2010-01-12 00:00:00'));
 
 CRON Expressions
 ----------------
@@ -45,6 +57,7 @@ Requirements
 
 - PHP 5.3+
 - PHPUnit is required to run the unit tests
+- Phing is required to build the phar file
 
 TODO
 ----
