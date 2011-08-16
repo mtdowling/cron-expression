@@ -9,8 +9,8 @@ use InvalidArgumentException;
 
 /**
  * CRON expression parser that can determine whether or not a CRON expression is
- * due to run and the next run date of a cron schedule.  The determinations made
- * by this class are accurate if checked run once per minute.
+ * due to run, the next run date and previous run date of a CRON expression.
+ * The determinations made by this class are accurate if checked run once per minute.
  *
  * Schedule parts must map to:
  * minute [0-59], hour [0-23], day of month, month [1-12|JAN-DEC], day of week
@@ -137,10 +137,10 @@ class CronExpression
     }
 
     /**
-     * Get the date in which the CRON will run next
+     * Get the date in which the CRON expression will run next
      *
-     * @param string $currentTime (optional) Optionally set the current date
-     *     time for testing purposes or disregarding the current second
+     * @param string $currentTime (optional) The current date time for testing
+     *     purposes or disregarding the current second
      * @param int $nth (optional) The number of matches to skip before returning
      *     a matching next run date.  0, the default, will return the current
      *     date and time if the next run date falls on the current date and
@@ -149,60 +149,27 @@ class CronExpression
      *     matches and so on.
      *
      * @return DateTime
+     * @throws RuntimeExpression on too many iterations
      */
     public function getNextRunDate($currentTime = 'now', $nth = 0)
     {
-        $currentDate = $currentTime instanceof DateTime
-            ? $currentTime
-            : new DateTime($currentTime ?: 'now');
+        return $this->getRunDate(false, $currentTime, $nth);
+    }
 
-        $nextRun = clone $currentDate;
-        $nextRun->setTime($nextRun->format('H'), $nextRun->format('i'), 0);
-        $nth = (int) $nth;
-
-        // Set a hard limit to bail on an impossible date
-        for ($i = 0; $i < 1000; $i++) {
-
-            foreach (self::$order as $position) {
-                $part = $this->getExpression($position);
-                if (null === $part) {
-                    continue;
-                }
-
-                $satisfied = false;
-                // Get the field object used to validate this part
-                $field = $this->fieldFactory->getField($position);
-                // Check if this is singular or a list
-                if (strpos($part, ',') === false) {
-                    $satisfied = $field->isSatisfiedBy($nextRun, $part);
-                } else {
-                    foreach (array_map('trim', explode(',', $part)) as $listPart) {
-                        if ($field->isSatisfiedBy($nextRun, $listPart)) {
-                            $satisfied = true;
-                            break;
-                        }
-                    }
-                }
-
-                // If the field is not satisfied, then start over
-                if (!$satisfied) {
-                    $field->increment($nextRun);
-                    continue 2;
-                }
-            }
-
-            // Skip this match if needed
-            if (--$nth > -1) {
-                $this->fieldFactory->getField(0)->increment($nextRun);
-                continue;
-            }
-
-            return $nextRun;
-        }
-
-        // @codeCoverageIgnoreStart
-        throw new RuntimeException('Impossible CRON expression');
-        // @codeCoverageIgnoreEnd
+    /**
+     * Get a previous run date
+     *
+     * @param string $currentTime (optional) The current date time for testing
+     *      purposes or disregarding the current second
+     * @param int $nth (optional) The number of matches to skip before returning
+     *     a matching next run date.
+     *
+     * @return DateTime
+     * @throws RuntimeExpression on too many iterations
+     */
+    public function getPreviousRunDate($currentTime = 'now', $nth = 0)
+    {
+        return $this->getRunDate(true, $currentTime, $nth);
     }
 
     /**
@@ -254,5 +221,71 @@ class CronExpression
         }
 
         return $this->getNextRunDate($currentDate)->getTimestamp() == $currentTime;
+    }
+
+    /**
+     * Get the next or previous run date of the expression relative to a date
+     *
+     * @param bool $invert Set to TRUE to go backwards in time
+     * @param string $currentTime (optional) Relative time used for the checks
+     * @param int $nth (optional) The number of matches to skip before returning
+     *     a matching next run date.
+     *
+     * @return DateTime
+     * @throws RuntimeExpression on too many iterations
+     */
+    protected function getRunDate($invert = false, $currentTime = null, $nth = 0)
+    {
+        $currentDate = $currentTime instanceof DateTime
+            ? $currentTime
+            : new DateTime($currentTime ?: 'now');
+
+        $nextRun = clone $currentDate;
+        $nextRun->setTime($nextRun->format('H'), $nextRun->format('i'), 0);
+        $nth = (int) $nth;
+
+        // Set a hard limit to bail on an impossible date
+        for ($i = 0; $i < 1000; $i++) {
+
+            foreach (self::$order as $position) {
+                $part = $this->getExpression($position);
+                if (null === $part) {
+                    continue;
+                }
+
+                $satisfied = false;
+                // Get the field object used to validate this part
+                $field = $this->fieldFactory->getField($position);
+                // Check if this is singular or a list
+                if (strpos($part, ',') === false) {
+                    $satisfied = $field->isSatisfiedBy($nextRun, $part);
+                } else {
+                    foreach (array_map('trim', explode(',', $part)) as $listPart) {
+                        if ($field->isSatisfiedBy($nextRun, $listPart)) {
+                            $satisfied = true;
+                            break;
+                        }
+                    }
+                }
+
+                // If the field is not satisfied, then start over
+                if (!$satisfied) {
+                    $field->increment($nextRun, $invert);
+                    continue 2;
+                }
+            }
+
+            // Skip this match if needed
+            if (--$nth > -1) {
+                $this->fieldFactory->getField(0)->increment($nextRun, $invert);
+                continue;
+            }
+
+            return $nextRun;
+        }
+
+        // @codeCoverageIgnoreStart
+        throw new RuntimeException('Impossible CRON expression');
+        // @codeCoverageIgnoreEnd
     }
 }

@@ -148,10 +148,14 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
      * @covers Cron\HoursField
      * @covers Cron\MonthField
      * @covers Cron\YearField
+     * @covers Cron\CronExpression::getRunDate
      * @dataProvider scheduleProvider
      */
     public function testDeterminesIfCronIsDue($schedule, $relativeTime, $nextRun, $isDue)
     {
+        $relativeTimeString = is_int($relativeTime) ? date('Y-m-d H:i:s', $relativeTime) : $relativeTime;
+
+        // Test next run date
         $cron = CronExpression::factory($schedule);
         if (is_string($relativeTime)) {
             $relativeTime = new \DateTime($relativeTime);
@@ -159,7 +163,8 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
         $this->assertEquals($isDue, $cron->isDue($relativeTime));
-        $this->assertEquals(new \DateTime($nextRun), $cron->getNextRunDate($relativeTime));
+        $next = $cron->getNextRunDate($relativeTime);
+        $this->assertEquals(new \DateTime($nextRun), $next);
     }
 
     /**
@@ -172,6 +177,27 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($cron->isDue('now'));
         $this->assertTrue($cron->isDue(new \DateTime('now')));
         $this->assertTrue($cron->isDue(date('Y-m-d H:i')));
+    }
+
+    /**
+     * @covers Cron\CronExpression::getPreviousRunDate
+     */
+    public function testCanGetPreviousRunDates()
+    {
+        $cron = CronExpression::factory('* * * * *');
+        $next = $cron->getNextRunDate('now');
+        $two = $cron->getNextRunDate('now', 1);
+        $this->assertEquals($next, $cron->getPreviousRunDate($two, 1));
+
+        $cron = CronExpression::factory('* */2 * * *');
+        $next = $cron->getNextRunDate('now');
+        $two = $cron->getNextRunDate('now', 1);
+        $this->assertEquals($next, $cron->getPreviousRunDate($two, 1));
+
+        $cron = CronExpression::factory('* * * */2 *');
+        $next = $cron->getNextRunDate('now');
+        $two = $cron->getNextRunDate('now', 1);
+        $this->assertEquals($next, $cron->getPreviousRunDate($two, 1));
     }
 
     /**

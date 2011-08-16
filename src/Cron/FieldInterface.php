@@ -23,13 +23,14 @@ interface FieldInterface
 
     /**
      * When a CRON expression is not satisfied, this method is used to increment
-     * a DateTime object by the unit of the cron field
+     * or decrement a DateTime object by the unit of the cron field
      *
-     * @param DateTime $date DateTime object to increment
+     * @param DateTime $date DateTime object to change
+     * @param bool $invert (optional) Set to TRUE to decrement
      *
      * @return FieldInterface
      */
-    function increment(DateTime $date);
+    function increment(DateTime $date, $invert = false);
 
     /**
      * Validates a CRON expression for a given field

@@ -107,10 +107,15 @@ class DayOfMonthField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    public function increment(DateTime $date)
+    public function increment(DateTime $date, $invert = false)
     {
-        $date->add(new DateInterval('P1D'));
-        $date->setTime(0, 0, 0);
+        if ($invert) {
+            $date->sub(new DateInterval('P1D'));
+            $date->setTime(23, 59, 0);
+        } else {
+            $date->add(new DateInterval('P1D'));
+            $date->setTime(0, 0, 0);
+        }
 
         return $this;
     }

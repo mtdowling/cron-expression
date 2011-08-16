@@ -39,11 +39,17 @@ class MonthField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    public function increment(DateTime $date)
+    public function increment(DateTime $date, $invert = false)
     {
-        $date->add(new DateInterval('P1M'));
-        $date->setDate($date->format('Y'), $date->format('m'), 1);
-        $date->setTime(0, 0, 0);
+        if ($invert) {
+            $date->sub(new DateInterval('P1M'));
+            $date->setDate($date->format('Y'), $date->format('m'), DayOfMonthField::getLastDayOfMonth($date));
+            $date->setTime(23, 59, 0);
+        } else {
+            $date->add(new DateInterval('P1M'));
+            $date->setDate($date->format('Y'), $date->format('m'), 1);
+            $date->setTime(0, 0, 0);
+        }
 
         return $this;
     }
