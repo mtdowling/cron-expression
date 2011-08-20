@@ -55,8 +55,7 @@ class CronExpression
      *      @weekly - Run once a week, midnight on Sun - 0 0 * * 0
      *      @daily - Run once a day, midnight - 0 0 * * *
      *      @hourly - Run once an hour, first minute - 0 * * * *
-     * @param FieldFactory $fieldFactory (optional) Field factory to use with
-     *      the expression.  Leave NULL to use the default factory.
+     * @param FieldFactory $fieldFactory (optional) Field factory to use
      *
      * @return CronExpression
      */
@@ -137,12 +136,11 @@ class CronExpression
     }
 
     /**
-     * Get the date in which the CRON expression will run next
+     * Get a next run date relative to the current date or a specific date
      *
-     * @param string $currentTime (optional) The current date time for testing
-     *     purposes or disregarding the current second
-     * @param int $nth (optional) The number of matches to skip before returning
-     *     a matching next run date.  0, the default, will return the current
+     * @param string|DateTime $currentTime (optional) Relative calculation date
+     * @param int $nth (optional) Number of matches to skip before returning a
+     *     matching next run date.  0, the default, will return the current
      *     date and time if the next run date falls on the current date and
      *     time.  Setting this value to 1 will skip the first match and go to
      *     the second match.  Setting this value to 2 will skip the first 2
@@ -153,23 +151,41 @@ class CronExpression
      */
     public function getNextRunDate($currentTime = 'now', $nth = 0)
     {
-        return $this->getRunDate(false, $currentTime, $nth);
+        return $this->getRunDate($currentTime, $nth, false);
     }
 
     /**
-     * Get a previous run date
+     * Get a previous run date relative to the current date or a specific date
      *
-     * @param string $currentTime (optional) The current date time for testing
-     *      purposes or disregarding the current second
-     * @param int $nth (optional) The number of matches to skip before returning
-     *     a matching next run date.
+     * @param string|DateTime $currentTime (optional) Relative calculation date
+     * @param int $nth (optional) Number of matches to skip before returning
      *
      * @return DateTime
      * @throws RuntimeExpression on too many iterations
+     * @see Cron\CronExpression::getNextRunDate
      */
     public function getPreviousRunDate($currentTime = 'now', $nth = 0)
     {
-        return $this->getRunDate(true, $currentTime, $nth);
+        return $this->getRunDate($currentTime, $nth, true);
+    }
+
+    /**
+     * Get multiple run dates starting at the current date or a specific date
+     *
+     * @param int $total Set the total number of dates to calculate
+     * @param string|DateTime $currentTime (optional) Relative calculation date
+     * @param bool $invert (optional) Set to TRUE to retrieve previous dates
+     *
+     * @return array Returns an array of run dates
+     */
+    public function getMultipleRunDates($total, $currentTime = 'now', $invert = false)
+    {
+        $matches = array();
+        for ($i = 0; $i < max(0, $total); $i++) {
+            $matches[] = $this->getRunDate($currentTime, $i, $invert);
+        }
+
+        return $matches;
     }
 
     /**
@@ -193,15 +209,11 @@ class CronExpression
     }
 
     /**
-     * Deterime if the cron is due to run based on the current time.  Unless
-     * a string is passed, this method assumes that the current number of
-     * seconds are irrelevant, and that this method will be called once per
-     * minute.
+     * Deterime if the cron is due to run based on the current date or a
+     * specific date.  This method assumes that the current number of
+     * seconds are irrelevant, and should be called once per minute.
      *
-     * @param string|DateTime $currentTime (optional) Set the current time
-     *      If left NULL, the current time is used, less seconds
-     *      If a DateTime object is passed, the DateTime is used less seconds
-     *      If a string is used, the exact strotime of the string is used
+     * @param string|DateTime $currentTime (optional) Relative calculation date
      *
      * @return bool Returns TRUE if the cron is due to run or FALSE if not
      */
@@ -226,15 +238,14 @@ class CronExpression
     /**
      * Get the next or previous run date of the expression relative to a date
      *
-     * @param bool $invert Set to TRUE to go backwards in time
-     * @param string $currentTime (optional) Relative time used for the checks
-     * @param int $nth (optional) The number of matches to skip before returning
-     *     a matching next run date.
+     * @param string|DateTime $currentTime (optional) Relative calculation date
+     * @param int $nth (optional) Number of matches to skip before returning
+     * @param bool $invert (optional) Set to TRUE to go backwards in time
      *
      * @return DateTime
      * @throws RuntimeExpression on too many iterations
      */
-    protected function getRunDate($invert = false, $currentTime = null, $nth = 0)
+    protected function getRunDate($currentTime = null, $nth = 0, $invert = false)
     {
         $currentDate = $currentTime instanceof DateTime
             ? $currentTime
