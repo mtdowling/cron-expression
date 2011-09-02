@@ -145,13 +145,15 @@ class CronExpression
      *     time.  Setting this value to 1 will skip the first match and go to
      *     the second match.  Setting this value to 2 will skip the first 2
      *     matches and so on.
+     * @param bool $allowCurrentDate (optional) Set to TRUE to return the
+     *     current date if it matches the cron expression
      *
      * @return DateTime
      * @throws RuntimeExpression on too many iterations
      */
-    public function getNextRunDate($currentTime = 'now', $nth = 0)
+    public function getNextRunDate($currentTime = 'now', $nth = 0, $allowCurrentDate = false)
     {
-        return $this->getRunDate($currentTime, $nth, false);
+        return $this->getRunDate($currentTime, $nth, false, $allowCurrentDate);
     }
 
     /**
@@ -159,14 +161,16 @@ class CronExpression
      *
      * @param string|DateTime $currentTime (optional) Relative calculation date
      * @param int $nth (optional) Number of matches to skip before returning
+     * @param bool $allowCurrentDate (optional) Set to TRUE to return the
+     *     current date if it matches the cron expression
      *
      * @return DateTime
      * @throws RuntimeExpression on too many iterations
      * @see Cron\CronExpression::getNextRunDate
      */
-    public function getPreviousRunDate($currentTime = 'now', $nth = 0)
+    public function getPreviousRunDate($currentTime = 'now', $nth = 0, $allowCurrentDate = false)
     {
-        return $this->getRunDate($currentTime, $nth, true);
+        return $this->getRunDate($currentTime, $nth, true, $allowCurrentDate);
     }
 
     /**
@@ -175,14 +179,16 @@ class CronExpression
      * @param int $total Set the total number of dates to calculate
      * @param string|DateTime $currentTime (optional) Relative calculation date
      * @param bool $invert (optional) Set to TRUE to retrieve previous dates
+     * @param bool $allowCurrentDate (optional) Set to TRUE to return the
+     *     current date if it matches the cron expression
      *
      * @return array Returns an array of run dates
      */
-    public function getMultipleRunDates($total, $currentTime = 'now', $invert = false)
+    public function getMultipleRunDates($total, $currentTime = 'now', $invert = false, $allowCurrentDate = false)
     {
         $matches = array();
         for ($i = 0; $i < max(0, $total); $i++) {
-            $matches[] = $this->getRunDate($currentTime, $i, $invert);
+            $matches[] = $this->getRunDate($currentTime, $i, $invert, $allowCurrentDate);
         }
 
         return $matches;
@@ -232,7 +238,7 @@ class CronExpression
             $currentTime = $currentTime->getTimeStamp();
         }
 
-        return $this->getNextRunDate($currentDate)->getTimestamp() == $currentTime;
+        return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
     }
 
     /**
@@ -241,11 +247,13 @@ class CronExpression
      * @param string|DateTime $currentTime (optional) Relative calculation date
      * @param int $nth (optional) Number of matches to skip before returning
      * @param bool $invert (optional) Set to TRUE to go backwards in time
+     * @param bool $allowCurrentDate (optional) Set to TRUE to return the
+     *     current date if it matches the cron expression
      *
      * @return DateTime
      * @throws RuntimeExpression on too many iterations
      */
-    protected function getRunDate($currentTime = null, $nth = 0, $invert = false)
+    protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
     {
         $currentDate = $currentTime instanceof DateTime
             ? $currentTime
@@ -287,7 +295,7 @@ class CronExpression
             }
 
             // Skip this match if needed
-            if (--$nth > -1) {
+            if ((!$allowCurrentDate && $nextRun == $currentDate) || --$nth > -1) {
                 $this->fieldFactory->getField(0)->increment($nextRun, $invert);
                 continue;
             }

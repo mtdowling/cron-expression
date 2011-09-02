@@ -165,7 +165,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
         $this->assertEquals($isDue, $cron->isDue($relativeTime));
-        $next = $cron->getNextRunDate($relativeTime);
+        $next = $cron->getNextRunDate($relativeTime, 0, true);
         $this->assertEquals(new DateTime($nextRun), $next);
     }
 
@@ -189,17 +189,17 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $cron = CronExpression::factory('* * * * *');
         $next = $cron->getNextRunDate('now');
         $two = $cron->getNextRunDate('now', 1);
-        $this->assertEquals($next, $cron->getPreviousRunDate($two, 1));
+        $this->assertEquals($next, $cron->getPreviousRunDate($two));
 
         $cron = CronExpression::factory('* */2 * * *');
         $next = $cron->getNextRunDate('now');
         $two = $cron->getNextRunDate('now', 1);
-        $this->assertEquals($next, $cron->getPreviousRunDate($two, 1));
+        $this->assertEquals($next, $cron->getPreviousRunDate($two));
 
         $cron = CronExpression::factory('* * * */2 *');
         $next = $cron->getNextRunDate('now');
         $two = $cron->getNextRunDate('now', 1);
-        $this->assertEquals($next, $cron->getPreviousRunDate($two, 1));
+        $this->assertEquals($next, $cron->getPreviousRunDate($two));
     }
 
     /**
@@ -213,7 +213,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             new DateTime('2008-11-09 00:02:00'),
             new DateTime('2008-11-09 00:04:00'),
             new DateTime('2008-11-09 00:06:00')
-        ), $cron->getMultipleRunDates(4, '2008-11-09 00:00:00'));
+        ), $cron->getMultipleRunDates(4, '2008-11-09 00:00:00', false, true));
     }
 
     /**
@@ -226,17 +226,29 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($nextRun, new DateTime("2008-11-16 00:00:00"));
 
         // true is cast to 1
-        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", true);
+        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", true, true);
         $this->assertEquals($nextRun, new DateTime("2008-11-16 00:00:00"));
 
         // You can iterate over them
-        $nextRun = $cron->getNextRunDate($cron->getNextRunDate("2008-11-09 00:00:00", 1), 1);
+        $nextRun = $cron->getNextRunDate($cron->getNextRunDate("2008-11-09 00:00:00", 1, true), 1, true);
         $this->assertEquals($nextRun, new DateTime("2008-11-23 00:00:00"));
 
         // You can skip more than one
-        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", 2);
+        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", 2, true);
         $this->assertEquals($nextRun, new DateTime("2008-11-23 00:00:00"));
-        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", 3);
+        $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", 3, true);
         $this->assertEquals($nextRun, new DateTime("2008-11-30 00:00:00"));
+    }
+
+    /**
+     * @covers Cron\CronExpression::getRunDate
+     */
+    public function testSkipsCurrentDateByDefault()
+    {
+        $cron = CronExpression::factory('* * * * *');
+        $current = new DateTime('now');
+        $current->setTime($current->format('H'), $current->format('i'), 0);
+        $next = $cron->getNextRunDate();
+        $this->assertEquals($current, $cron->getPreviousRunDate($next));
     }
 }
