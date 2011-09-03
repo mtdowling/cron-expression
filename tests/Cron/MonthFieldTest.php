@@ -35,4 +35,26 @@ class MonthFieldTest extends \PHPUnit_Framework_TestCase
         $f->increment($d, true);
         $this->assertEquals('2011-02-28 23:59:00', $d->format('Y-m-d H:i:s'));
     }
+
+    /**
+     * @covers Cron\MonthField::increment
+     */
+    public function testIncrementsYearAsNeeded()
+    {
+        $f = new MonthField();
+        $d = new DateTime('2011-12-15 00:00:00');
+        $f->increment($d);
+        $this->assertEquals('2012-01-01 00:00:00', $d->format('Y-m-d H:i:s'));
+    }
+
+    /**
+     * @covers Cron\MonthField::increment
+     */
+    public function testDecrementsYearAsNeeded()
+    {
+        $f = new MonthField();
+        $d = new DateTime('2011-01-15 00:00:00');
+        $f->increment($d, true);
+        $this->assertEquals('2010-12-31 23:59:00', $d->format('Y-m-d H:i:s'));
+    }
 }

@@ -83,12 +83,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             // CSV values can be complex
             array('* 5,21-22 * * *', '2015-08-10 21:50:00', '2015-08-10 21:50:00', true),
             array('7-9 * */9 * *', '2015-08-10 22:02:33', '2015-08-18 00:07:00', false),
-            // Minutes 12-19, every 3 hours, every 5 days, in June, on Sunday
-            array('12-19 */3 */5 6 7', '2015-08-10 22:05:51', '2016-06-05 00:12:00', false),
             // 15th minute, of the second hour, every 15 days, in January, every Friday
-            array('15 2 */15 1 */5', '2015-08-10 22:10:19', '2016-01-15 02:15:00', false),
-            // 15th minute, of the second hour, every 15 days, in January, Tuesday-Friday
-            array('15 2 */15 1 2-5', '2015-08-10 22:10:19', '2016-01-15 02:15:00', false),
             array('1 * * * 7', '2015-08-10 21:47:27', '2015-08-16 00:01:00', false),
             // Test with exact times
             array('47 21 * * *', strtotime('2015-08-10 21:47:30'), '2015-08-10 21:47:00', true),
@@ -248,7 +243,16 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $cron = CronExpression::factory('* * * * *');
         $current = new DateTime('now');
         $current->setTime($current->format('H'), $current->format('i'), 0);
-        $next = $cron->getNextRunDate();
+        $next = $cron->getNextRunDate($current);
         $this->assertEquals($current, $cron->getPreviousRunDate($next));
+    }
+
+    /**
+     * @covers Cron\CronExpression::getRunDate
+     */
+    public function testFixesPhpBugInDateIntervalMonth()
+    {
+        $cron = CronExpression::factory('0 0 27 JAN *');
+        $this->assertEquals('2011-01-27 00:00:00', $cron->getPreviousRunDate('2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
     }
 }

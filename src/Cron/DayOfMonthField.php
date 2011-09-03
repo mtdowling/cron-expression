@@ -34,13 +34,25 @@ class DayOfMonthField extends AbstractField
      */
     public static function getLastDayOfMonth(DateTime $date)
     {
-        switch ($date->format('n')) {
-            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
-                return 31;
-            case 4: case 6: case 9: case 11:
-                return 30;
-            case 2:
-                return (bool) $date->format('L') ? 29 : 28;
+        $month = $date->format('n');
+        if ($month == 2) {
+            return (bool) $date->format('L') ? 29 : 28;
+        } else {
+            $dates = array(
+                1 => 31,
+                3 => 31,
+                4 => 30,
+                5 => 31,
+                6 => 30,
+                7 => 31,
+                8 => 31,
+                9 => 30,
+                10 => 31,
+                11 => 30,
+                12 => 31
+            );
+
+            return $dates[$month];
         }
     }
 
