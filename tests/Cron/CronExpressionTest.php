@@ -242,9 +242,19 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
     {
         $cron = CronExpression::factory('* * * * *');
         $current = new DateTime('now');
-        $current->setTime($current->format('H'), $current->format('i'), 0);
         $next = $cron->getNextRunDate($current);
         $this->assertEquals($current, $cron->getPreviousRunDate($next));
+    }
+
+    /**
+     * @covers Cron\CronExpression::getRunDate
+     * @ticket 7
+     */
+    public function testStripsForSeconds()
+    {
+        $cron = CronExpression::factory('* * * * *');
+        $current = new DateTime('2011-09-27 10:10:54');
+        $this->assertEquals('2011-09-27 10:11:00', $cron->getNextRunDate($current)->format('Y-m-d H:i:s'));
     }
 
     /**

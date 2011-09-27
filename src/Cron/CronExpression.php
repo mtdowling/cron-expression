@@ -10,7 +10,8 @@ use InvalidArgumentException;
 /**
  * CRON expression parser that can determine whether or not a CRON expression is
  * due to run, the next run date and previous run date of a CRON expression.
- * The determinations made by this class are accurate if checked run once per minute.
+ * The determinations made by this class are accurate if checked run once per
+ * minute (seconds are dropped from date time comparisons).
  *
  * Schedule parts must map to:
  * minute [0-59], hour [0-23], day of month, month [1-12|JAN-DEC], day of week
@@ -259,8 +260,8 @@ class CronExpression
             ? $currentTime
             : new DateTime($currentTime ?: 'now');
 
+        $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
         $nextRun = clone $currentDate;
-        $nextRun->setTime($nextRun->format('H'), $nextRun->format('i'), 0);
         $nth = (int) $nth;
 
         // Set a hard limit to bail on an impossible date
