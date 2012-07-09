@@ -4,6 +4,7 @@ namespace Cron;
 
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use RuntimeException;
 use InvalidArgumentException;
 
@@ -259,6 +260,9 @@ class CronExpression
         $currentDate = $currentTime instanceof DateTime
             ? $currentTime
             : new DateTime($currentTime ?: 'now');
+
+        // set the timezone
+        $currentDate->setTimezone(new DateTimeZone(date_default_timezone_get()));
 
         $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
         $nextRun = clone $currentDate;
