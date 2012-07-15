@@ -36,7 +36,7 @@ echo $cron->getNextRunDate(null, 2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
 $cron = Cron\CronExpression::factory('@monthly');
-echo $cron->getNextRunDate(strtotime('2010-01-12 00:00:00'))->format('Y-m-d H:i:s');
+echo $cron->getNextRunDate('2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 ```
 
 CRON Expressions
