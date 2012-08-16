@@ -24,6 +24,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Cron\CronExpression::__construct
      * @covers Cron\CronExpression::getExpression
+     * @covers Cron\CronExpression::__toString
      */
     public function testParsesCronSchedule()
     {
@@ -35,6 +36,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('4,5,6', $cron->getExpression(CronExpression::MONTH));
         $this->assertEquals('*/3', $cron->getExpression(CronExpression::WEEKDAY));
         $this->assertEquals('1 2-4 * 4,5,6 */3', $cron->getExpression());
+        $this->assertEquals('1 2-4 * 4,5,6 */3', (string) $cron);
         $this->assertNull($cron->getExpression('foo'));
 
         try {
