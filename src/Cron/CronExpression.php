@@ -217,6 +217,15 @@ class CronExpression
     }
 
     /**
+     * Helper method to output the full expression.
+     * @return string Full CRON expression
+     */
+    public function __toString()
+    {
+        return $this->getExpression();
+    }
+
+    /**
      * Deterime if the cron is due to run based on the current date or a
      * specific date.  This method assumes that the current number of
      * seconds are irrelevant, and should be called once per minute.
