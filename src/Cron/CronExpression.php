@@ -218,6 +218,7 @@ class CronExpression
 
     /**
      * Helper method to output the full expression.
+     *
      * @return string Full CRON expression
      */
     public function __toString()
