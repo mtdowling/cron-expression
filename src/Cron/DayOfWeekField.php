@@ -35,7 +35,7 @@ class DayOfWeekField extends AbstractField
         // Convert text day of the week values to integers
         $value = str_ireplace(
             array('SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'),
-            range(0, 7),
+            range(0, 6),
             $value
         );
 
