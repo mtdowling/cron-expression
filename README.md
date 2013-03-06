@@ -11,14 +11,25 @@ lists (e.g. 1,2,3), W to find the nearest weekday for a given day of the month, 
 find the last day of the month, L to find the last given weekday of a month, and hash
 (#) to find the nth weekday of a given month.
 
-Download [cron.phar](https://raw.github.com/mtdowling/cron-expression/master/build/cron.phar "cron.phar")  to start using the cron expression parser.
+Installing
+----------
+
+Add the following to your project's composer.json:
+
+```javascript
+{
+    "require": {
+        "mtdowling/cron-expression": "1.0.*"
+    }
+}
+```
 
 Usage
 -----
 ```php
 <?php
 
-require_once '/path/to/cron.phar';
+require_once '/vendor/autoload.php';
 
 // Works with predefined scheduling definitions
 $cron = Cron\CronExpression::factory('@daily');
@@ -59,4 +70,4 @@ Requirements
 
 - PHP 5.3+
 - PHPUnit is required to run the unit tests
-- Phing is required to build the phar file
+- Composer is required to run the unit tests
