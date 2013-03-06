@@ -43,7 +43,7 @@ class MonthField extends AbstractField
                 $year--;
             }
             $date->setDate($year, $month, 1);
-            $date->setDate($year, $month, DayOfMonthField::getLastDayOfMonth($date));
+            $date->setDate($year, $month, $date->format('t'));
             $date->setTime(23, 59, 0);
         } else {
             $month = $date->format('m') + 1;

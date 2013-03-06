@@ -46,32 +46,4 @@ class DayOfMonthFieldTest extends \PHPUnit_Framework_TestCase
         $f->increment($d, true);
         $this->assertEquals('2011-03-14 23:59:00', $d->format('Y-m-d H:i:s'));
     }
-
-    public function dayOfMonthProvider()
-    {
-        return array(
-            array(new DateTime('2011-01-20 00:00:00'), 31),
-            array(new DateTime('2011-02-20 00:00:00'), 28),
-            array(new DateTime('2012-02-20 00:00:00'), 29), // Leap year
-            array(new DateTime('2011-03-20 00:00:00'), 31),
-            array(new DateTime('2011-04-20 00:00:00'), 30),
-            array(new DateTime('2011-05-20 00:00:00'), 31),
-            array(new DateTime('2011-06-20 00:00:00'), 30),
-            array(new DateTime('2011-07-20 00:00:00'), 31),
-            array(new DateTime('2011-08-20 00:00:00'), 31),
-            array(new DateTime('2011-09-20 00:00:00'), 30),
-            array(new DateTime('2011-10-20 00:00:00'), 31),
-            array(new DateTime('2011-11-20 00:00:00'), 30),
-            array(new DateTime('2011-12-20 00:00:00'), 31),
-        );
-    }
-
-    /**
-     * @covers Cron\DayOfMonthField::getLastDayOfMonth
-     * @dataProvider dayOfMonthProvider
-     */
-    public function testGetsTheLastDayOfMonth(DateTime $date, $days)
-    {
-        $this->assertEquals($days, DayOfMonthField::getLastDayOfMonth($date));
-    }
 }

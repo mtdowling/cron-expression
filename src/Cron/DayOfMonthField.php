@@ -26,37 +26,6 @@ use DateInterval;
 class DayOfMonthField extends AbstractField
 {
     /**
-     * Get the last day of the month
-     *
-     * @param DateTime $date Date object to check
-     *
-     * @param return int returns the last day of the month
-     */
-    public static function getLastDayOfMonth(DateTime $date)
-    {
-        $month = $date->format('n');
-        if ($month == 2) {
-            return (bool) $date->format('L') ? 29 : 28;
-        } else {
-            $dates = array(
-                1 => 31,
-                3 => 31,
-                4 => 30,
-                5 => 31,
-                6 => 30,
-                7 => 31,
-                8 => 31,
-                9 => 30,
-                10 => 31,
-                11 => 30,
-                12 => 31
-            );
-
-            return $dates[$month];
-        }
-    }
-
-    /**
      * Get the nearest day of the week for a given day in a month
      *
      * @param int $currentYear Current year
@@ -75,7 +44,7 @@ class DayOfMonthField extends AbstractField
             return $target;
         }
 
-        $lastDayOfMonth = self::getLastDayOfMonth($target);
+        $lastDayOfMonth = $target->format('t');
 
         foreach (array(-1, 1, -2, 2) as $i) {
             $adjusted = $targetDay + $i;
@@ -102,7 +71,7 @@ class DayOfMonthField extends AbstractField
 
         // Check to see if this is the last day of the month
         if ($value == 'L') {
-            return $fieldValue == self::getLastDayOfMonth($date);
+            return $fieldValue == $date->format('t');
         }
 
         // Check to see if this is the nearest weekday to a particular value
