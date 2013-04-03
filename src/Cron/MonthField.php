@@ -35,24 +35,12 @@ class MonthField extends AbstractField
      */
     public function increment(DateTime $date, $invert = false)
     {
-        $year = $date->format('Y');
         if ($invert) {
-            $month = $date->format('m') - 1;
-            if ($month < 1) {
-                $month = 12;
-                $year--;
-            }
-            $date->setDate($year, $month, 1);
-            $date->setDate($year, $month, $date->format('t'));
-            $date->setTime(23, 59, 0);
+            $date->modify('last day of previous month');
+            $date->setTime(23,59);
         } else {
-            $month = $date->format('m') + 1;
-            if ($month > 12) {
-                $month = 1;
-                $year++;
-            }
-            $date->setDate($year, $month, 1);
-            $date->setTime(0, 0, 0);
+            $date->modify('first day of next month');
+            $date->setTime(0,0);
         }
 
         return $this;

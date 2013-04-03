@@ -110,10 +110,10 @@ class DayOfWeekField extends AbstractField
     public function increment(DateTime $date, $invert = false)
     {
         if ($invert) {
-            $date->sub(new DateInterval('P1D'));
-            $date->setTime(23, 59, 0);
+            $date->modify('-1 day');
+            $date->setTime(23, 59, 0);    
         } else {
-            $date->add(new DateInterval('P1D'));
+            $date->modify('+1 day');
             $date->setTime(0, 0, 0);
         }
 
