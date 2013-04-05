@@ -26,11 +26,9 @@ class HoursField extends AbstractField
      */
     public function increment(DateTime $date, $invert = false)
     {
-        /**
-         * Change timezone to UTC temporarily. This will
-         * allow us to go back or forwards and hour even
-         * if DST will be changed between the hours.
-         */
+        // Change timezone to UTC temporarily. This will
+        // allow us to go back or forwards and hour even
+        // if DST will be changed between the hours.
         $timezone = $date->getTimezone();
         $date->setTimezone(new DateTimeZone('UTC'));
         if ($invert) {

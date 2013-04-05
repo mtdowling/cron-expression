@@ -37,10 +37,10 @@ class MonthField extends AbstractField
     {
         if ($invert) {
             $date->modify('last day of previous month');
-            $date->setTime(23,59);
+            $date->setTime(23, 59);
         } else {
             $date->modify('first day of next month');
-            $date->setTime(0,0);
+            $date->setTime(0, 0);
         }
 
         return $this;

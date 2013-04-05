@@ -273,13 +273,13 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $cron = CronExpression::factory('0 0 27 JAN *');
         $this->assertEquals('2011-01-27 00:00:00', $cron->getPreviousRunDate('2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
     }
-	
-	public function testIssue29()
-	{
-		$cron = CronExpression::factory('@weekly');
-		$this->assertEquals(
-			'2013-03-10 00:00:00',
-			$cron->getPreviousRunDate('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
-		);
-	}
+
+    public function testIssue29()
+    {
+        $cron = CronExpression::factory('@weekly');
+        $this->assertEquals(
+            '2013-03-10 00:00:00',
+            $cron->getPreviousRunDate('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
+        );
+    }
 }
