@@ -48,6 +48,36 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Cron\CronExpression::__construct
+     * @covers Cron\CronExpression::getExpression
+     * @dataProvider scheduleWithDifferentSeparatorsProvider
+     */
+    public function testParsesCronScheduleWithAnySpaceCharsAsSeparators($schedule, array $expected)
+    {
+        $cron = CronExpression::factory("*  *\t* \t*\t \t*");
+        $this->assertEquals('*', $cron->getExpression(CronExpression::MINUTE));
+        $this->assertEquals('*', $cron->getExpression(CronExpression::HOUR));
+        $this->assertEquals('*', $cron->getExpression(CronExpression::DAY));
+        $this->assertEquals('*', $cron->getExpression(CronExpression::MONTH));
+        $this->assertEquals('*', $cron->getExpression(CronExpression::WEEKDAY));
+    }
+
+    /**
+     * Data provider for testParsesCronScheduleWithAnySpaceCharsAsSeparators
+     *
+     * @return array
+     */
+    public static function scheduleWithDifferentSeparatorsProvider()
+    {
+        return array(
+            array("*\t*\t*\t*\t*\t*", array('*', '*', '*', '*', '*', '*')),
+            array("*  *  *  *  *  *", array('*', '*', '*', '*', '*', '*')),
+            array("* \t * \t * \t * \t * \t *", array('*', '*', '*', '*', '*', '*')),
+            array("*\t \t*\t \t*\t \t*\t \t*\t \t*", array('*', '*', '*', '*', '*', '*')),
+        );
+    }
+
+    /**
+     * @covers Cron\CronExpression::__construct
      * @covers Cron\CronExpression::setExpression
      * @covers Cron\CronExpression::setPart
      * @expectedException InvalidArgumentException
