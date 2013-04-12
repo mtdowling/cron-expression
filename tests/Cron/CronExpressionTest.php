@@ -53,12 +53,13 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testParsesCronScheduleWithAnySpaceCharsAsSeparators($schedule, array $expected)
     {
-        $cron = CronExpression::factory("*  *\t* \t*\t \t*");
-        $this->assertEquals('*', $cron->getExpression(CronExpression::MINUTE));
-        $this->assertEquals('*', $cron->getExpression(CronExpression::HOUR));
-        $this->assertEquals('*', $cron->getExpression(CronExpression::DAY));
-        $this->assertEquals('*', $cron->getExpression(CronExpression::MONTH));
-        $this->assertEquals('*', $cron->getExpression(CronExpression::WEEKDAY));
+        $cron = CronExpression::factory($schedule);
+        $this->assertEquals($expected[0], $cron->getExpression(CronExpression::MINUTE));
+        $this->assertEquals($expedted[1], $cron->getExpression(CronExpression::HOUR));
+        $this->assertEquals($expected[2], $cron->getExpression(CronExpression::DAY));
+        $this->assertEquals($expected[3], $cron->getExpression(CronExpression::MONTH));
+        $this->assertEquals($expected[4], $cron->getExpression(CronExpression::WEEKDAY));
+        $this->assertEquals($expected[5], $cron->getExpression(CronExpression::YEAR));
     }
 
     /**
