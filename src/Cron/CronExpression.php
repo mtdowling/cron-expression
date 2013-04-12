@@ -101,7 +101,7 @@ class CronExpression
      */
     public function setExpression($value)
     {
-        $this->cronParts = explode(' ', $value);
+        $this->cronParts = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
         if (count($this->cronParts) < 5) {
             throw new InvalidArgumentException(
                 $value . ' is not a valid CRON expression'
