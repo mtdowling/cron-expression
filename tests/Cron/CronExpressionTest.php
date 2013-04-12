@@ -55,7 +55,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
     {
         $cron = CronExpression::factory($schedule);
         $this->assertEquals($expected[0], $cron->getExpression(CronExpression::MINUTE));
-        $this->assertEquals($expedted[1], $cron->getExpression(CronExpression::HOUR));
+        $this->assertEquals($expected[1], $cron->getExpression(CronExpression::HOUR));
         $this->assertEquals($expected[2], $cron->getExpression(CronExpression::DAY));
         $this->assertEquals($expected[3], $cron->getExpression(CronExpression::MONTH));
         $this->assertEquals($expected[4], $cron->getExpression(CronExpression::WEEKDAY));

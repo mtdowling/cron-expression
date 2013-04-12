@@ -101,21 +101,15 @@ class CronExpression
      */
     public function setExpression($value)
     {
-        if (!preg_match('/^([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)(?:\s+([^\s]+))?$/', $value, $matches)) {
+        $this->cronParts = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
+        if (count($this->cronParts) < 5) {
             throw new InvalidArgumentException(
                 $value . ' is not a valid CRON expression'
             );
         }
 
-        $this->setPart(self::MINUTE, $matches[1]);
-        $this->setPart(self::HOUR, $matches[2]);
-        $this->setPart(self::DAY, $matches[3]);
-        $this->setPart(self::MONTH, $matches[4]);
-        $this->setPart(self::WEEKDAY, $matches[5]);
-
-        // Also fetch year if set
-        if (isset($matches[6])) {
-            $this->setPart(self::YEAR, $matches[6]);
+        foreach ($this->cronParts as $position => $part) {
+            $this->setPart($position, $part);
         }
 
         return $this;
