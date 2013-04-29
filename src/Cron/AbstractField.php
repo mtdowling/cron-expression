@@ -81,7 +81,7 @@ abstract class AbstractField implements FieldInterface
     {
         $parts = array_map('trim', explode('/', $value, 2));
         $stepSize = isset($parts[1]) ? $parts[1] : 0;
-        if ($parts[0] == '*' || $parts[0] == 0) {
+        if ($parts[0] == '*' || $parts[0] === '0') {
             return (int) $dateValue % $stepSize == 0;
         }
 
