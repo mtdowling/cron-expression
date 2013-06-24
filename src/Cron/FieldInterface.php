@@ -19,7 +19,7 @@ interface FieldInterface
      *
      * @return bool Returns TRUE if satisfied, FALSE otherwise
      */
-    function isSatisfiedBy(DateTime $date, $value);
+    public function isSatisfiedBy(DateTime $date, $value);
 
     /**
      * When a CRON expression is not satisfied, this method is used to increment
@@ -30,7 +30,7 @@ interface FieldInterface
      *
      * @return FieldInterface
      */
-    function increment(DateTime $date, $invert = false);
+    public function increment(DateTime $date, $invert = false);
 
     /**
      * Validates a CRON expression for a given field
@@ -39,5 +39,5 @@ interface FieldInterface
      *
      * @return bool Returns TRUE if valid, FALSE otherwise
      */
-    function validate($value);
+    public function validate($value);
 }
