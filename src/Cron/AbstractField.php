@@ -22,7 +22,7 @@ abstract class AbstractField implements FieldInterface
     {
         if ($this->isIncrementsOfRanges($value)) {
             return $this->isInIncrementsOfRanges($dateValue, $value);
-        } else if ($this->isRange($value)) {
+        } elseif ($this->isRange($value)) {
             return $this->isInRange($dateValue, $value);
         }
 

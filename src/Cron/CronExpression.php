@@ -208,7 +208,7 @@ class CronExpression
     {
         if (null === $part) {
             return implode(' ', $this->cronParts);
-        } else if (array_key_exists($part, $this->cronParts)) {
+        } elseif (array_key_exists($part, $this->cronParts)) {
             return $this->cronParts[$part];
         }
 
@@ -239,7 +239,7 @@ class CronExpression
         if (null === $currentTime || 'now' === $currentTime) {
             $currentDate = date('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
-        } else if ($currentTime instanceof DateTime) {
+        } elseif ($currentTime instanceof DateTime) {
             $currentDate = $currentTime->format('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
         } else {

@@ -90,7 +90,7 @@ class DayOfWeekField extends AbstractField
             $parts = explode('-', $value);
             if ($parts[0] == '7') {
                 $parts[0] = '0';
-            } else if ($parts[1] == '0') {
+            } elseif ($parts[1] == '0') {
                 $parts[1] = '7';
             }
             $value = implode('-', $parts);
