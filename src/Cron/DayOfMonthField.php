@@ -3,7 +3,6 @@
 namespace Cron;
 
 use DateTime;
-use DateInterval;
 
 /**
  * Day of month field.  Allows: * , / - ? L W

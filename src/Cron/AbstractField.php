@@ -2,7 +2,6 @@
 
 namespace Cron;
 
-use InvalidArgumentException;
 
 /**
  * Abstract CRON expression field

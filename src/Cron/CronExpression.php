@@ -2,7 +2,6 @@
 
 namespace Cron;
 
-use DateInterval;
 use DateTime;
 use DateTimeZone;
 use RuntimeException;
