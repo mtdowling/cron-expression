@@ -3,7 +3,6 @@
 namespace Cron;
 
 use DateTime;
-use DateInterval;
 
 /**
  * Year field.  Allows: * , / -

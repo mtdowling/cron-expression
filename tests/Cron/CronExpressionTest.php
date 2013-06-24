@@ -195,7 +195,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $cron = CronExpression::factory($schedule);
         if (is_string($relativeTime)) {
             $relativeTime = new DateTime($relativeTime);
-        } else if (is_int($relativeTime)) {
+        } elseif (is_int($relativeTime)) {
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
         $this->assertEquals($isDue, $cron->isDue($relativeTime));

@@ -2,8 +2,6 @@
 
 namespace Cron;
 
-use InvalidArgumentException;
-
 /**
  * Abstract CRON expression field
  *
@@ -15,7 +13,7 @@ abstract class AbstractField implements FieldInterface
      * Check to see if a field is satisfied by a value
      *
      * @param string $dateValue Date value to check
-     * @param string $value Value to test
+     * @param string $value     Value to test
      *
      * @return bool
      */
@@ -23,7 +21,7 @@ abstract class AbstractField implements FieldInterface
     {
         if ($this->isIncrementsOfRanges($value)) {
             return $this->isInIncrementsOfRanges($dateValue, $value);
-        } else if ($this->isRange($value)) {
+        } elseif ($this->isRange($value)) {
             return $this->isInRange($dateValue, $value);
         }
 
@@ -58,7 +56,7 @@ abstract class AbstractField implements FieldInterface
      * Test if a value is within a range
      *
      * @param string $dateValue Set date value
-     * @param string $value Value to test
+     * @param string $value     Value to test
      *
      * @return bool
      */
@@ -73,7 +71,7 @@ abstract class AbstractField implements FieldInterface
      * Test if a value is within an increments of ranges (offset[-to]/step size)
      *
      * @param string $dateValue Set date value
-     * @param string $value Value to test
+     * @param string $value     Value to test
      *
      * @return bool
      */

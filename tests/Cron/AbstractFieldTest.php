@@ -2,7 +2,6 @@
 
 namespace Cron\Tests;
 
-use Cron\CronExpression;
 use Cron\DayOfWeekField;
 
 /**

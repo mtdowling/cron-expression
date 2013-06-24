@@ -2,7 +2,6 @@
 
 namespace Cron;
 
-use DateInterval;
 use DateTime;
 use DateTimeZone;
 use RuntimeException;
@@ -82,7 +81,7 @@ class CronExpression
     /**
      * Parse a CRON expression
      *
-     * @param string $expression CRON expression (e.g. '8 * * * *')
+     * @param string       $expression   CRON expression (e.g. '8 * * * *')
      * @param FieldFactory $fieldFactory Factory to create cron fields
      */
     public function __construct($expression, FieldFactory $fieldFactory)
@@ -118,8 +117,8 @@ class CronExpression
     /**
      * Set part of the CRON expression
      *
-     * @param int $position The position of the CRON expression to set
-     * @param string $value The value to set
+     * @param int    $position The position of the CRON expression to set
+     * @param string $value    The value to set
      *
      * @return CronExpression
      * @throws InvalidArgumentException if the value is not valid for the part
@@ -141,7 +140,7 @@ class CronExpression
      * Get a next run date relative to the current date or a specific date
      *
      * @param string|DateTime $currentTime (optional) Relative calculation date
-     * @param int $nth (optional) Number of matches to skip before returning a
+     * @param int             $nth         (optional) Number of matches to skip before returning a
      *     matching next run date.  0, the default, will return the current
      *     date and time if the next run date falls on the current date and
      *     time.  Setting this value to 1 will skip the first match and go to
@@ -161,9 +160,9 @@ class CronExpression
     /**
      * Get a previous run date relative to the current date or a specific date
      *
-     * @param string|DateTime $currentTime (optional) Relative calculation date
-     * @param int $nth (optional) Number of matches to skip before returning
-     * @param bool $allowCurrentDate (optional) Set to TRUE to return the
+     * @param string|DateTime $currentTime      (optional) Relative calculation date
+     * @param int             $nth              (optional) Number of matches to skip before returning
+     * @param bool            $allowCurrentDate (optional) Set to TRUE to return the
      *     current date if it matches the cron expression
      *
      * @return DateTime
@@ -178,10 +177,10 @@ class CronExpression
     /**
      * Get multiple run dates starting at the current date or a specific date
      *
-     * @param int $total Set the total number of dates to calculate
-     * @param string|DateTime $currentTime (optional) Relative calculation date
-     * @param bool $invert (optional) Set to TRUE to retrieve previous dates
-     * @param bool $allowCurrentDate (optional) Set to TRUE to return the
+     * @param int             $total            Set the total number of dates to calculate
+     * @param string|DateTime $currentTime      (optional) Relative calculation date
+     * @param bool            $invert           (optional) Set to TRUE to retrieve previous dates
+     * @param bool            $allowCurrentDate (optional) Set to TRUE to return the
      *     current date if it matches the cron expression
      *
      * @return array Returns an array of run dates
@@ -209,7 +208,7 @@ class CronExpression
     {
         if (null === $part) {
             return implode(' ', $this->cronParts);
-        } else if (array_key_exists($part, $this->cronParts)) {
+        } elseif (array_key_exists($part, $this->cronParts)) {
             return $this->cronParts[$part];
         }
 
@@ -240,7 +239,7 @@ class CronExpression
         if (null === $currentTime || 'now' === $currentTime) {
             $currentDate = date('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
-        } else if ($currentTime instanceof DateTime) {
+        } elseif ($currentTime instanceof DateTime) {
             $currentDate = $currentTime->format('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
         } else {
@@ -256,10 +255,10 @@ class CronExpression
     /**
      * Get the next or previous run date of the expression relative to a date
      *
-     * @param string|DateTime $currentTime (optional) Relative calculation date
-     * @param int $nth (optional) Number of matches to skip before returning
-     * @param bool $invert (optional) Set to TRUE to go backwards in time
-     * @param bool $allowCurrentDate (optional) Set to TRUE to return the
+     * @param string|DateTime $currentTime      (optional) Relative calculation date
+     * @param int             $nth              (optional) Number of matches to skip before returning
+     * @param bool            $invert           (optional) Set to TRUE to go backwards in time
+     * @param bool            $allowCurrentDate (optional) Set to TRUE to return the
      *     current date if it matches the cron expression
      *
      * @return DateTime
