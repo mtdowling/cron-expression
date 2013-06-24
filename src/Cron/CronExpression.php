@@ -76,7 +76,7 @@ class CronExpression
             $expression = $mappings[$expression];
         }
 
-        return new self($expression, $fieldFactory ?: new FieldFactory());
+        return new static($expression, $fieldFactory ?: new FieldFactory());
     }
 
     /**
