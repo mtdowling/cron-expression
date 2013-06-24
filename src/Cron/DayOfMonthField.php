@@ -29,7 +29,7 @@ class DayOfMonthField extends AbstractField
      *
      * @param int $currentYear Current year
      * @param int $currentYear Current month
-     * @param int $targetDay Target day of the month
+     * @param int $targetDay   Target day of the month
      *
      * @return DateTime Returns the nearest date
      */
