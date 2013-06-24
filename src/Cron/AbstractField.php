@@ -2,7 +2,6 @@
 
 namespace Cron;
 
-
 /**
  * Abstract CRON expression field
  *

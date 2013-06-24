@@ -110,7 +110,7 @@ class DayOfWeekField extends AbstractField
     {
         if ($invert) {
             $date->modify('-1 day');
-            $date->setTime(23, 59, 0);    
+            $date->setTime(23, 59, 0);
         } else {
             $date->modify('+1 day');
             $date->setTime(0, 0, 0);
