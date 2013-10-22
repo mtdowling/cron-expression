@@ -266,12 +266,14 @@ class CronExpression
      */
     protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
     {
-        $currentDate = $currentTime instanceof DateTime
-            ? $currentTime
-            : new DateTime($currentTime ?: 'now');
+        if ($currentTime instanceof DateTime) {
+            $currentDate = $currentTime;
+        } else {
+            $currentDate = new DateTime($currentTime ?: 'now');
 
-        // set the timezone
-        $currentDate->setTimezone(new DateTimeZone(date_default_timezone_get()));
+            // set the timezone
+            $currentDate->setTimezone(new DateTimeZone(date_default_timezone_get()));
+        }
 
         $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
         $nextRun = clone $currentDate;
