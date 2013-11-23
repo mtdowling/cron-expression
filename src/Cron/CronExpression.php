@@ -270,8 +270,6 @@ class CronExpression
             $currentDate = $currentTime;
         } else {
             $currentDate = new DateTime($currentTime ?: 'now');
-
-            // set the timezone
             $currentDate->setTimezone(new DateTimeZone(date_default_timezone_get()));
         }
 
