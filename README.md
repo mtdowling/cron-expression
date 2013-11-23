@@ -12,7 +12,7 @@ find the last day of the month, L to find the last given weekday of a month, and
 (#) to find the nth weekday of a given month.
 
 Installing
-----------
+==========
 
 Add the following to your project's composer.json:
 
@@ -25,7 +25,7 @@ Add the following to your project's composer.json:
 ```
 
 Usage
------
+=====
 ```php
 <?php
 
@@ -51,7 +51,7 @@ echo $cron->getNextRunDate('2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 ```
 
 CRON Expressions
-----------------
+================
 
 A CRON expression is a string representing the schedule for a particular command to execute.  The parts of a CRON schedule are as follows:
 
@@ -66,8 +66,19 @@ A CRON expression is a string representing the schedule for a particular command
     +------------------------- min (0 - 59)
 
 Requirements
-------------
+============
 
 - PHP 5.3+
 - PHPUnit is required to run the unit tests
 - Composer is required to run the unit tests
+
+CHANGELOG
+=========
+
+1.0.3 (2013-11-23)
+------------------
+
+* Only set default timezone if the given $currentTime is not a DateTime instance (#34)
+* Fixes issue #28 where PHP increments of ranges were failing due to PHP casting hyphens to 0
+* Now supports expressions with any number of extra spaces, tabs, or newlines
+* Using static instead of self in `CronExpression::factory`
