@@ -6,8 +6,7 @@
          syntaxCheck="false"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader">
+         convertWarningsToExceptions="true">
 
     <testsuites>
         <testsuite name="Cron">
