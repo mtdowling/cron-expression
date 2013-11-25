@@ -264,7 +264,7 @@ class CronExpression
      * @return DateTime
      * @throws \RuntimeExpression on too many iterations
      */
-	protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
+    protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
     {
         if ($currentTime instanceof DateTime) {
             $currentDate = $currentTime;
