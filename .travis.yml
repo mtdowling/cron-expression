@@ -6,6 +6,7 @@ php:
   - 5.5
 
 before_script:
+  - composer update
   - composer self-update
 
 script: phpunit --coverage-text
