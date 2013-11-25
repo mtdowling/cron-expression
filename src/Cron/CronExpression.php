@@ -93,7 +93,7 @@ class CronExpression
     /**
      * Set or change the CRON expression
      *
-     * @param string $schedule CRON expression (e.g. 8 * * * *)
+     * @param string $value CRON expression (e.g. 8 * * * *)
      *
      * @return CronExpression
      * @throws InvalidArgumentException if not a valid CRON expression
@@ -262,9 +262,9 @@ class CronExpression
      *     current date if it matches the cron expression
      *
      * @return DateTime
-     * @throws RuntimeExpression on too many iterations
+     * @throws \RuntimeExpression on too many iterations
      */
-    protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
+	protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
     {
         if ($currentTime instanceof DateTime) {
             $currentDate = $currentTime;
