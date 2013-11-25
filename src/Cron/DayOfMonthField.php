@@ -27,9 +27,9 @@ class DayOfMonthField extends AbstractField
     /**
      * Get the nearest day of the week for a given day in a month
      *
-     * @param int $currentYear Current year
-     * @param int $currentYear Current month
-     * @param int $targetDay   Target day of the month
+     * @param int $currentYear  Current year
+     * @param int $currentMonth Current month
+     * @param int $targetDay    Target day of the month
      *
      * @return DateTime Returns the nearest date
      */

@@ -5,7 +5,7 @@ namespace Cron;
 use InvalidArgumentException;
 
 /**
- * CRON field factory implementating a flyweight factory
+ * CRON field factory implementing a flyweight factory
  *
  * @author Michael Dowling <mtdowling@gmail.com>
  * @link http://en.wikipedia.org/wiki/Cron
@@ -23,7 +23,7 @@ class FieldFactory
      * @param int $position CRON expression position value to retrieve
      *
      * @return FieldInterface
-     * @throws InvalidArgumentException if a position is not valide
+     * @throws InvalidArgumentException if a position is not valid
      */
     public function getField($position)
     {

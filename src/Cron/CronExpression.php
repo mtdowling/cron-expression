@@ -150,7 +150,7 @@ class CronExpression
      *     current date if it matches the cron expression
      *
      * @return DateTime
-     * @throws RuntimeExpression on too many iterations
+     * @throws RuntimeException on too many iterations
      */
     public function getNextRunDate($currentTime = 'now', $nth = 0, $allowCurrentDate = false)
     {
@@ -166,7 +166,7 @@ class CronExpression
      *     current date if it matches the cron expression
      *
      * @return DateTime
-     * @throws RuntimeExpression on too many iterations
+     * @throws RuntimeException on too many iterations
      * @see Cron\CronExpression::getNextRunDate
      */
     public function getPreviousRunDate($currentTime = 'now', $nth = 0, $allowCurrentDate = false)
@@ -226,7 +226,7 @@ class CronExpression
     }
 
     /**
-     * Deterime if the cron is due to run based on the current date or a
+     * Determine if the cron is due to run based on the current date or a
      * specific date.  This method assumes that the current number of
      * seconds are irrelevant, and should be called once per minute.
      *
@@ -262,7 +262,7 @@ class CronExpression
      *     current date if it matches the cron expression
      *
      * @return DateTime
-     * @throws \RuntimeExpression on too many iterations
+     * @throws RuntimeException on too many iterations
      */
     protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
     {
