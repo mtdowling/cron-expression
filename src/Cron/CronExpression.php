@@ -234,9 +234,9 @@ class CronExpression
      *
      * @return bool Returns TRUE if the cron is due to run or FALSE if not
      */
-    public function isDue($currentTime = null)
+    public function isDue($currentTime = 'now')
     {
-        if (null === $currentTime || 'now' === $currentTime) {
+        if ('now' === $currentTime) {
             $currentDate = date('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
         } elseif ($currentTime instanceof DateTime) {
