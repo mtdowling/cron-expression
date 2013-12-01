@@ -199,8 +199,8 @@ class CronExpression
     /**
     * Get ALL run dates limited to a date range
     *
-    * @param string|DateTime $start            Start of range
-    * @param string|DateTime $end              End of range
+    * @param null|string|DateTime $start            Start of range
+    * @param null|string|DateTime $end              End of range
     *
     * @return array Returns an array of run dates
     */
