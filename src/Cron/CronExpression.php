@@ -188,19 +188,18 @@ class CronExpression
     public function getMultipleRunDates($total, $currentTime = 'now', $invert = false, $allowCurrentDate = false)
     {
         $matches = array();
-        $guard_terminator = max(0, $total);
-        for ($i = 0; $i < $guard_terminator; $i++) {
+        for ($i = 0, $max = max(0, $total); $i < $max; $i++) {
             $matches[] = $this->getRunDate($currentTime, $i, $invert, $allowCurrentDate);
         }
 
         return $matches;
     }
     
-    /**
+   /**
     * Get ALL run dates limited to a date range
     *
-    * @param null|string|DateTime $start            Start of range
-    * @param null|string|DateTime $end              End of range
+    * @param string|DateTime $start            Start of range
+    * @param string|DateTime $end              End of range
     *
     * @return array Returns an array of run dates
     */
@@ -222,8 +221,9 @@ class CronExpression
             $guard = $this->getNextRunDate($start, 0, true);
             $guard <= $end;
             $guard = $this->getNextRunDate($guard, 0, false)
-        )
+        ) {
             $matches[] = $guard;
+        }
 
         return $matches;
     }
