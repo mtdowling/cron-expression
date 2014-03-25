@@ -2,9 +2,6 @@
 
 namespace Cron;
 
-use DateTime;
-use InvalidArgumentException;
-
 /**
  * Day of week field.  Allows: * / , - ? L #
  *
@@ -17,15 +14,10 @@ use InvalidArgumentException;
  * '#' is allowed for the day-of-week field, and must be followed by a
  * number between one and five. It allows you to specify constructs such as
  * "the second Friday" of a given month.
- *
- * @author Michael Dowling <mtdowling@gmail.com>
  */
 class DayOfWeekField extends AbstractField
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function isSatisfiedBy(DateTime $date, $value)
+    public function isSatisfiedBy(\DateTime $date, $value)
     {
         if ($value == '?') {
             return true;
@@ -59,10 +51,10 @@ class DayOfWeekField extends AbstractField
             list($weekday, $nth) = explode('#', $value);
             // Validate the hash fields
             if ($weekday < 1 || $weekday > 5) {
-                throw new InvalidArgumentException("Weekday must be a value between 1 and 5. {$weekday} given");
+                throw new \InvalidArgumentException("Weekday must be a value between 1 and 5. {$weekday} given");
             }
             if ($nth > 5) {
-                throw new InvalidArgumentException('There are never more than 5 of a given weekday in a month');
+                throw new \InvalidArgumentException('There are never more than 5 of a given weekday in a month');
             }
             // The current weekday must match the targeted weekday to proceed
             if ($date->format('N') != $weekday) {
@@ -103,10 +95,7 @@ class DayOfWeekField extends AbstractField
         return $this->isSatisfied($fieldValue, $value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function increment(DateTime $date, $invert = false)
+    public function increment(\DateTime $date, $invert = false)
     {
         if ($invert) {
             $date->modify('-1 day');
@@ -119,9 +108,6 @@ class DayOfWeekField extends AbstractField
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validate($value)
     {
         return (bool) preg_match('/[\*,\/\-0-9A-Z]+/', $value);
