@@ -213,10 +213,6 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($cron->isDue('now'));
         $this->assertTrue($cron->isDue(new DateTime('now')));
         $this->assertTrue($cron->isDue(date('Y-m-d H:i')));
-
-        $cron = CronExpression::factory('0 15 * * 2');
-        $this->assertFalse($cron->isDue(new DateTime('2014-04-15 15:00', new \DateTimeZone('UTC'))));
-        $this->assertTrue($cron->isDue(new DateTime('2014-04-15 15:00', new \DateTimeZone('Europe/Amsterdam'))));
     }
 
     /**
