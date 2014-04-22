@@ -13,7 +13,7 @@ class DayOfWeekFieldTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Cron\DayOfWeekField::validate
      */
-    public function testValdatesField()
+    public function testValidatesField()
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->validate('1'));
@@ -76,5 +76,19 @@ class DayOfWeekFieldTest extends \PHPUnit_Framework_TestCase
         $f = new DayOfWeekField();
         $this->assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '0-2'));
         $this->assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '6-0'));
+    }
+
+    /**
+     * @see https://github.com/mtdowling/cron-expression/issues/47
+     */
+    public function testIssue47() {
+        $f = new DayOfWeekField();
+        $this->assertFalse($f->validate('mon,'));
+        $this->assertFalse($f->validate('mon-'));
+        $this->assertFalse($f->validate('*/2,'));
+        $this->assertFalse($f->validate('-mon'));
+        $this->assertFalse($f->validate(',1'));
+        $this->assertFalse($f->validate('*-'));
+        $this->assertFalse($f->validate(',-'));
     }
 }

@@ -24,11 +24,7 @@ class DayOfWeekField extends AbstractField
         }
 
         // Convert text day of the week values to integers
-        $value = str_ireplace(
-            array('SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'),
-            range(0, 6),
-            $value
-        );
+        $value = $this->convertLiterals($value);
 
         $currentYear = $date->format('Y');
         $currentMonth = $date->format('m');
@@ -110,6 +106,16 @@ class DayOfWeekField extends AbstractField
 
     public function validate($value)
     {
-        return (bool) preg_match('/[\*,\/\-0-9A-Z]+/', $value);
+        $value = $this->convertLiterals($value);
+        return (bool) preg_match('/^(\*|[0-7](L?|#[1-5]))([\/\,\-][0-7]+)*$/', $value);
+    }
+
+    private function convertLiterals($string)
+    {
+        return str_ireplace(
+            array('SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'),
+            range(0, 6),
+            $string
+        );
     }
 }
