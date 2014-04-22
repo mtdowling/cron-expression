@@ -271,18 +271,26 @@ class CronExpression
         $nextRun = clone $currentDate;
         $nth = (int) $nth;
 
+        // Precompute parts and positions
+        $parts = array();
+        $fields = array();
+        foreach (self::$order as $position) {
+            $part = $this->getExpression($position);
+            if (null === $part) {
+                continue;
+            }
+            $parts[$position] = $part;
+            $fields[$position] = $this->fieldFactory->getField($position);
+        }
+
         // Set a hard limit to bail on an impossible date
         for ($i = 0; $i < 1000; $i++) {
-
-            foreach (self::$order as $position) {
-                $part = $this->getExpression($position);
-                if (null === $part) {
-                    continue;
-                }
+            start_of_cycle:
+            foreach ($parts as $position => $part) {
 
                 $satisfied = false;
                 // Get the field object used to validate this part
-                $field = $this->fieldFactory->getField($position);
+                $field = $fields[$position];
                 // Check if this is singular or a list
                 if (strpos($part, ',') === false) {
                     $satisfied = $field->isSatisfiedBy($nextRun, $part);
@@ -298,7 +306,9 @@ class CronExpression
                 // If the field is not satisfied, then start over
                 if (!$satisfied) {
                     $field->increment($nextRun, $invert);
-                    continue 2;
+                    // Well, here I am.. using goto
+                    goto start_of_cycle;
+                    // continue 2;
                 }
             }
 
