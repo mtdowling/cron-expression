@@ -313,4 +313,24 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             $cron->getPreviousRunDate('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
         );
     }
+
+    /**
+     * @covers Cron\CronExpression::getRangeRunDates
+     */
+    public function testGetRangeRunDates()
+    {
+        $cron = CronExpression::factory('*/20 * * * *');
+        $range = $cron->getRangeRunDates(new DateTime('2014-04-24 01:00:00'), new DateTime('2014-04-24 02:00:00'));
+
+        $this->assertEquals($range[0], new DateTime('2014-04-24 01:00:00'));
+        $this->assertEquals($range[1], new DateTime('2014-04-24 01:20:00'));
+        $this->assertEquals($range[2], new DateTime('2014-04-24 01:40:00'));
+        $this->assertEquals($range[3], new DateTime('2014-04-24 02:00:00'));
+
+        // Friday 13th, Boo!
+        $cron = CronExpression::factory('* * 13 * FRI *');
+        $range = $cron->getRangeRunDates(new DateTime('2014-01-01 00:00:00'), new DateTime('2015-01-21 00:00:00'));
+
+        $this->assertEquals($range[0], new DateTime('2014-06-13 00:00:00'));
+    }
 }
