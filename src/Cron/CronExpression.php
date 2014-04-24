@@ -188,7 +188,7 @@ class CronExpression
 
         return $matches;
     }
-    
+
    /**
     * Get ALL run dates limited to a date range
     *
@@ -201,14 +201,14 @@ class CronExpression
     {
         $matches = array();
 
-        if (!($end instanceof DateTime)) {
-            $end = new DateTime($end ?: 'now');
-            $end->setTimezone(new DateTimeZone(date_default_timezone_get()));
+        if (!($end instanceof \DateTime)) {
+            $end = new \DateTime($end ?: 'now');
+            $end->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         }
 
-        if (!($start instanceof DateTime)) {
-            $start = new DateTime($start ?: 'now');
-            $start->setTimezone(new DateTimeZone(date_default_timezone_get()));
+        if (!($start instanceof \DateTime)) {
+            $start = new \DateTime($start ?: 'now');
+            $start->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         }
 
         for (
