@@ -2,8 +2,6 @@
 
 namespace Cron;
 
-use DateTime;
-
 /**
  * Day of month field.  Allows: * , / - ? L W
  *
@@ -31,12 +29,12 @@ class DayOfMonthField extends AbstractField
      * @param int $currentMonth Current month
      * @param int $targetDay    Target day of the month
      *
-     * @return DateTime Returns the nearest date
+     * @return \DateTime Returns the nearest date
      */
     private static function getNearestWeekday($currentYear, $currentMonth, $targetDay)
     {
         $tday = str_pad($targetDay, 2, '0', STR_PAD_LEFT);
-        $target = DateTime::createFromFormat('Y-m-d', "$currentYear-$currentMonth-$tday");
+        $target = \DateTime::createFromFormat('Y-m-d', "$currentYear-$currentMonth-$tday");
         $currentWeekday = (int) $target->format('N');
 
         if ($currentWeekday < 6) {
@@ -56,10 +54,7 @@ class DayOfMonthField extends AbstractField
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isSatisfiedBy(DateTime $date, $value)
+    public function isSatisfiedBy(\DateTime $date, $value)
     {
         // ? states that the field value is to be skipped
         if ($value == '?') {
@@ -88,10 +83,7 @@ class DayOfMonthField extends AbstractField
         return $this->isSatisfied($date->format('d'), $value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function increment(DateTime $date, $invert = false)
+    public function increment(\DateTime $date, $invert = false)
     {
         if ($invert) {
             $date->modify('previous day');
@@ -104,9 +96,6 @@ class DayOfMonthField extends AbstractField
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validate($value)
     {
         return (bool) preg_match('/[\*,\/\-\?LW0-9A-Za-z]+/', $value);
