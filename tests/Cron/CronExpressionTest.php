@@ -340,4 +340,24 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             $cron->getPreviousRunDate('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
         );
     }
+
+    /**
+     * @see https://github.com/mtdowling/cron-expression/issues/20
+     */
+    public function testIssue20() {
+        $e = CronExpression::factory('* * * * MON#1');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+        $this->assertFalse($e->isDue(new DateTime('2014-04-14 00:00:00')));
+        $this->assertFalse($e->isDue(new DateTime('2014-04-21 00:00:00')));
+
+        $e = CronExpression::factory('* * * * SAT#2');
+        $this->assertFalse($e->isDue(new DateTime('2014-04-05 00:00:00')));
+        $this->assertTrue($e->isDue(new DateTime('2014-04-12 00:00:00')));
+        $this->assertFalse($e->isDue(new DateTime('2014-04-19 00:00:00')));
+
+        $e = CronExpression::factory('* * * * SUN#3');
+        $this->assertFalse($e->isDue(new DateTime('2014-04-13 00:00:00')));
+        $this->assertTrue($e->isDue(new DateTime('2014-04-20 00:00:00')));
+        $this->assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
+    }
 }
