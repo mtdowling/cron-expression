@@ -235,7 +235,8 @@ class CronExpression
             $currentTime = strtotime($currentDate);
         } elseif ($currentTime instanceof \DateTime) {
             $currentDate = clone $currentTime;
-            $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get())); //Ensure time in 'current' timezone is used
+            // Ensure time in 'current' timezone is used
+            $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
             $currentDate = $currentDate->format('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
         } else {
