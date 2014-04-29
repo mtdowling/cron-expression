@@ -216,6 +216,33 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Cron\CronExpression::isDue
+     */
+    public function testIsDueHandlesDifferentTimezones()
+    {
+        $cron = CronExpression::factory('0 15 * * 3'); //Wednesday at 15:00
+        $date = '2014-01-01 15:00'; //Wednesday
+        $utc = new \DateTimeZone('UTC');
+        $amsterdam =  new \DateTimeZone('Europe/Amsterdam');
+        $tokyo = new \DateTimeZone('Asia/Tokyo');
+
+        date_default_timezone_set('UTC');
+        $this->assertTrue($cron->isDue(new DateTime($date, $utc)));
+        $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam)));
+        $this->assertFalse($cron->isDue(new DateTime($date, $tokyo)));
+
+        date_default_timezone_set('Europe/Amsterdam');
+        $this->assertFalse($cron->isDue(new DateTime($date, $utc)));
+        $this->assertTrue($cron->isDue(new DateTime($date, $amsterdam)));
+        $this->assertFalse($cron->isDue(new DateTime($date, $tokyo)));
+
+        date_default_timezone_set('Asia/Tokyo');
+        $this->assertFalse($cron->isDue(new DateTime($date, $utc)));
+        $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam)));
+        $this->assertTrue($cron->isDue(new DateTime($date, $tokyo)));
+    }
+
+    /**
      * @covers Cron\CronExpression::getPreviousRunDate
      */
     public function testCanGetPreviousRunDates()
