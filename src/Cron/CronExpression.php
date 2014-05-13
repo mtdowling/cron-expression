@@ -222,13 +222,17 @@ class CronExpression
     /**
      * Determine if the cron is due to run based on the current date or a
      * specific date.  This method assumes that the current number of
-     * seconds are irrelevant, and should be called once per minute.
-     *
-     * @param string|\DateTime $currentTime Relative calculation date
+     * seconds are irrelevant, and should be called once per minute (by default)
+     * or at a specified interval. In the latter case, crons will be considered
+     * due if they were scheduled to occur within the given interval prior to
+     * the given date or time.
+     * 
+     * @param string|\DateTime $currentTime     Relative calculation date
+     * @param int              $intervalMinutes Calling interval
      *
      * @return bool Returns TRUE if the cron is due to run or FALSE if not
      */
-    public function isDue($currentTime = 'now')
+    public function isDue($currentTime = 'now', $intervalMinutes = 1)
     {
         if ('now' === $currentTime) {
             $currentDate = date('Y-m-d H:i');
@@ -240,13 +244,19 @@ class CronExpression
             $currentDate = $currentDate->format('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
         } else {
-            $currentTime = new \DateTime($currentTime);
-            $currentTime->setTime($currentTime->format('H'), $currentTime->format('i'), 0);
-            $currentDate = $currentTime->format('Y-m-d H:i');
-            $currentTime = $currentTime->getTimeStamp();
+            $currentDate = new \DateTime($currentTime);
+            $currentDate = $currentDate->format('Y-m-d H:i');
+            $currentTime = strtotime($currentDate);
         }
-
-        return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
+        
+        $intervalMinutes = (int) max(1, $intervalMinutes);
+        
+        try {
+            return (($currentTime - $this->getPreviousRunDate($currentDate, 0, true)->getTimestamp()) < ($intervalMinutes * 60));
+        }
+        catch(\RuntimeException $e) {}
+        
+        return false;
     }
 
     /**
