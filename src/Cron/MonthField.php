@@ -39,6 +39,6 @@ class MonthField extends AbstractField
 
     public function validate($value)
     {
-        return (bool) preg_match('/[\*,\/\-0-9A-Z]+/', $value);
+        return (bool) preg_match('/^[\*,\/\-0-9A-Z]+$/', $value);
     }
 }
