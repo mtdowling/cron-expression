@@ -20,7 +20,8 @@ class DayOfMonthFieldTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($f->validate('1'));
         $this->assertTrue($f->validate('*'));
         $this->assertTrue($f->validate('*/3,1,1-12'));
-        $this->assertTrue($f->validate('5W, L'));
+        $this->assertTrue($f->validate('5W,L'));
+        $this->assertFalse($f->validate('1.'));
     }
 
     /**

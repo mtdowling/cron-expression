@@ -20,6 +20,7 @@ class DayOfWeekFieldTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($f->validate('*'));
         $this->assertTrue($f->validate('*/3,1,1-12'));
         $this->assertTrue($f->validate('SUN-2'));
+        $this->assertFalse($f->validate('1.'));
     }
 
     /**

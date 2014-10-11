@@ -98,6 +98,6 @@ class DayOfMonthField extends AbstractField
 
     public function validate($value)
     {
-        return (bool) preg_match('/[\*,\/\-\?LW0-9A-Za-z]+/', $value);
+        return (bool) preg_match('/^[\*,\/\-\?LW0-9A-Za-z]+$/', $value);
     }
 }
