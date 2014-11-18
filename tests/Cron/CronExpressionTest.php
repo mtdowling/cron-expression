@@ -309,7 +309,8 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $cron = CronExpression::factory('* * * * *');
         $current = new DateTime('now');
         $next = $cron->getNextRunDate($current);
-        $this->assertEquals($current, $cron->getPreviousRunDate($next));
+        $nextPrev = $cron->getPreviousRunDate($next);
+        $this->assertEquals($current->format('Y-m-d H:i:00'), $nextPrev->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -359,5 +360,17 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($e->isDue(new DateTime('2014-04-13 00:00:00')));
         $this->assertTrue($e->isDue(new DateTime('2014-04-20 00:00:00')));
         $this->assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
+    }
+
+    /**
+     * @covers Cron\CronExpression::getRunDate
+     */
+    public function testKeepOriginalTime()
+    {
+        $now = new \DateTime;
+        $strNow = $now->format(\DateTime::ISO8601);
+        $cron = CronExpression::factory('0 0 * * *');
+        $cron->getPreviousRunDate($now);
+        $this->assertEquals($strNow, $now->format(\DateTime::ISO8601));
     }
 }

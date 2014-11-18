@@ -264,7 +264,7 @@ class CronExpression
     protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
     {
         if ($currentTime instanceof \DateTime) {
-            $currentDate = $currentTime;
+            $currentDate = clone $currentTime;
         } else {
             $currentDate = new \DateTime($currentTime ?: 'now');
             $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
