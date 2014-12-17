@@ -290,11 +290,6 @@ class CronExpression
         for ($i = 0; $i < 1000; $i++) {
 
             foreach ($parts as $position => $part) {
-                $part = $this->getExpression($position);
-                if (null === $part) {
-                    continue;
-                }
-
                 $satisfied = false;
                 // Get the field object used to validate this part
                 $field = $fields[$position];
