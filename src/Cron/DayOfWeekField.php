@@ -113,6 +113,16 @@ class DayOfWeekField extends AbstractField
     public function validate($value)
     {
         $value = $this->convertLiterals($value);
+        if (strpos($value, ',')) {
+            $values = explode(',', $value);
+            foreach ($values as $value) {
+                if (!$this->validate($value)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         return (bool) preg_match('/^(\*|[0-7](L?|#[1-5]))([\/\,\-][0-7]+)*$/', $value);
     }
