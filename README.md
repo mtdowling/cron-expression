@@ -16,14 +16,10 @@ find the last day of the month, L to find the last given weekday of a month, and
 Installing
 ==========
 
-Add the following to your project's composer.json:
+Add the dependency to your project:
 
-```javascript
-{
-    "require": {
-        "mtdowling/cron-expression": "1.0.*"
-    }
-}
+```bash
+composer require mtdowling/cron-expression
 ```
 
 Usage
