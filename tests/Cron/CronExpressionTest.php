@@ -243,6 +243,53 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Data provider for cron schedule
+     *
+     * @return array
+     */
+    public function scheduleProvider2()
+    {
+        $schedule1 = '0 7 * * * *';
+        $schedule2 = '5/10 * * * * *';
+        
+        return array(
+            array($schedule1, '2014-05-13 06:59:27', 1, false),
+            array($schedule1, '2014-05-13 07:00:00', 1, true),
+            array($schedule1, '2014-05-13 07:00:27', 1, true),
+            array($schedule1, '2014-05-13 07:01:00', 1, false),
+            array($schedule1, '2014-05-13 07:01:27', 1, false),
+
+            array($schedule1, '2014-05-13 06:59:27', 5, false),
+            array($schedule1, '2014-05-13 07:00:00', 5, true),
+            array($schedule1, '2014-05-13 07:00:27', 5, true),
+            array($schedule1, '2014-05-13 07:01:00', 5, true),
+            array($schedule1, '2014-05-13 07:04:27', 5, true),
+            array($schedule1, '2014-05-13 07:05:00', 5, false),
+            array($schedule1, '2014-05-13 07:05:27', 5, false),
+
+            array($schedule2, '2014-05-13 10:04:27', 2, false),
+            array($schedule2, '2014-05-13 10:05:00', 2, true),
+            array($schedule2, '2014-05-13 10:06:27', 2, true),
+            array($schedule2, '2014-05-13 10:07:00', 2, false),
+
+            array($schedule2, '2014-05-13 10:34:27', 3, false),
+            array($schedule2, '2014-05-13 10:35:00', 3, true),
+            array($schedule2, '2014-05-13 10:37:27', 3, true),
+            array($schedule2, '2014-05-13 10:38:00', 3, false),
+        );
+    }
+
+    /**
+     * @covers Cron\CronExpression::isDue
+     * @dataProvider scheduleProvider2
+     */
+    public function testIsDueHandlesDifferentIntervals($schedule, $relativeTime, $interval, $isDue)
+    {
+        $cron = CronExpression::factory($schedule);
+        $this->assertEquals($isDue, $cron->isDue($relativeTime, $interval));
+    }
+
+    /**
      * @covers Cron\CronExpression::getPreviousRunDate
      */
     public function testCanGetPreviousRunDates()
