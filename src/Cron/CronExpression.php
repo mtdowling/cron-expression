@@ -246,7 +246,11 @@ class CronExpression
             $currentTime = $currentTime->getTimeStamp();
         }
 
-        return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
+        try {
+            return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
