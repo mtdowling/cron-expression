@@ -12,3 +12,8 @@ sudo: false
 install: travis_retry composer install --no-interaction --prefer-source
 
 script: phpunit --coverage-text
+
+matrix:
+  allow_failures:
+    - php: hhvm
+  fast_finish: true
