@@ -121,7 +121,7 @@ class CronExpression
     {
         if (!$this->fieldFactory->getField($position)->validate($value)) {
             throw new \InvalidArgumentException(
-                'Invalid CRON field value ' . $value . ' as position ' . $position
+                'Invalid CRON field value ' . $value . ' at position ' . $position
             );
         }
 
