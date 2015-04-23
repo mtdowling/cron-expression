@@ -373,4 +373,19 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
         $cron->getPreviousRunDate($now);
         $this->assertEquals($strNow, $now->format(\DateTime::ISO8601));
     }
+
+    /**
+     * @covers Cron\CronExpression::__construct
+     * @covers Cron\CronExpression::factory
+     * @covers Cron\CronExpression::isValidExpression
+     * @covers Cron\CronExpression::setExpression
+     * @covers Cron\CronExpression::setPart
+     */
+    public function testValidationWorks()
+    {
+        // Invalid. Only four values
+        $this->assertFalse(CronExpression::isValidExpression('* * * 1'));
+        // Valid
+        $this->assertTrue(CronExpression::isValidExpression('* * * * 1'));
+    }
 }
