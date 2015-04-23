@@ -73,6 +73,25 @@ class CronExpression
     }
 
     /**
+     * Validate a CronExpression.
+     *
+     * @param string $expression The CRON expression to validate.
+     *
+     * @return bool True if a valid CRON expression was passed. False if not.
+     * @see Cron\CronExpression::factory
+     */
+    public static function isValidExpression($expression = '')
+    {
+        try {
+            self::factory($expression);
+        } catch (\InvalidArgumentException $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Parse a CRON expression
      *
      * @param string       $expression   CRON expression (e.g. '8 * * * *')
