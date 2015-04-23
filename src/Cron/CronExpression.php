@@ -80,7 +80,7 @@ class CronExpression
      * @return bool True if a valid CRON expression was passed. False if not.
      * @see Cron\CronExpression::factory
      */
-    public static function isValidExpression($expression = '')
+    public static function isValidExpression($expression)
     {
         try {
             self::factory($expression);
