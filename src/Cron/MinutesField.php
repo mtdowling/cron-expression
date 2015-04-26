@@ -16,8 +16,14 @@ class MinutesField extends AbstractField
     {
         if ($invert) {
             $date->modify('-1 minute');
+            if($date->format('i')=='59'){
+                $date->modify('+1 hour');
+            }
         } else {
             $date->modify('+1 minute');
+            if($date->format('i')=='0'){
+                $date->modify('-1 hour');
+            }
         }
 
         return $this;
