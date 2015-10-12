@@ -34,6 +34,11 @@ class CronExpression
     private $fieldFactory;
 
     /**
+     * @var int Max iteration count when searching for next run date
+     */
+    private $maxIterationCount = 1000;
+
+    /**
      * @var array Order in which to test of cron parts
      */
     private static $order = array(self::YEAR, self::MONTH, self::DAY, self::WEEKDAY, self::HOUR, self::MINUTE);
@@ -146,6 +151,20 @@ class CronExpression
 
         $this->cronParts[$position] = $value;
 
+        return $this;
+    }
+
+    /**
+     * Set max iteration count for searching next run dates
+     *
+     * @param int $maxIterationCount Max iteration count when searching for next run date
+     *
+     * @return CronExpression
+     */
+    public function setMaxIterationCount($maxIterationCount)
+    {
+        $this->maxIterationCount = $maxIterationCount;
+        
         return $this;
     }
 
@@ -310,7 +329,7 @@ class CronExpression
         }
 
         // Set a hard limit to bail on an impossible date
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < $this->maxIterationCount; $i++) {
 
             foreach ($parts as $position => $part) {
                 $satisfied = false;
