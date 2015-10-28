@@ -202,7 +202,11 @@ class CronExpression
     {
         $matches = array();
         for ($i = 0; $i < max(0, $total); $i++) {
-            $matches[] = $this->getRunDate($currentTime, $i, $invert, $allowCurrentDate);
+            try {
+                $matches[] = $this->getRunDate($currentTime, $i, $invert, $allowCurrentDate);
+            } catch (\RuntimeException $e) {
+                break;
+            }
         }
 
         return $matches;
