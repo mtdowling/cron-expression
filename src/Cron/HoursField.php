@@ -22,12 +22,12 @@ class HoursField extends AbstractField
             $date->setTimezone(new \DateTimeZone('UTC'));
             if ($invert) {
                 $date->modify('-1 hour');
-                $date->setTime($date->format('H'), 59);
             } else {
                 $date->modify('+1 hour');
-                $date->setTime($date->format('H'), 0);
             }
             $date->setTimezone($timezone);
+
+            $date->setTime($date->format('H'), $invert ? 59 : 0);
             return $this;
         }
 
