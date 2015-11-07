@@ -110,7 +110,7 @@ abstract class AbstractField implements FieldInterface
      *
      * @return array
      */
-    protected function getRangeForExpression($expression, $max)
+    public function getRangeForExpression($expression, $max)
     {
         $values = array();
 
