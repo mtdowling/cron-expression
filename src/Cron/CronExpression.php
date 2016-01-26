@@ -262,6 +262,11 @@ class CronExpression
             $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
             $currentDate = $currentDate->format('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
+        } elseif ($currentTime instanceof \DateTimeImmutable) {
+            $currentDate = \DateTime::createFromFormat('U', $currentTime->format('U'));
+            $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            $currentDate = $currentDate->format('Y-m-d H:i');
+            $currentTime = strtotime($currentDate);
         } else {
             $currentTime = new \DateTime($currentTime);
             $currentTime->setTime($currentTime->format('H'), $currentTime->format('i'), 0);
@@ -292,6 +297,9 @@ class CronExpression
     {
         if ($currentTime instanceof \DateTime) {
             $currentDate = clone $currentTime;
+        } elseif ($currentTime instanceof \DateTimeImmutable) {
+            $currentDate = \DateTime::createFromFormat('U', $currentTime->format('U'));
+            $currentDate->setTimezone($currentTime->getTimezone());
         } else {
             $currentDate = new \DateTime($currentTime ?: 'now');
             $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
