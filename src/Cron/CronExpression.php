@@ -361,14 +361,14 @@ class CronExpression
 
                 // If the field is not satisfied, then start over
                 if (!$satisfied) {
-                    $field->increment($nextRun, $invert);
+                    $field->increment($nextRun, $invert, $part);
                     continue 2;
                 }
             }
 
             // Skip this match if needed
             if ((!$allowCurrentDate && $nextRun == $currentDate) || --$nth > -1) {
-                $this->fieldFactory->getField(0)->increment($nextRun, $invert);
+                $this->fieldFactory->getField(0)->increment($nextRun, $invert, isset($parts[0]) ? $parts[0] : null);
                 continue;
             }
 
