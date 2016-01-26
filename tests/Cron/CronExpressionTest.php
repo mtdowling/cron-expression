@@ -275,7 +275,13 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase
             new DateTime('2008-11-09 00:04:00'),
             new DateTime('2008-11-09 00:06:00')
         ), $cron->getMultipleRunDates(4, '2008-11-09 00:00:00', false, true));
+    }
 
+    /**
+     * @covers Cron\CronExpression::getMultipleRunDates
+     * @covers Cron\CronExpression::setMaxIterationCount
+     */
+    public function testProvidesMultipleRunDatesForTheFarFuture() {
         // Fails with the default 1000 iteration limit
         $cron = CronExpression::factory('0 0 12 1 * */2');
         $cron->setMaxIterationCount(2000);
