@@ -3,13 +3,13 @@
 namespace Cron\Tests;
 
 use Cron\DayOfMonthField;
-
 use DateTime;
+use PHPUnit_Framework_TestCase;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class DayOfMonthFieldTest extends \PHPUnit_Framework_TestCase
+class DayOfMonthFieldTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @covers Cron\DayOfMonthField::validate

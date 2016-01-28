@@ -4,11 +4,12 @@ namespace Cron\Tests;
 
 use Cron\DayOfWeekField;
 use DateTime;
+use PHPUnit_Framework_TestCase;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class DayOfWeekFieldTest extends \PHPUnit_Framework_TestCase
+class DayOfWeekFieldTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @covers Cron\DayOfWeekField::validate
