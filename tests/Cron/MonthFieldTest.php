@@ -13,7 +13,7 @@ class MonthFieldTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Cron\MonthField::validate
      */
-    public function testValdatesField()
+    public function testValidatesField()
     {
         $f = new MonthField();
         $this->assertTrue($f->validate('12'));

@@ -14,7 +14,7 @@ class DayOfMonthFieldTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Cron\DayOfMonthField::validate
      */
-    public function testValdatesField()
+    public function testValidatesField()
     {
         $f = new DayOfMonthField();
         $this->assertTrue($f->validate('1'));

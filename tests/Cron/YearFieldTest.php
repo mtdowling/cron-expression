@@ -13,7 +13,7 @@ class YearFieldTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Cron\YearField::validate
      */
-    public function testValdatesField()
+    public function testValidatesField()
     {
         $f = new YearField();
         $this->assertTrue($f->validate('2011'));
