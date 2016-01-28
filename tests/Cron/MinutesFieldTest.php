@@ -13,7 +13,7 @@ class MinutesFieldTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Cron\MinutesField::validate
      */
-    public function testValdatesField()
+    public function testValidatesField()
     {
         $f = new MinutesField();
         $this->assertTrue($f->validate('1'));
