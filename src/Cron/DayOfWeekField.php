@@ -75,10 +75,8 @@ class DayOfWeekField extends AbstractField
             $dayCount = 0;
             $currentDay = 1;
             while ($currentDay < $lastDayOfMonth + 1) {
-                if ($tdate->format('N') == $weekday) {
-                    if (++$dayCount >= $nth) {
-                        break;
-                    }
+                if ($tdate->format('N') == $weekday && ++$dayCount >= $nth) {
+                    break;
                 }
                 $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
             }
