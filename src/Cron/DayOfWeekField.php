@@ -2,6 +2,10 @@
 
 namespace Cron;
 
+use DateTime;
+use InvalidArgumentException;
+
+
 /**
  * Day of week field.  Allows: * / , - ? L #
  *
@@ -17,7 +21,7 @@ namespace Cron;
  */
 class DayOfWeekField extends AbstractField
 {
-    public function isSatisfiedBy(\DateTime $date, $value)
+    public function isSatisfiedBy(DateTime $date, $value)
     {
         if ($value == '?') {
             return true;
@@ -36,7 +40,7 @@ class DayOfWeekField extends AbstractField
             $tdate = clone $date;
             $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
             while ($tdate->format('w') != $weekday) {
-                $tdateClone = new \DateTime();
+                $tdateClone = new DateTime();
                 $tdate = $tdateClone
                     ->setTimezone($tdate->getTimezone())
                     ->setDate($currentYear, $currentMonth, --$lastDayOfMonth);
@@ -56,10 +60,10 @@ class DayOfWeekField extends AbstractField
 
             // Validate the hash fields
             if ($weekday < 0 || $weekday > 7) {
-                throw new \InvalidArgumentException("Weekday must be a value between 0 and 7. {$weekday} given");
+                throw new InvalidArgumentException("Weekday must be a value between 0 and 7. {$weekday} given");
             }
             if ($nth > 5) {
-                throw new \InvalidArgumentException('There are never more than 5 of a given weekday in a month');
+                throw new InvalidArgumentException('There are never more than 5 of a given weekday in a month');
             }
             // The current weekday must match the targeted weekday to proceed
             if ($date->format('N') != $weekday) {
@@ -100,7 +104,7 @@ class DayOfWeekField extends AbstractField
         return $this->isSatisfied($fieldValue, $value);
     }
 
-    public function increment(\DateTime $date, $invert = false)
+    public function increment(DateTime $date, $invert = false)
     {
         if ($invert) {
             $date->modify('-1 day');

@@ -3,11 +3,12 @@
 namespace Cron\Tests;
 
 use Cron\DayOfWeekField;
+use PHPUnit_Framework_TestCase;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class AbstractFieldTest extends \PHPUnit_Framework_TestCase
+class AbstractFieldTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @covers Cron\AbstractField::isRange

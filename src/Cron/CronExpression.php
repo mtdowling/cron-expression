@@ -2,6 +2,13 @@
 
 namespace Cron;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
+use Exception;
+use InvalidArgumentException;
+use RuntimeException;
+
 /**
  * CRON expression parser that can determine whether or not a CRON expression is
  * due to run, the next run date and previous run date of a CRON expression.
@@ -89,7 +96,7 @@ class CronExpression
     {
         try {
             self::factory($expression);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return false;
         }
 
@@ -120,7 +127,7 @@ class CronExpression
     {
         $this->cronParts = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
         if (count($this->cronParts) < 5) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 $value . ' is not a valid CRON expression'
             );
         }
@@ -144,7 +151,7 @@ class CronExpression
     public function setPart($position, $value)
     {
         if (!$this->fieldFactory->getField($position)->validate($value)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Invalid CRON field value ' . $value . ' at position ' . $position
             );
         }
@@ -223,7 +230,7 @@ class CronExpression
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
                 $matches[] = $this->getRunDate($currentTime, $i, $invert, $allowCurrentDate);
-            } catch (\RuntimeException $e) {
+            } catch (RuntimeException $e) {
                 break;
             }
         }
@@ -275,19 +282,19 @@ class CronExpression
         if ('now' === $currentTime) {
             $currentDate = date('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
-        } elseif ($currentTime instanceof \DateTime) {
+        } elseif ($currentTime instanceof DateTime) {
             $currentDate = clone $currentTime;
             // Ensure time in 'current' timezone is used
-            $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            $currentDate->setTimezone(new DateTimeZone(date_default_timezone_get()));
             $currentDate = $currentDate->format('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
-        } elseif ($currentTime instanceof \DateTimeImmutable) {
-            $currentDate = \DateTime::createFromFormat('U', $currentTime->format('U'));
-            $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        } elseif ($currentTime instanceof DateTimeImmutable) {
+            $currentDate = DateTime::createFromFormat('U', $currentTime->format('U'));
+            $currentDate->setTimezone(new DateTimeZone(date_default_timezone_get()));
             $currentDate = $currentDate->format('Y-m-d H:i');
             $currentTime = strtotime($currentDate);
         } else {
-            $currentTime = new \DateTime($currentTime);
+            $currentTime = new DateTime($currentTime);
             $currentTime->setTime($currentTime->format('H'), $currentTime->format('i'), 0);
             $currentDate = $currentTime->format('Y-m-d H:i');
             $currentTime = $currentTime->getTimeStamp();
@@ -295,7 +302,7 @@ class CronExpression
 
         try {
             return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -314,14 +321,14 @@ class CronExpression
      */
     protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false)
     {
-        if ($currentTime instanceof \DateTime) {
+        if ($currentTime instanceof DateTime) {
             $currentDate = clone $currentTime;
-        } elseif ($currentTime instanceof \DateTimeImmutable) {
-            $currentDate = \DateTime::createFromFormat('U', $currentTime->format('U'));
+        } elseif ($currentTime instanceof DateTimeImmutable) {
+            $currentDate = DateTime::createFromFormat('U', $currentTime->format('U'));
             $currentDate->setTimezone($currentTime->getTimezone());
         } else {
-            $currentDate = new \DateTime($currentTime ?: 'now');
-            $currentDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            $currentDate = new DateTime($currentTime ?: 'now');
+            $currentDate->setTimezone(new DateTimeZone(date_default_timezone_get()));
         }
 
         $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
@@ -376,7 +383,7 @@ class CronExpression
         }
 
         // @codeCoverageIgnoreStart
-        throw new \RuntimeException('Impossible CRON expression');
+        throw new RuntimeException('Impossible CRON expression');
         // @codeCoverageIgnoreEnd
     }
 }
