@@ -15,8 +15,12 @@ class HoursField extends AbstractField
         return $this->isSatisfied($date->format('H'), $value);
     }
 
+    public function minHashValue() {
+        return 0;
+    }
+
     public function maxHashValue() {
-        return 59;
+        return 23;
     }
 
     public function increment(DateTime $date, $invert = false, $parts = null)

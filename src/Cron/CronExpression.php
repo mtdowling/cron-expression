@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
+use mersenne_twister\twister;
 use RuntimeException;
 
 /**
@@ -311,9 +312,20 @@ class CronExpression
     }
 
     protected function getHashValue($position) {
+        $twister = new twister();
+        $twister->init_with_string(sha1($position . $this->getHashData()));
         $max = $this->fieldFactory->getField($position)->maxHashValue();
-        return round(rand(0, $max));
+        return $twister->rangeint(0, $max);
     }
+
+    /**
+     * @return string
+     */
+    public function getHashData() {
+        return $this->hashData;
+    }
+
+
 
     /**
      * Get the next or previous run date of the expression relative to a date

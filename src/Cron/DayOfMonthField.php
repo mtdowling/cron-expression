@@ -85,6 +85,14 @@ class DayOfMonthField extends AbstractField
         return $this->isSatisfied($date->format('d'), $value);
     }
 
+    public function minHashValue() {
+        return 1;
+    }
+
+    public function maxHashValue() {
+        return 31;
+    }
+
     public function increment(DateTime $date, $invert = false)
     {
         if ($invert) {

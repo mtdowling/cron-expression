@@ -24,6 +24,14 @@ class MonthField extends AbstractField
         return $this->isSatisfied($date->format('m'), $value);
     }
 
+    public function minHashValue() {
+        return 1;
+    }
+
+    public function maxHashValue() {
+        return 12;
+    }
+
     public function increment(DateTime $date, $invert = false)
     {
         if ($invert) {
