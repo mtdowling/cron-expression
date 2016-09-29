@@ -70,6 +70,21 @@ class DayOfMonthField extends AbstractField
             return $fieldValue == $date->format('t');
         }
 
+        // Find out if this is the last workday (monday-friday) of the month
+        if ( $value == 'D' ) {
+            $tdate = clone $date;
+            $tdate->setDate($date->format('Y'), $date->format('m'), $date->format('t'));
+
+            $lastWorkDay = $tdate->format('w');
+            if ( $lastWorkDay == 0 ) {
+              $tdate->modify('-2 days');
+            } else if ( $lastWorkDay == 6 ) {
+              $tdate->modify('-1 day');
+            }
+
+            return $fieldValue == $tdate->format('d');
+        }
+
         // Check to see if this is the nearest weekday to a particular value
         if (strpos($value, 'W')) {
             // Parse the target day
@@ -100,6 +115,6 @@ class DayOfMonthField extends AbstractField
 
     public function validate($value)
     {
-        return (bool) preg_match('/^[\*,\/\-\?LW0-9A-Za-z]+$/', $value);
+        return (bool) preg_match('/^[\*,\/\-\?LWD0-9A-Za-z]+$/', $value);
     }
 }
