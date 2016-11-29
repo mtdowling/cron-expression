@@ -27,7 +27,6 @@ class AbstractFieldTest extends PHPUnit_Framework_TestCase
     {
         $f = new DayOfWeekField();
         $this->assertFalse($f->isIncrementsOfRanges('1-2'));
-        $this->assertFalse($f->isIncrementsOfRanges('1-2'));
         $this->assertTrue($f->isIncrementsOfRanges('1/2'));
         $this->assertTrue($f->isIncrementsOfRanges('*/2'));
         $this->assertTrue($f->isIncrementsOfRanges('3-12/2'));
