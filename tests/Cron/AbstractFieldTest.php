@@ -61,6 +61,8 @@ class AbstractFieldTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($f->isInIncrementsOfRanges(3, '2-59'));
         $this->assertFalse($f->isInIncrementsOfRanges(3, '2'));
         $this->assertFalse($f->isInIncrementsOfRanges(3, '*'));
+        $this->assertFalse($f->isInIncrementsOfRanges(0, '*/0'));
+        $this->assertFalse($f->isInIncrementsOfRanges(1, '*/0'));
 
         $this->assertTrue($f->isInIncrementsOfRanges(4, '4/10'));
         $this->assertTrue($f->isInIncrementsOfRanges(14, '4/10'));
