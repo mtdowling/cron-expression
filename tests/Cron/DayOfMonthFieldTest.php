@@ -22,6 +22,7 @@ class DayOfMonthFieldTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($f->validate('*/3,1,1-12'));
         $this->assertTrue($f->validate('5W,L'));
         $this->assertFalse($f->validate('1.'));
+        $this->assertTrue($f->validate('D'));
     }
 
     /**
@@ -31,6 +32,8 @@ class DayOfMonthFieldTest extends PHPUnit_Framework_TestCase
     {
         $f = new DayOfMonthField();
         $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
+        $this->assertTrue($f->isSatisfiedBy(new DateTime('2016-01-29'), 'D'));
+        $this->assertTrue($f->isSatisfiedBy(new DateTime('2016-12-30'), 'D'));
     }
 
     /**
