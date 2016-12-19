@@ -15,6 +15,14 @@ class HoursField extends AbstractField
         return $this->isSatisfied($date->format('H'), $value);
     }
 
+    public function minHashValue() {
+        return 0;
+    }
+
+    public function maxHashValue() {
+        return 23;
+    }
+
     public function increment(DateTime $date, $invert = false, $parts = null)
     {
         // Change timezone to UTC temporarily. This will
@@ -66,6 +74,6 @@ class HoursField extends AbstractField
 
     public function validate($value)
     {
-        return (bool) preg_match('/^[\*,\/\-0-9]+$/', $value);
+        return (bool) preg_match('/^[\*,\/\-0-9H]+$/', $value);
     }
 }

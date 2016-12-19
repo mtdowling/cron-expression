@@ -104,6 +104,14 @@ class DayOfWeekField extends AbstractField
         return $this->isSatisfied($fieldValue, $value);
     }
 
+    public function minHashValue() {
+        return 0;
+    }
+
+    public function maxHashValue() {
+        return 6;
+    }
+
     public function increment(DateTime $date, $invert = false)
     {
         if ($invert) {

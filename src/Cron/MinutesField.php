@@ -15,6 +15,14 @@ class MinutesField extends AbstractField
         return $this->isSatisfied($date->format('i'), $value);
     }
 
+    public function minHashValue() {
+        return 0;
+    }
+
+    public function maxHashValue() {
+        return 59;
+    }
+
     public function increment(DateTime $date, $invert = false, $parts = null)
     {
         if (is_null($parts)) {
@@ -57,6 +65,6 @@ class MinutesField extends AbstractField
 
     public function validate($value)
     {
-        return (bool) preg_match('/^[\*,\/\-0-9]+$/', $value);
+        return (bool) preg_match('/^[\*,\/\-0-9H]+$/', $value);
     }
 }

@@ -411,4 +411,15 @@ class CronExpressionTest extends PHPUnit_Framework_TestCase
         // Valid
         $this->assertTrue(CronExpression::isValidExpression('* * * * 1'));
     }
+
+    public function testHashWorks()
+    {
+        $cron = CronExpression::factory('H H * * *', null, 'data');
+        $nextRun = $cron->getNextRunDate("2008-11-09 08:00:00");
+        $this->assertEquals(new DateTime("2008-11-09 09:29:00"), $nextRun);
+
+        $cron = CronExpression::factory('H H * * *', null, 'data2');
+        $nextRun = $cron->getNextRunDate("2008-11-09 08:00:00");
+        $this->assertEquals(new DateTime("2008-11-10 06:56:00"), $nextRun);
+    }
 }

@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
+use mersenne_twister\twister;
 use RuntimeException;
 
 /**
@@ -45,6 +46,8 @@ class CronExpression
      */
     private $maxIterationCount = 1000;
 
+    private $hashData = '';
+
     /**
      * @var array Order in which to test of cron parts
      */
@@ -66,7 +69,7 @@ class CronExpression
      *
      * @return CronExpression
      */
-    public static function factory($expression, FieldFactory $fieldFactory = null)
+    public static function factory($expression, FieldFactory $fieldFactory = null, $hashData = '')
     {
         $mappings = array(
             '@yearly' => '0 0 1 1 *',
@@ -81,7 +84,7 @@ class CronExpression
             $expression = $mappings[$expression];
         }
 
-        return new static($expression, $fieldFactory ?: new FieldFactory());
+        return new static($expression, $fieldFactory ?: new FieldFactory(), $hashData);
     }
 
     /**
@@ -109,9 +112,10 @@ class CronExpression
      * @param string       $expression   CRON expression (e.g. '8 * * * *')
      * @param FieldFactory $fieldFactory Factory to create cron fields
      */
-    public function __construct($expression, FieldFactory $fieldFactory)
+    public function __construct($expression, FieldFactory $fieldFactory, $hashData)
     {
         $this->fieldFactory = $fieldFactory;
+        $this->hashData = $hashData;
         $this->setExpression($expression);
     }
 
@@ -307,6 +311,22 @@ class CronExpression
         }
     }
 
+    protected function getHashValue($position) {
+        $twister = new twister();
+        $twister->init_with_string(sha1($position . $this->getHashData()));
+        $max = $this->fieldFactory->getField($position)->maxHashValue();
+        return $twister->rangeint(0, $max);
+    }
+
+    /**
+     * @return string
+     */
+    public function getHashData() {
+        return $this->hashData;
+    }
+
+
+
     /**
      * Get the next or previous run date of the expression relative to a date
      *
@@ -342,6 +362,9 @@ class CronExpression
             $part = $this->getExpression($position);
             if (null === $part || '*' === $part) {
                 continue;
+            }
+            if (strpos($part, 'H') !== false) {
+                $part = preg_replace('/H/', $this->getHashValue($position), $part);
             }
             $parts[$position] = $part;
             $fields[$position] = $this->fieldFactory->getField($position);
