@@ -187,13 +187,14 @@ class CronExpression
      *                                           matches and so on.
      * @param bool             $allowCurrentDate Set to TRUE to return the current date if
      *                                           it matches the cron expression.
+     * @param null|string      $timeZone         Timezone to use instead of the system default
      *
      * @return \DateTime
      * @throws \RuntimeException on too many iterations
      */
-    public function getNextRunDate($currentTime = 'now', $nth = 0, $allowCurrentDate = false)
+    public function getNextRunDate($currentTime = 'now', $nth = 0, $allowCurrentDate = false, $timeZone = null)
     {
-        return $this->getRunDate($currentTime, $nth, false, $allowCurrentDate);
+        return $this->getRunDate($currentTime, $nth, false, $allowCurrentDate, $timeZone);
     }
 
     /**
@@ -203,14 +204,15 @@ class CronExpression
      * @param int              $nth              Number of matches to skip before returning
      * @param bool             $allowCurrentDate Set to TRUE to return the
      *                                           current date if it matches the cron expression
+     * @param null|string      $timeZone         Timezone to use instead of the system default
      *
      * @return \DateTime
      * @throws \RuntimeException on too many iterations
      * @see Cron\CronExpression::getNextRunDate
      */
-    public function getPreviousRunDate($currentTime = 'now', $nth = 0, $allowCurrentDate = false)
+    public function getPreviousRunDate($currentTime = 'now', $nth = 0, $allowCurrentDate = false, $timeZone = null)
     {
-        return $this->getRunDate($currentTime, $nth, true, $allowCurrentDate);
+        return $this->getRunDate($currentTime, $nth, true, $allowCurrentDate, $timeZone);
     }
 
     /**
@@ -221,15 +223,16 @@ class CronExpression
      * @param bool             $invert           Set to TRUE to retrieve previous dates
      * @param bool             $allowCurrentDate Set to TRUE to return the
      *                                           current date if it matches the cron expression
+     * @param null|string      $timeZone         Timezone to use instead of the system default
      *
      * @return array Returns an array of run dates
      */
-    public function getMultipleRunDates($total, $currentTime = 'now', $invert = false, $allowCurrentDate = false)
+    public function getMultipleRunDates($total, $currentTime = 'now', $invert = false, $allowCurrentDate = false, $timeZone = null)
     {
         $matches = array();
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                $matches[] = $this->getRunDate($currentTime, $i, $invert, $allowCurrentDate);
+                $matches[] = $this->getRunDate($currentTime, $i, $invert, $allowCurrentDate, $timezone);
             } catch (RuntimeException $e) {
                 break;
             }
