@@ -309,7 +309,7 @@ class CronExpression
         }
 
         try {
-            return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
+            return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() === $currentTime;
         } catch (Exception $e) {
             return false;
         }

@@ -23,7 +23,7 @@ class DayOfWeekField extends AbstractField
 {
     public function isSatisfiedBy(DateTime $date, $value)
     {
-        if ($value == '?') {
+        if ($value === '?') {
             return true;
         }
 
@@ -89,9 +89,9 @@ class DayOfWeekField extends AbstractField
         // Handle day of the week values
         if (strpos($value, '-')) {
             $parts = explode('-', $value);
-            if ($parts[0] == '7') {
+            if ($parts[0] === '7') {
                 $parts[0] = '0';
-            } elseif ($parts[1] == '0') {
+            } elseif ($parts[1] === '0') {
                 $parts[1] = '7';
             }
             $value = implode('-', $parts);

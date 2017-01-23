@@ -23,7 +23,7 @@ abstract class AbstractField implements FieldInterface
             return $this->isInRange($dateValue, $value);
         }
 
-        return $value == '*' || $dateValue == $value;
+        return $value === '*' || $dateValue == $value;
     }
 
     /**
@@ -82,8 +82,8 @@ abstract class AbstractField implements FieldInterface
             return false;
         }
 
-        if (($parts[0] == '*' || $parts[0] === '0')) {
-            return (int) $dateValue % $stepSize == 0;
+        if (($parts[0] === '*' || $parts[0] === '0')) {
+            return (int) $dateValue % $stepSize === 0;
         }
 
         $range = explode('-', $parts[0], 2);
@@ -132,7 +132,7 @@ abstract class AbstractField implements FieldInterface
                 $offset = $range[0];
                 $to = isset($range[1]) ? $range[1] : $max;
             }
-            $offset = $offset == '*' ? 0 : $offset;
+            $offset = $offset === '*' ? 0 : $offset;
             for ($i = $offset; $i <= $to; $i += $stepSize) {
                 $values[] = $i;
             }

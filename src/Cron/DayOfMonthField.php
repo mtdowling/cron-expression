@@ -49,7 +49,7 @@ class DayOfMonthField extends AbstractField
             $adjusted = $targetDay + $i;
             if ($adjusted > 0 && $adjusted <= $lastDayOfMonth) {
                 $target->setDate($currentYear, $currentMonth, $adjusted);
-                if ($target->format('N') < 6 && $target->format('m') == $currentMonth) {
+                if ($target->format('N') < 6 && $target->format('m') === $currentMonth) {
                     return $target;
                 }
             }
@@ -59,15 +59,15 @@ class DayOfMonthField extends AbstractField
     public function isSatisfiedBy(DateTime $date, $value)
     {
         // ? states that the field value is to be skipped
-        if ($value == '?') {
+        if ($value === '?') {
             return true;
         }
 
         $fieldValue = $date->format('d');
 
         // Check to see if this is the last day of the month
-        if ($value == 'L') {
-            return $fieldValue == $date->format('t');
+        if ($value === 'L') {
+            return $fieldValue === $date->format('t');
         }
 
         // Check to see if this is the nearest weekday to a particular value
@@ -75,7 +75,7 @@ class DayOfMonthField extends AbstractField
             // Parse the target day
             $targetDay = substr($value, 0, strpos($value, 'W'));
             // Find out if the current day is the nearest day of the week
-            return $date->format('j') == self::getNearestWeekday(
+            return $date->format('j') === self::getNearestWeekday(
                 $date->format('Y'),
                 $date->format('m'),
                 $targetDay
