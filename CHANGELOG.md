@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased]
+### Added
+
+### Changed
+- Dropped support for PHP 5.x
+
+### Fixed
+
 ## [1.2.0] - 2017-01-22
 ### Added
 - Added IDE, CodeSniffer, and StyleCI.IO support
