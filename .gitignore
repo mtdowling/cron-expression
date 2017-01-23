@@ -5,3 +5,4 @@ vendor
 composer.phar
 composer.lock
 .idea
+.php_cs.cache
