@@ -12,7 +12,7 @@ use PHPUnit_Framework_TestCase;
 class YearFieldTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @covers Cron\YearField::validate
+     * @covers \Cron\YearField::validate
      */
     public function testValidatesField()
     {
@@ -23,7 +23,7 @@ class YearFieldTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Cron\YearField::increment
+     * @covers \Cron\YearField::increment
      */
     public function testIncrementsDate()
     {

@@ -11,7 +11,7 @@ use PHPUnit_Framework_TestCase;
 class FieldFactoryTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @covers Cron\FieldFactory::getField
+     * @covers \Cron\FieldFactory::getField
      */
     public function testRetrievesFieldInstances()
     {
@@ -32,7 +32,7 @@ class FieldFactoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Cron\FieldFactory::getField
+     * @covers \Cron\FieldFactory::getField
      * @expectedException InvalidArgumentException
      */
     public function testValidatesFieldPosition()

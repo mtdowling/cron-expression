@@ -12,7 +12,7 @@ use PHPUnit_Framework_TestCase;
 class MinutesFieldTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @covers Cron\MinutesField::validate
+     * @covers \Cron\MinutesField::validate
      */
     public function testValidatesField()
     {
@@ -23,7 +23,7 @@ class MinutesFieldTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Cron\MinutesField::increment
+     * @covers \Cron\MinutesField::increment
      */
     public function testIncrementsDate()
     {

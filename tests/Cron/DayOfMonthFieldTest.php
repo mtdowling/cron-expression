@@ -12,7 +12,7 @@ use PHPUnit_Framework_TestCase;
 class DayOfMonthFieldTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @covers Cron\DayOfMonthField::validate
+     * @covers \Cron\DayOfMonthField::validate
      */
     public function testValidatesField()
     {
@@ -24,7 +24,7 @@ class DayOfMonthFieldTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Cron\DayOfMonthField::isSatisfiedBy
+     * @covers \Cron\DayOfMonthField::isSatisfiedBy
      */
     public function testChecksIfSatisfied()
     {
@@ -33,7 +33,7 @@ class DayOfMonthFieldTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Cron\DayOfMonthField::increment
+     * @covers \Cron\DayOfMonthField::increment
      */
     public function testIncrementsDate()
     {
