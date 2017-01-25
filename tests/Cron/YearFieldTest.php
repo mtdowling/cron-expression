@@ -30,8 +30,8 @@ class YearFieldTest extends PHPUnit_Framework_TestCase
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new YearField();
         $f->increment($d);
-        $this->assertEquals('2012-01-01 00:00:00', $d->format('Y-m-d H:i:s'));
+        $this->assertSame('2012-01-01 00:00:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
-        $this->assertEquals('2011-12-31 23:59:00', $d->format('Y-m-d H:i:s'));
+        $this->assertSame('2011-12-31 23:59:00', $d->format('Y-m-d H:i:s'));
     }
 }
