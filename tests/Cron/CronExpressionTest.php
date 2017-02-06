@@ -18,9 +18,9 @@ class CronExpressionTest extends TestCase
      */
     public function testFactoryRecognizesTemplates()
     {
-        $this->assertEquals('0 0 1 1 *', CronExpression::factory('@annually')->getExpression());
-        $this->assertEquals('0 0 1 1 *', CronExpression::factory('@yearly')->getExpression());
-        $this->assertEquals('0 0 * * 0', CronExpression::factory('@weekly')->getExpression());
+        $this->assertSame('0 0 1 1 *', CronExpression::factory('@annually')->getExpression());
+        $this->assertSame('0 0 1 1 *', CronExpression::factory('@yearly')->getExpression());
+        $this->assertSame('0 0 * * 0', CronExpression::factory('@weekly')->getExpression());
     }
 
     /**
@@ -32,13 +32,13 @@ class CronExpressionTest extends TestCase
     {
         // '2010-09-10 12:00:00'
         $cron = CronExpression::factory('1 2-4 * 4,5,6 */3');
-        $this->assertEquals('1', $cron->getExpression(CronExpression::MINUTE));
-        $this->assertEquals('2-4', $cron->getExpression(CronExpression::HOUR));
-        $this->assertEquals('*', $cron->getExpression(CronExpression::DAY));
-        $this->assertEquals('4,5,6', $cron->getExpression(CronExpression::MONTH));
-        $this->assertEquals('*/3', $cron->getExpression(CronExpression::WEEKDAY));
-        $this->assertEquals('1 2-4 * 4,5,6 */3', $cron->getExpression());
-        $this->assertEquals('1 2-4 * 4,5,6 */3', (string) $cron);
+        $this->assertSame('1', $cron->getExpression(CronExpression::MINUTE));
+        $this->assertSame('2-4', $cron->getExpression(CronExpression::HOUR));
+        $this->assertSame('*', $cron->getExpression(CronExpression::DAY));
+        $this->assertSame('4,5,6', $cron->getExpression(CronExpression::MONTH));
+        $this->assertSame('*/3', $cron->getExpression(CronExpression::WEEKDAY));
+        $this->assertSame('1 2-4 * 4,5,6 */3', $cron->getExpression());
+        $this->assertSame('1 2-4 * 4,5,6 */3', (string) $cron);
         $this->assertNull($cron->getExpression('foo'));
     }
 
@@ -62,12 +62,12 @@ class CronExpressionTest extends TestCase
     public function testParsesCronScheduleWithAnySpaceCharsAsSeparators($schedule, array $expected)
     {
         $cron = CronExpression::factory($schedule);
-        $this->assertEquals($expected[0], $cron->getExpression(CronExpression::MINUTE));
-        $this->assertEquals($expected[1], $cron->getExpression(CronExpression::HOUR));
-        $this->assertEquals($expected[2], $cron->getExpression(CronExpression::DAY));
-        $this->assertEquals($expected[3], $cron->getExpression(CronExpression::MONTH));
-        $this->assertEquals($expected[4], $cron->getExpression(CronExpression::WEEKDAY));
-        $this->assertEquals($expected[5], $cron->getExpression(CronExpression::YEAR));
+        $this->assertSame($expected[0], $cron->getExpression(CronExpression::MINUTE));
+        $this->assertSame($expected[1], $cron->getExpression(CronExpression::HOUR));
+        $this->assertSame($expected[2], $cron->getExpression(CronExpression::DAY));
+        $this->assertSame($expected[3], $cron->getExpression(CronExpression::MONTH));
+        $this->assertSame($expected[4], $cron->getExpression(CronExpression::WEEKDAY));
+        $this->assertSame($expected[5], $cron->getExpression(CronExpression::YEAR));
     }
 
     /**
@@ -206,7 +206,7 @@ class CronExpressionTest extends TestCase
         } elseif (is_int($relativeTime)) {
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
-        $this->assertEquals($isDue, $cron->isDue($relativeTime));
+        $this->assertSame($isDue, $cron->isDue($relativeTime));
         $next = $cron->getNextRunDate($relativeTime, 0, true);
         $this->assertEquals(new DateTime($nextRun), $next);
     }
@@ -339,7 +339,7 @@ class CronExpressionTest extends TestCase
         $current = new DateTime('now');
         $next = $cron->getNextRunDate($current);
         $nextPrev = $cron->getPreviousRunDate($next);
-        $this->assertEquals($current->format('Y-m-d H:i:00'), $nextPrev->format('Y-m-d H:i:s'));
+        $this->assertSame($current->format('Y-m-d H:i:00'), $nextPrev->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -350,7 +350,7 @@ class CronExpressionTest extends TestCase
     {
         $cron = CronExpression::factory('* * * * *');
         $current = new DateTime('2011-09-27 10:10:54');
-        $this->assertEquals('2011-09-27 10:11:00', $cron->getNextRunDate($current)->format('Y-m-d H:i:s'));
+        $this->assertSame('2011-09-27 10:11:00', $cron->getNextRunDate($current)->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -359,13 +359,13 @@ class CronExpressionTest extends TestCase
     public function testFixesPhpBugInDateIntervalMonth()
     {
         $cron = CronExpression::factory('0 0 27 JAN *');
-        $this->assertEquals('2011-01-27 00:00:00', $cron->getPreviousRunDate('2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
+        $this->assertSame('2011-01-27 00:00:00', $cron->getPreviousRunDate('2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
     }
 
     public function testIssue29()
     {
         $cron = CronExpression::factory('@weekly');
-        $this->assertEquals(
+        $this->assertSame(
             '2013-03-10 00:00:00',
             $cron->getPreviousRunDate('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
         );
@@ -400,7 +400,7 @@ class CronExpressionTest extends TestCase
         $strNow = $now->format(DateTime::ISO8601);
         $cron = CronExpression::factory('0 0 * * *');
         $cron->getPreviousRunDate($now);
-        $this->assertEquals($strNow, $now->format(DateTime::ISO8601));
+        $this->assertSame($strNow, $now->format(DateTime::ISO8601));
     }
 
     /**

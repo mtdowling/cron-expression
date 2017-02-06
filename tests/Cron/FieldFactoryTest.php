@@ -27,7 +27,7 @@ class FieldFactoryTest extends TestCase
         $f = new FieldFactory();
 
         foreach ($mappings as $position => $class) {
-            $this->assertEquals($class, get_class($f->getField($position)));
+            $this->assertSame($class, get_class($f->getField($position)));
         }
     }
 
