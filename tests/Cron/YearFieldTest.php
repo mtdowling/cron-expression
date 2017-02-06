@@ -12,14 +12,28 @@ use PHPUnit\Framework\TestCase;
 class YearFieldTest extends TestCase
 {
     /**
+     * @var \Cron\YearField
+     */
+    protected $field;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->field = new YearField();
+    }
+
+    /**
      * @covers \Cron\YearField::validate
      */
     public function testValidatesField()
     {
-        $f = new YearField();
-        $this->assertTrue($f->validate('2011'));
-        $this->assertTrue($f->validate('*'));
-        $this->assertTrue($f->validate('*/10,2012,1-12'));
+        $this->assertTrue($this->field->validate('2011'));
+        $this->assertTrue($this->field->validate('*'));
+        $this->assertTrue($this->field->validate('*/10,2012,1-12'));
     }
 
     /**
@@ -28,10 +42,9 @@ class YearFieldTest extends TestCase
     public function testIncrementsDate()
     {
         $d = new DateTime('2011-03-15 11:15:00');
-        $f = new YearField();
-        $f->increment($d);
+        $this->field->increment($d);
         $this->assertSame('2012-01-01 00:00:00', $d->format('Y-m-d H:i:s'));
-        $f->increment($d, true);
+        $this->field->increment($d, true);
         $this->assertSame('2011-12-31 23:59:00', $d->format('Y-m-d H:i:s'));
     }
 }

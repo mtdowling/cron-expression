@@ -12,15 +12,29 @@ use PHPUnit\Framework\TestCase;
 class DayOfMonthFieldTest extends TestCase
 {
     /**
+     * @var \Cron\DayOfMonthField
+     */
+    protected $field;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->field = new DayOfMonthField();
+    }
+
+    /**
      * @covers \Cron\DayOfMonthField::validate
      */
     public function testValidatesField()
     {
-        $f = new DayOfMonthField();
-        $this->assertTrue($f->validate('1'));
-        $this->assertTrue($f->validate('*'));
-        $this->assertTrue($f->validate('5W,L'));
-        $this->assertFalse($f->validate('1.'));
+        $this->assertTrue($this->field->validate('1'));
+        $this->assertTrue($this->field->validate('*'));
+        $this->assertTrue($this->field->validate('5W,L'));
+        $this->assertFalse($this->field->validate('1.'));
     }
 
     /**
@@ -28,8 +42,7 @@ class DayOfMonthFieldTest extends TestCase
      */
     public function testChecksIfSatisfied()
     {
-        $f = new DayOfMonthField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
+        $this->assertTrue($this->field->isSatisfiedBy(new DateTime(), '?'));
     }
 
     /**
@@ -38,12 +51,11 @@ class DayOfMonthFieldTest extends TestCase
     public function testIncrementsDate()
     {
         $d = new DateTime('2011-03-15 11:15:00');
-        $f = new DayOfMonthField();
-        $f->increment($d);
+        $this->field->increment($d);
         $this->assertSame('2011-03-16 00:00:00', $d->format('Y-m-d H:i:s'));
 
         $d = new DateTime('2011-03-15 11:15:00');
-        $f->increment($d, true);
+        $this->field->increment($d, true);
         $this->assertSame('2011-03-14 23:59:00', $d->format('Y-m-d H:i:s'));
     }
 
@@ -55,7 +67,6 @@ class DayOfMonthFieldTest extends TestCase
      */
     public function testDoesNotAccept0Date()
     {
-        $f = new DayOfMonthField();
-        $this->assertFalse($f->validate(0));
+        $this->assertFalse($this->field->validate(0));
     }
 }
