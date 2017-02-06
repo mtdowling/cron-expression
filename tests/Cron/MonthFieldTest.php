@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class MonthFieldTest extends TestCase
 {
     /**
-     * @covers Cron\MonthField::validate
+     * @covers \Cron\MonthField::validate
      */
     public function testValidatesField()
     {
@@ -24,7 +24,7 @@ class MonthFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\MonthField::increment
+     * @covers \Cron\MonthField::increment
      */
     public function testIncrementsDate()
     {
@@ -39,7 +39,7 @@ class MonthFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\MonthField::increment
+     * @covers \Cron\MonthField::increment
      */
     public function testIncrementsDateWithThirtyMinuteTimezone()
     {
@@ -58,7 +58,7 @@ class MonthFieldTest extends TestCase
 
 
     /**
-     * @covers Cron\MonthField::increment
+     * @covers \Cron\MonthField::increment
      */
     public function testIncrementsYearAsNeeded()
     {
@@ -69,7 +69,7 @@ class MonthFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\MonthField::increment
+     * @covers \Cron\MonthField::increment
      */
     public function testDecrementsYearAsNeeded()
     {

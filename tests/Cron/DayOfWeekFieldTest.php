@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class DayOfWeekFieldTest extends TestCase
 {
     /**
-     * @covers Cron\DayOfWeekField::validate
+     * @covers \Cron\DayOfWeekField::validate
      */
     public function testValidatesField()
     {
@@ -25,7 +25,7 @@ class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Cron\DayOfWeekField::isSatisfiedBy
      */
     public function testChecksIfSatisfied()
     {
@@ -34,7 +34,7 @@ class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\DayOfWeekField::increment
+     * @covers \Cron\DayOfWeekField::increment
      */
     public function testIncrementsDate()
     {
@@ -49,7 +49,7 @@ class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Cron\DayOfWeekField::isSatisfiedBy
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Weekday must be a value between 0 and 7. 12 given
      */
@@ -60,7 +60,7 @@ class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Cron\DayOfWeekField::isSatisfiedBy
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage There are never more than 5 of a given weekday in a month
      */
@@ -71,7 +71,7 @@ class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\DayOfWeekField::validate
+     * @covers \Cron\DayOfWeekField::validate
      */
     public function testValidateWeekendHash()
     {
@@ -87,7 +87,7 @@ class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Cron\DayOfWeekField::isSatisfiedBy
      */
     public function testHandlesZeroAndSevenDayOfTheWeekValues()
     {

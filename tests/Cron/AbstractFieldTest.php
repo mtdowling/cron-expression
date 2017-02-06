@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 class AbstractFieldTest extends TestCase
 {
     /**
-     * @covers Cron\AbstractField::isRange
+     * @covers \Cron\AbstractField::isRange
      */
     public function testTestsIfRange()
     {
@@ -21,7 +21,7 @@ class AbstractFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\AbstractField::isIncrementsOfRanges
+     * @covers \Cron\AbstractField::isIncrementsOfRanges
      */
     public function testTestsIfIncrementsOfRanges()
     {
@@ -33,7 +33,7 @@ class AbstractFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\AbstractField::isInRange
+     * @covers \Cron\AbstractField::isInRange
      */
     public function testTestsIfInRange()
     {
@@ -46,7 +46,7 @@ class AbstractFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\AbstractField::isInIncrementsOfRanges
+     * @covers \Cron\AbstractField::isInIncrementsOfRanges
      */
     public function testTestsIfInIncrementsOfRanges()
     {
@@ -70,7 +70,7 @@ class AbstractFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\AbstractField::isSatisfied
+     * @covers \Cron\AbstractField::isSatisfied
      */
     public function testTestsIfSatisfied()
     {

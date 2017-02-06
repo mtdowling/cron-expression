@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class HoursFieldTest extends TestCase
 {
     /**
-     * @covers Cron\HoursField::validate
+     * @covers \Cron\HoursField::validate
      */
     public function testValidatesField()
     {
@@ -23,7 +23,7 @@ class HoursFieldTest extends TestCase
      }
 
     /**
-     * @covers Cron\HoursField::increment
+     * @covers \Cron\HoursField::increment
      */
     public function testIncrementsDate()
     {
@@ -38,7 +38,7 @@ class HoursFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\HoursField::increment
+     * @covers \Cron\HoursField::increment
      */
     public function testIncrementsDateWithThirtyMinuteOffsetTimezone()
     {
@@ -56,7 +56,7 @@ class HoursFieldTest extends TestCase
     }
 
     /**
-     * @covers Cron\HoursField::increment
+     * @covers \Cron\HoursField::increment
      */
     public function testIncrementDateWithFifteenMinuteOffsetTimezone()
     {
