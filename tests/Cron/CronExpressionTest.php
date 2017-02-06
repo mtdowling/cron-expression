@@ -417,7 +417,7 @@ class CronExpressionTest extends TestCase
      */
     public function testKeepOriginalTime()
     {
-        $now = new \DateTime;
+        $now = new DateTime;
         $strNow = $now->format(DateTime::ISO8601);
         $cron = CronExpression::factory('0 0 * * *');
         $cron->getPreviousRunDate($now);
