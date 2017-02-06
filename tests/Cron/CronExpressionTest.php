@@ -24,9 +24,9 @@ class CronExpressionTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Cron\CronExpression::__construct
-     * @covers Cron\CronExpression::getExpression
-     * @covers Cron\CronExpression::__toString
+     * @covers \Cron\CronExpression::__construct
+     * @covers \Cron\CronExpression::getExpression
+     * @covers \Cron\CronExpression::__toString
      */
     public function testParsesCronSchedule()
     {
@@ -40,12 +40,18 @@ class CronExpressionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('1 2-4 * 4,5,6 */3', $cron->getExpression());
         $this->assertEquals('1 2-4 * 4,5,6 */3', (string) $cron);
         $this->assertNull($cron->getExpression('foo'));
+    }
 
-        try {
-            $cron = CronExpression::factory('A 1 2 3 4');
-            $this->fail('Validation exception not thrown');
-        } catch (InvalidArgumentException $e) {
-        }
+    /**
+     * @covers \Cron\CronExpression::__construct
+     * @covers \Cron\CronExpression::getExpression
+     * @covers \Cron\CronExpression::__toString
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid CRON field value A at position 0
+     */
+    public function testParsesCronScheduleThrowsAnException()
+    {
+        CronExpression::factory('A 1 2 3 4');
     }
 
     /**
