@@ -4,12 +4,12 @@ namespace Cron\Tests;
 
 use Cron\MonthField;
 use DateTime;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class MonthFieldTest extends PHPUnit_Framework_TestCase
+class MonthFieldTest extends TestCase
 {
     /**
      * @covers Cron\MonthField::validate

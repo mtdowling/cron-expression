@@ -4,12 +4,12 @@ namespace Cron\Tests;
 
 use Cron\MinutesField;
 use DateTime;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class MinutesFieldTest extends PHPUnit_Framework_TestCase
+class MinutesFieldTest extends TestCase
 {
     /**
      * @covers Cron\MinutesField::validate

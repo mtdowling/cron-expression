@@ -6,12 +6,12 @@ use Cron\CronExpression;
 use DateTime;
 use DateTimeZone;
 use InvalidArgumentException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class CronExpressionTest extends PHPUnit_Framework_TestCase
+class CronExpressionTest extends TestCase
 {
     /**
      * @covers Cron\CronExpression::factory
