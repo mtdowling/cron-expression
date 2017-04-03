@@ -250,6 +250,27 @@ class CronExpressionTest extends TestCase
         $this->assertTrue($cron->isDue(new DateTime($date, $tokyo)));
     }
 
+   /**
+     * @covers Cron\CronExpression::isDue
+     */
+    public function testIsDueHandlesDifferentTimezonesAsArgument()
+    {
+        $cron      = CronExpression::factory('0 15 * * 3'); //Wednesday at 15:00
+        $date      = '2014-01-01 15:00'; //Wednesday
+        $utc       = new \DateTimeZone('UTC');
+        $amsterdam = new \DateTimeZone('Europe/Amsterdam');
+        $tokyo     = new \DateTimeZone('Asia/Tokyo');
+        $this->assertTrue($cron->isDue(new DateTime($date, $utc), 'UTC'));
+        $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam), 'UTC'));
+        $this->assertFalse($cron->isDue(new DateTime($date, $tokyo), 'UTC'));
+        $this->assertFalse($cron->isDue(new DateTime($date, $utc), 'Europe/Amsterdam'));
+        $this->assertTrue($cron->isDue(new DateTime($date, $amsterdam), 'Europe/Amsterdam'));
+        $this->assertFalse($cron->isDue(new DateTime($date, $tokyo), 'Europe/Amsterdam'));
+        $this->assertFalse($cron->isDue(new DateTime($date, $utc), 'Asia/Tokyo'));
+        $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam), 'Asia/Tokyo'));
+        $this->assertTrue($cron->isDue(new DateTime($date, $tokyo), 'Asia/Tokyo'));
+    }
+    
     /**
      * @covers \Cron\CronExpression::getPreviousRunDate
      */
