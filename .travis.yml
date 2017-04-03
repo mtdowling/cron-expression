@@ -10,8 +10,3 @@ sudo: false
 install: travis_retry composer install --no-interaction --prefer-dist
 
 script: phpunit --coverage-text
-
-matrix:
-  allow_failures:
-    - php: hhvm
-  fast_finish: true
