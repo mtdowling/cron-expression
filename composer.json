@@ -13,6 +13,7 @@
         "php": ">=7.0.0"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "~1",
         "phpunit/phpunit": "~5.7"
     },
     "autoload": {
