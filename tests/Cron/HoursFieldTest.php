@@ -19,7 +19,7 @@ class HoursFieldTest extends TestCase
         $f = new HoursField();
         $this->assertTrue($f->validate('1'));
         $this->assertTrue($f->validate('*'));
-        $this->assertTrue($f->validate('*/3,1,1-12'));
+        $this->assertFalse($f->validate('*/3,1,1-12'));
      }
 
     /**

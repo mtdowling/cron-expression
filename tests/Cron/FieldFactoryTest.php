@@ -21,7 +21,6 @@ class FieldFactoryTest extends TestCase
             2 => 'Cron\DayOfMonthField',
             3 => 'Cron\MonthField',
             4 => 'Cron\DayOfWeekField',
-            5 => 'Cron\YearField'
         );
 
         $f = new FieldFactory();

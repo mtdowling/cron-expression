@@ -10,6 +10,9 @@ use DateTimeZone;
  */
 class HoursField extends AbstractField
 {
+    protected $rangeStart = 0;
+    protected $rangeEnd = 23;
+
     public function isSatisfiedBy(DateTime $date, $value)
     {
         return $this->isSatisfied($date->format('H'), $value);
@@ -62,10 +65,5 @@ class HoursField extends AbstractField
         }
 
         return $this;
-    }
-
-    public function validate($value)
-    {
-        return (bool) preg_match('/^[\*,\/\-0-9]+$/', $value);
     }
 }

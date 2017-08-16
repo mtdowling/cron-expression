@@ -19,7 +19,7 @@ class DayOfWeekFieldTest extends TestCase
         $f = new DayOfWeekField();
         $this->assertTrue($f->validate('1'));
         $this->assertTrue($f->validate('*'));
-        $this->assertTrue($f->validate('*/3,1,1-12'));
+        $this->assertFalse($f->validate('*/3,1,1-12'));
         $this->assertTrue($f->validate('SUN-2'));
         $this->assertFalse($f->validate('1.'));
     }
@@ -62,7 +62,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage There are never more than 5 of a given weekday in a month
+     * @expectedExceptionMessage There are never more than 5 or less than 1 of a given weekday in a month
      */
     public function testValidatesHashValueNth()
     {
