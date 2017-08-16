@@ -5,8 +5,10 @@
 
 ### Changed
 - Dropped support for PHP 5.x
+- Dropped support for the YEAR field, as it was not part of the cron standard
 
 ### Fixed
+- Reworked validation for all the field types
 
 ## [1.2.0] - 2017-01-22
 ### Added

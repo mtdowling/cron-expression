@@ -8,6 +8,36 @@ namespace Cron;
 abstract class AbstractField implements FieldInterface
 {
     /**
+     * Full range of values that are allowed for this field type
+     * @var array
+     */
+    protected $fullRange = [];
+
+    /**
+     * Literal values we need to convert to integers
+     * @var array
+     */
+    protected $literals = [];
+
+    /**
+     * Start value of the full range
+     * @var integer
+     */
+    protected $rangeStart;
+
+    /**
+     * End value of the full range
+     * @var integer
+     */
+    protected $rangeEnd;
+
+
+    public function __construct()
+    {
+        $this->fullRange = range($this->rangeStart, $this->rangeEnd);
+    }
+
+    /**
      * Check to see if a field is satisfied by a value
      *
      * @param string $dateValue Date value to check
@@ -145,4 +175,66 @@ abstract class AbstractField implements FieldInterface
         return $values;
     }
 
+    protected function convertLiterals($value)
+    {
+        if (count($this->literals)) {
+            $key = array_search($value, $this->literals);
+            if ($key !== false) {
+                return $key;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Checks to see if a value is valid for the field
+     *
+     * @param string $value
+     * @return bool
+     */
+    public function validate($value)
+    {
+        $value = $this->convertLiterals($value);
+
+        // All fields allow * as a valid value
+        if ('*' === $value) {
+            return true;
+        }
+
+        // You cannot have a range and a list at the same time
+        if (strpos($value, ',') !== false && strpos($value, '-') !== false) {
+            return false;
+        }
+
+        if (strpos($value, '/') !== false) {
+            list($range, $step) = explode('/', $value);
+            return $this->validate($range) && filter_var($step, FILTER_VALIDATE_INT);
+        }
+
+        if (strpos($value, '-') !== false) {
+            $chunks = explode('-', $value);
+            $chunks[0] = $this->convertLiterals($chunks[0]);
+            $chunks[1] = $this->convertLiterals($chunks[1]);
+
+            return $this->validate($chunks[0]) && $this->validate($chunks[1]);
+        }
+
+        // Validate each chunk of a list individually
+        if (strpos($value, ',') !== false) {
+            foreach (explode(',', $value) as $listItem) {
+                if (!$this->validate($listItem)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // We should have a numeric by now, so coerce this into an integer
+        if (filter_var($value, FILTER_VALIDATE_INT) !== false) {
+            $value = (int) $value;
+        }
+
+        return in_array($value, $this->fullRange, true);
+    }
 }
