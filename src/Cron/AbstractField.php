@@ -217,9 +217,17 @@ abstract class AbstractField implements FieldInterface
         }
 
         if (strpos($value, '-') !== false) {
+            if (substr_count($value, '-') > 1) {
+                return false;
+            }
+
             $chunks = explode('-', $value);
             $chunks[0] = $this->convertLiterals($chunks[0]);
             $chunks[1] = $this->convertLiterals($chunks[1]);
+
+            if ('*' == $chunks[0] || '*' == $chunks[1]) {
+                return false;
+            }
 
             return $this->validate($chunks[0]) && $this->validate($chunks[1]);
         }

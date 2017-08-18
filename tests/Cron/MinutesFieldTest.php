@@ -34,4 +34,18 @@ class MinutesFieldTest extends TestCase
         $f->increment($d, true);
         $this->assertSame('2011-03-15 11:15:00', $d->format('Y-m-d H:i:s'));
     }
+
+    /**
+     * Various bad syntaxes that are reported to work, but shouldn't.
+     *
+     * @author Chris Tankersley
+     * @since 2017-08-18
+     */
+    public function testBadSyntaxesShouldNotValidate()
+    {
+        $f = new MinutesField();
+        $this->assertFalse($f->validate('*-1'));
+        $this->assertFalse($f->validate('1-2-3'));
+        $this->assertFalse($f->validate('-1'));
+    }
 }
