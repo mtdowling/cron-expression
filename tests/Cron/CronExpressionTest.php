@@ -121,7 +121,7 @@ class CronExpressionTest extends TestCase
             // Handles CSV values
             array('* 20,22 * * *', '2015-08-10 21:50:00', '2015-08-10 22:00:00', false),
             // CSV values can be complex
-            array('7-9 * */9 * *', '2015-08-10 22:02:33', '2015-08-18 00:07:00', false),
+            array('7-9 * */9 * *', '2015-08-10 22:02:33', '2015-08-10 22:07:00', false),
             // 15th minute, of the second hour, every 15 days, in January, every Friday
             array('1 * * * 7', '2015-08-10 21:47:27', '2015-08-16 00:01:00', false),
             // Test with exact times

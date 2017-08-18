@@ -3,6 +3,8 @@
 namespace Cron\Tests;
 
 use Cron\DayOfWeekField;
+use Cron\MinutesField;
+use Cron\MonthField;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -48,9 +50,9 @@ class AbstractFieldTest extends TestCase
     /**
      * @covers \Cron\AbstractField::isInIncrementsOfRanges
      */
-    public function testTestsIfInIncrementsOfRanges()
+    public function testTestsIfInIncrementsOfRangesOnZeroStartRange()
     {
-        $f = new DayOfWeekField();
+        $f = new MinutesField();
         $this->assertTrue($f->isInIncrementsOfRanges('3', '3-59/2'));
         $this->assertTrue($f->isInIncrementsOfRanges('13', '3-59/2'));
         $this->assertTrue($f->isInIncrementsOfRanges('15', '3-59/2'));
@@ -64,9 +66,40 @@ class AbstractFieldTest extends TestCase
         $this->assertFalse($f->isInIncrementsOfRanges('0', '*/0'));
         $this->assertFalse($f->isInIncrementsOfRanges('1', '*/0'));
 
-        $this->assertTrue($f->isInIncrementsOfRanges('4', '4/10'));
-        $this->assertTrue($f->isInIncrementsOfRanges('14', '4/10'));
-        $this->assertTrue($f->isInIncrementsOfRanges('34', '4/10'));
+        $this->assertTrue($f->isInIncrementsOfRanges('4', '4/1'));
+        $this->assertFalse($f->isInIncrementsOfRanges('14', '4/1'));
+        $this->assertFalse($f->isInIncrementsOfRanges('34', '4/1'));
+    }
+
+    /**
+     * @covers \Cron\AbstractField::isInIncrementsOfRanges
+     */
+    public function testTestsIfInIncrementsOfRangesOnOneStartRange()
+    {
+        $f = new MonthField();
+        $this->assertTrue($f->isInIncrementsOfRanges('3', '3-12/2'));
+        $this->assertFalse($f->isInIncrementsOfRanges('13', '3-12/2'));
+        $this->assertFalse($f->isInIncrementsOfRanges('15', '3-12/2'));
+        $this->assertTrue($f->isInIncrementsOfRanges('3', '*/2'));
+        $this->assertFalse($f->isInIncrementsOfRanges('3', '*/3'));
+        $this->assertTrue($f->isInIncrementsOfRanges('7', '*/3'));
+        $this->assertFalse($f->isInIncrementsOfRanges('14', '3-12/2'));
+        $this->assertFalse($f->isInIncrementsOfRanges('3', '2-12'));
+        $this->assertFalse($f->isInIncrementsOfRanges('3', '2'));
+        $this->assertFalse($f->isInIncrementsOfRanges('3', '*'));
+        $this->assertFalse($f->isInIncrementsOfRanges('0', '*/0'));
+        $this->assertFalse($f->isInIncrementsOfRanges('1', '*/0'));
+
+        $this->assertTrue($f->isInIncrementsOfRanges('4', '4/1'));
+        $this->assertFalse($f->isInIncrementsOfRanges('14', '4/1'));
+        $this->assertFalse($f->isInIncrementsOfRanges('34', '4/1'));
+    }
+
+    public function testStepCannotBeLargerThanRange()
+    {
+        $this->expectException(\OutOfRangeException::class);
+        $f = new MonthField();
+        $f->isInIncrementsOfRanges('2', '3-12/13');
     }
 
     /**
@@ -76,11 +109,11 @@ class AbstractFieldTest extends TestCase
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->isSatisfied('12', '3-13'));
-        $this->assertTrue($f->isSatisfied('15', '3-59/12'));
+        $this->assertFalse($f->isSatisfied('15', '3-7/2'));
         $this->assertTrue($f->isSatisfied('12', '*'));
         $this->assertTrue($f->isSatisfied('12', '12'));
         $this->assertFalse($f->isSatisfied('12', '3-11'));
-        $this->assertFalse($f->isSatisfied('12', '3-59/13'));
+        $this->assertFalse($f->isSatisfied('12', '3-7/2'));
         $this->assertFalse($f->isSatisfied('12', '11'));
     }
 }

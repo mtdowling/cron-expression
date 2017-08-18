@@ -9,6 +9,7 @@
 
 ### Fixed
 - Reworked validation for all the field types
+- Stepping should now work for 1-indexed fields like Month (#153)
 
 ## [1.2.0] - 2017-01-22
 ### Added

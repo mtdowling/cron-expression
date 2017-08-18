@@ -105,36 +105,40 @@ abstract class AbstractField implements FieldInterface
      */
     public function isInIncrementsOfRanges($dateValue, $value)
     {
-        $parts = array_map('trim', explode('/', $value, 2));
-        $stepSize = isset($parts[1]) ? (int) $parts[1] : 0;
+        $chunks = array_map('trim', explode('/', $value, 2));
+        $range = $chunks[0];
+        $step = isset($chunks[1]) ? $chunks[1] : 0;
 
-        if ($stepSize === 0) {
+        // No step or 0 steps aren't cool
+        if (is_null($step) || '0' === $step || 0 === $step) {
             return false;
         }
 
-        if (($parts[0] == '*' || $parts[0] === '0')) {
-            return (int) $dateValue % $stepSize == 0;
+        // Expand the * to a full range
+        if ('*' == $range) {
+            $range = $this->rangeStart . '-' . $this->rangeEnd;
         }
 
-        $range = explode('-', $parts[0], 2);
-        $offset = $range[0];
-        $to = isset($range[1]) ? $range[1] : $dateValue;
-        // Ensure that the date value is within the range
-        if ($dateValue < $offset || $dateValue > $to) {
-            return false;
+        // Generate the requested small range
+        $rangeChunks = explode('-', $range, 2);
+        $rangeStart = $rangeChunks[0];
+        $rangeEnd = isset($rangeChunks[1]) ? $rangeChunks[1] : $rangeStart;
+
+        if ($rangeStart < $this->rangeStart || $rangeStart > $this->rangeEnd || $rangeStart > $rangeEnd) {
+            throw new \OutOfRangeException('Invalid range start requested');
         }
 
-        if ($dateValue > $offset && 0 === $stepSize) {
-          return false;
+        if ($rangeEnd < $this->rangeStart || $rangeEnd > $this->rangeEnd || $rangeEnd < $rangeStart) {
+            throw new \OutOfRangeException('Invalid range end requested');
         }
 
-        for ($i = $offset; $i <= $to; $i+= $stepSize) {
-            if ($i == $dateValue) {
-                return true;
-            }
+        if ($step > ($rangeEnd - $rangeStart) + 1) {
+            throw new \OutOfRangeException('Step cannot be greater than total range');
         }
 
-        return false;
+        $thisRange = range($rangeStart, $rangeEnd, $step);
+
+        return in_array($dateValue, $thisRange);
     }
 
     /**
