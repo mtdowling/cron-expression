@@ -109,6 +109,11 @@ class DayOfMonthField extends AbstractField
         $basicChecks = parent::validate($value);
 
         if (!$basicChecks) {
+            
+            if ($value == 'L' || $value == 'W') {
+                return true;
+            }
+            
             if (preg_match('/^(.*)L$/', $value, $matches)) {
                 return $this->validate($matches[1]);
             }
