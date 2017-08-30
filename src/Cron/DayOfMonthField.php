@@ -110,12 +110,8 @@ class DayOfMonthField extends AbstractField
 
         if (!$basicChecks) {
             
-            if ($value == 'L' || $value == 'W') {
+            if ($value == 'L') {
                 return true;
-            }
-            
-            if (preg_match('/^(.*)L$/', $value, $matches)) {
-                return $this->validate($matches[1]);
             }
 
             if (preg_match('/^(.*)W$/', $value, $matches)) {
