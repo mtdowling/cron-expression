@@ -224,6 +224,7 @@ class CronExpressionTest extends TestCase
         $utc = new DateTimeZone('UTC');
         $amsterdam =  new DateTimeZone('Europe/Amsterdam');
         $tokyo = new DateTimeZone('Asia/Tokyo');
+        $defaultTimeZone = date_default_timezone_get();
 
         date_default_timezone_set('UTC');
         $this->assertTrue($cron->isDue(new DateTime($date, $utc)));
@@ -239,6 +240,9 @@ class CronExpressionTest extends TestCase
         $this->assertFalse($cron->isDue(new DateTime($date, $utc)));
         $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam)));
         $this->assertTrue($cron->isDue(new DateTime($date, $tokyo)));
+
+        //Set default timezone again
+        date_default_timezone_set($defaultTimeZone);
     }
 
    /**
@@ -261,7 +265,7 @@ class CronExpressionTest extends TestCase
         $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam), 'Asia/Tokyo'));
         $this->assertTrue($cron->isDue(new DateTime($date, $tokyo), 'Asia/Tokyo'));
     }
-    
+
     /**
      * @covers \Cron\CronExpression::getPreviousRunDate
      */
