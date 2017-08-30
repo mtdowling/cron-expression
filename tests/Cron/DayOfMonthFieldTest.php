@@ -19,6 +19,8 @@ class DayOfMonthFieldTest extends TestCase
         $f = new DayOfMonthField();
         $this->assertTrue($f->validate('1'));
         $this->assertTrue($f->validate('*'));
+        $this->assertTrue($f->validate('L'));
+        $this->assertTrue($f->validate('5W'));
         $this->assertFalse($f->validate('5W,L'));
         $this->assertFalse($f->validate('1.'));
     }
