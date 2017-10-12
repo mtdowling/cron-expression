@@ -1,7 +1,8 @@
 # Change Log
 
-## [Unreleased]
+## [2.0.0] - 2017-10-12
 ### Added
+- N/A
 
 ### Changed
 - Dropped support for PHP 5.x
