@@ -24,5 +24,8 @@
         "psr-4": {
             "Tests\\": "tests/Cron/"
         }
+    },
+    "suggest": {
+        "dragonmantank/cron-expression": "Cron Expression 2 has moved to a new package name. The package you have installed, mtdowling/cron-expression:1.2, is no longer maintained."
     }
 }
