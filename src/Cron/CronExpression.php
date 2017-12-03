@@ -406,6 +406,6 @@ class CronExpression
             return $currentTime->getTimeZone()->getName();
         }
 
-        return date_default_timeZone_get();
+        return date_default_timezone_get();
     }
 }
