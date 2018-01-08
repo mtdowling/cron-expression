@@ -172,6 +172,9 @@ class CronExpressionTest extends TestCase
             array('* * * * 5#2', strtotime('2011-07-01 00:00:00'), '2011-07-08 00:00:00', false),
             array('* * * * 5#1', strtotime('2011-07-01 00:00:00'), '2011-07-01 00:00:00', true),
             array('* * * * 3#4', strtotime('2011-07-01 00:00:00'), '2011-07-27 00:00:00', false),
+
+            // Issue #7, documented example failed
+            ['3-59/15 6-12 */15 1 2-5', strtotime('2017-01-08 00:00:00'), '2017-01-31 06:03:00', false],
         );
     }
 
@@ -440,5 +443,8 @@ class CronExpressionTest extends TestCase
 
         // Issue #125, this is just all sorts of wrong
         $this->assertFalse(CronExpression::isValidExpression('990 14 * * mon-fri0345345'));
+
+        // Issue #7, this was the old documented example that had invalid syntax
+        $this->assertFalse(CronExpression::isValidExpression('3-59/15 2,6-12 */15 1 2-5'));
     }
 }
