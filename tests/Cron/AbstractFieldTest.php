@@ -3,6 +3,7 @@
 namespace Cron\Tests;
 
 use Cron\DayOfWeekField;
+use Cron\HoursField;
 use Cron\MinutesField;
 use Cron\MonthField;
 use PHPUnit\Framework\TestCase;
@@ -115,5 +116,31 @@ class AbstractFieldTest extends TestCase
         $this->assertFalse($f->isSatisfied('12', '3-11'));
         $this->assertFalse($f->isSatisfied('12', '3-7/2'));
         $this->assertFalse($f->isSatisfied('12', '11'));
+    }
+
+    /**
+     * Allows ranges and lists to coexist in the same expression
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/5
+     */
+    public function testAllowRangesAndLists()
+    {
+        $expression = '5-7,11-13';
+        $f = new HoursField();
+        $this->assertTrue($f->validate($expression));
+    }
+
+    /**
+     * Makes sure that various types of ranges expand out properly
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/5
+     */
+    public function testGetRangeForExpressionExpandsCorrectly()
+    {
+        $f = new HoursField();
+        $this->assertSame([5, 6, 7, 11, 12, 13], $f->getRangeForExpression('5-7,11-13', 23));
+        $this->assertSame(['5', '6', '7', '11', '12', '13'], $f->getRangeForExpression('5,6,7,11,12,13', 23));
+        $this->assertSame([0, 6, 12, 18], $f->getRangeForExpression('*/6', 23));
+        $this->assertSame([5, 11], $f->getRangeForExpression('5-13/6', 23));
     }
 }

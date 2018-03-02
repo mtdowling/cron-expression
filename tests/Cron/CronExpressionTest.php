@@ -444,7 +444,7 @@ class CronExpressionTest extends TestCase
         // Issue #125, this is just all sorts of wrong
         $this->assertFalse(CronExpression::isValidExpression('990 14 * * mon-fri0345345'));
 
-        // Issue #7, this was the old documented example that had invalid syntax
-        $this->assertFalse(CronExpression::isValidExpression('3-59/15 2,6-12 */15 1 2-5'));
+        // see https://github.com/dragonmantank/cron-expression/issues/5
+        $this->assertTrue(CronExpression::isValidExpression('2,17,35,47 5-7,11-13 * * *'));
     }
 }
