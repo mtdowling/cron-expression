@@ -114,4 +114,14 @@ class DayOfWeekFieldTest extends TestCase
         $this->assertFalse($f->validate('*-'));
         $this->assertFalse($f->validate(',-'));
     }
+
+    /**
+     * @see https://github.com/laravel/framework/commit/07d160ac3cc9764d5b429734ffce4fa311385403
+     */
+    public function testLiteralsExpandProperly()
+    {
+        $f = new DayOfWeekField();
+        $this->assertTrue($f->validate('MON-FRI'));
+        $this->assertSame([1,2,3,4,5], $f->getRangeForExpression('MON-FRI', 7));
+    }
 }

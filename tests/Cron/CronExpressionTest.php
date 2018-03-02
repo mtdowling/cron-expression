@@ -175,6 +175,10 @@ class CronExpressionTest extends TestCase
 
             // Issue #7, documented example failed
             ['3-59/15 6-12 */15 1 2-5', strtotime('2017-01-08 00:00:00'), '2017-01-31 06:03:00', false],
+
+            // https://github.com/laravel/framework/commit/07d160ac3cc9764d5b429734ffce4fa311385403
+            ['* * * * MON-FRI', strtotime('2017-01-08 00:00:00'), strtotime('2017-01-09 00:00:00'), false],
+            ['* * * * TUE', strtotime('2017-01-08 00:00:00'), strtotime('2017-01-10 00:00:00'), false],
         );
     }
 
@@ -200,9 +204,17 @@ class CronExpressionTest extends TestCase
         } elseif (is_int($relativeTime)) {
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
+
+        if (is_string($nextRun)) {
+            $nextRunDate = new DateTime($nextRun);
+        } elseif (is_int($nextRun)) {
+            $nextRunDate = new DateTime();
+            $nextRunDate->setTimestamp($nextRun);
+        }
         $this->assertSame($isDue, $cron->isDue($relativeTime));
         $next = $cron->getNextRunDate($relativeTime, 0, true);
-        $this->assertEquals(new DateTime($nextRun), $next);
+
+        $this->assertEquals($nextRunDate, $next);
     }
 
     /**
