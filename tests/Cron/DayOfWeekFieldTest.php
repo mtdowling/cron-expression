@@ -62,6 +62,17 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Hashed weekdays must be numeric,  given
+     */
+    public function testIsSatisfiedByOnNonNumericValue()
+    {
+        $f = new DayOfWeekField();
+        $f->isSatisfiedBy(new DateTime(), '12##1');
+    }
+
+    /**
+     * @covers \Cron\DayOfWeekField::isSatisfiedBy
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage There are never more than 5 or less than 1 of a given weekday in a month
      */
     public function testValidatesHashValueNth()

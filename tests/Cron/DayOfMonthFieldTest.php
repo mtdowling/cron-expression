@@ -35,6 +35,57 @@ class DayOfMonthFieldTest extends TestCase
     }
 
     /**
+     * @covers \Cron\DayOfMonthField::isInIncrementsOfRanges
+     * @expectedException \OutOfRangeException
+     * @expectedExceptionMessage Invalid range start requested
+     */
+    public function testDateWithInvalidStartShouldThrowOutOfRangeException()
+    {
+        $f = new DayOfMonthField();
+        $f->isSatisfiedBy(new DateTime(), '2018/03/02');
+    }
+
+    /**
+     * @covers \Cron\DayOfMonthField::isInIncrementsOfRanges
+     * @expectedException \OutOfRangeException
+     * @expectedExceptionMessage Invalid range end requested
+     */
+    public function testDateWithInvalidEndShouldThrowOutOfRangeException()
+    {
+        $f = new DayOfMonthField();
+        $f->isSatisfiedBy(new DateTime(), '7-2018/04:05:00');
+    }
+
+    /**
+     * @covers \Cron\AbstractField::getRangeForExpression
+     */
+    public function testGetRangeForExpression()
+    {
+        $f = new DayOfMonthField();
+        $this->assertSame([], $f->getRangeForExpression('2018-03-13 04:05:00', 5));
+        $this->assertSame([], $f->getRangeForExpression('2018/03/13 04:05:00', 5));
+        $this->assertSame(['3', 4, 5], $f->getRangeForExpression('3-5-15', 15));
+    }
+
+    /**
+     * @covers \Cron\AbstractField::validate
+     */
+    public function testValidateShouldReturnTrue()
+    {
+        $f = new DayOfMonthField();
+        $this->assertTrue($f->validate('2,12'));
+    }
+
+    /**
+     * @covers \Cron\DayOfMonthField::isSatisfiedBy
+     */
+    public function testIsSatipsfiedByOnLValue()
+    {
+        $f = new DayOfMonthField();
+        $this->assertFalse($f->isSatisfiedBy(new DateTime, 'L'));
+    }
+
+    /**
      * @covers \Cron\DayOfMonthField::increment
      */
     public function testIncrementsDate()

@@ -261,7 +261,7 @@ class CronExpressionTest extends TestCase
         $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam), 'Asia/Tokyo'));
         $this->assertTrue($cron->isDue(new DateTime($date, $tokyo), 'Asia/Tokyo'));
     }
-    
+
     /**
      * @covers \Cron\CronExpression::getPreviousRunDate
      */
@@ -281,6 +281,27 @@ class CronExpressionTest extends TestCase
         $next = $cron->getNextRunDate('now');
         $two = $cron->getNextRunDate('now', 1);
         $this->assertEquals($next, $cron->getPreviousRunDate($two));
+    }
+
+    /**
+     * @covers \Cron\CronExpression::isDue
+     * @covers \Cron\CronExpression::getNextRunDate
+     */
+    public function testIsDueOnCurrentTimeIsDateTimeImmutableInstance()
+    {
+        $cron = CronExpression::factory('*/2 */2 */2 */20 *');
+        $this->assertFalse($cron->isDue(new \DateTimeImmutable('2018-03-12')));
+    }
+
+    /**
+     * @covers \Cron\CronExpression::getRunDate
+     * @expectedException \OutOfRangeException
+     * @expectedExceptionMessage Step cannot be greater than total range
+     */
+    public function testGetRunDateShouldReturnOtOfRangeException()
+    {
+        $cron = CronExpression::factory('*/2 */2 */2 */20 *');
+        $cron->getNextRunDate(new \DateTimeImmutable('2000-01-01'));
     }
 
     /**
