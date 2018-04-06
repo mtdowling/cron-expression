@@ -1,5 +1,15 @@
 # Change Log
 
+## [2.1.0] - 2018-04-06
+### Added
+- N/A
+### Changed
+- Upgraded to PHPUnit 6 (#2)
+### Fixed
+- Refactored timezones to deal with some inconsistent behavior (#3)
+- Allow ranges and lists in same expression (#5)
+- Fixed regression where literals were not converted to their numerical counterpart (#)
+
 ## [2.0.0] - 2017-10-12
 ### Added
 - N/A
