@@ -171,7 +171,7 @@ class CronExpression
     public function setMaxIterationCount($maxIterationCount)
     {
         $this->maxIterationCount = $maxIterationCount;
-        
+
         return $this;
     }
 
@@ -187,7 +187,7 @@ class CronExpression
      *                                           matches and so on.
      * @param bool             $allowCurrentDate Set to TRUE to return the current date if
      *                                           it matches the cron expression.
-     * @param null|string      $timeZone         Timezone to use instead of the system default
+     * @param null|string      $timeZone         TimeZone to use instead of the system default
      *
      * @return \DateTime
      * @throws \RuntimeException on too many iterations
@@ -204,7 +204,7 @@ class CronExpression
      * @param int              $nth              Number of matches to skip before returning
      * @param bool             $allowCurrentDate Set to TRUE to return the
      *                                           current date if it matches the cron expression
-     * @param null|string      $timeZone         Timezone to use instead of the system default
+     * @param null|string      $timeZone         TimeZone to use instead of the system default
      *
      * @return \DateTime
      * @throws \RuntimeException on too many iterations
@@ -223,7 +223,7 @@ class CronExpression
      * @param bool             $invert           Set to TRUE to retrieve previous dates
      * @param bool             $allowCurrentDate Set to TRUE to return the
      *                                           current date if it matches the cron expression
-     * @param null|string      $timeZone         Timezone to use instead of the system default
+     * @param null|string      $timeZone         TimeZone to use instead of the system default
      *
      * @return array Returns an array of run dates
      */
@@ -277,39 +277,30 @@ class CronExpression
      * seconds are irrelevant, and should be called once per minute.
      *
      * @param string|\DateTime $currentTime Relative calculation date
-     * @param null|string      $timeZone    Timezone to use instead of the system default
+     * @param null|string      $timeZone    TimeZone to use instead of the system default
      *
      * @return bool Returns TRUE if the cron is due to run or FALSE if not
      */
     public function isDue($currentTime = 'now', $timeZone = null)
     {
-        if (is_null($timeZone)) {
-            $timeZone = date_default_timezone_get();
-        }
-        
+        $timeZone = $this->determineTimeZone($currentTime, $timeZone);
+
         if ('now' === $currentTime) {
-            $currentDate = date('Y-m-d H:i');
-            $currentTime = strtotime($currentDate);
+            $currentTime = new DateTime();
         } elseif ($currentTime instanceof DateTime) {
-            $currentDate = clone $currentTime;
-            // Ensure time in 'current' timezone is used
-            $currentDate->setTimezone(new DateTimeZone($timeZone));
-            $currentDate = $currentDate->format('Y-m-d H:i');
-            $currentTime = strtotime($currentDate);
+            //
         } elseif ($currentTime instanceof DateTimeImmutable) {
-            $currentDate = DateTime::createFromFormat('U', $currentTime->format('U'));
-            $currentDate->setTimezone(new DateTimeZone($timeZone));
-            $currentDate = $currentDate->format('Y-m-d H:i');
-            $currentTime = strtotime($currentDate);
+            $currentTime = DateTime::createFromFormat('U', $currentTime->format('U'));
         } else {
             $currentTime = new DateTime($currentTime);
-            $currentTime->setTime($currentTime->format('H'), $currentTime->format('i'), 0);
-            $currentDate = $currentTime->format('Y-m-d H:i');
-            $currentTime = $currentTime->getTimeStamp();
         }
+        $currentTime->setTimeZone(new DateTimeZone($timeZone));
+
+        // drop the seconds to 0
+        $currentTime = DateTime::createFromFormat('Y-m-d H:i', $currentTime->format('Y-m-d H:i'));
 
         try {
-            return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
+            return $this->getNextRunDate($currentTime, 0, true)->getTimestamp() === $currentTime->getTimestamp();
         } catch (Exception $e) {
             return false;
         }
@@ -323,27 +314,24 @@ class CronExpression
      * @param bool             $invert           Set to TRUE to go backwards in time
      * @param bool             $allowCurrentDate Set to TRUE to return the
      *                                           current date if it matches the cron expression
-     * @param string|null      $timeZone         Timezone to use instead of the system default
+     * @param string|null      $timeZone         TimeZone to use instead of the system default
      *
      * @return \DateTime
      * @throws \RuntimeException on too many iterations
      */
     protected function getRunDate($currentTime = null, $nth = 0, $invert = false, $allowCurrentDate = false, $timeZone = null)
     {
-        if (is_null($timeZone)) {
-            $timeZone = date_default_timezone_get();
-        }
-        
+        $timeZone = $this->determineTimeZone($currentTime, $timeZone);
+
         if ($currentTime instanceof DateTime) {
             $currentDate = clone $currentTime;
         } elseif ($currentTime instanceof DateTimeImmutable) {
             $currentDate = DateTime::createFromFormat('U', $currentTime->format('U'));
-            $currentDate->setTimezone($currentTime->getTimezone());
         } else {
             $currentDate = new DateTime($currentTime ?: 'now');
-            $currentDate->setTimezone(new DateTimeZone($timeZone));
         }
 
+        $currentDate->setTimeZone(new DateTimeZone($timeZone));
         $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
         $nextRun = clone $currentDate;
         $nth = (int) $nth;
@@ -398,5 +386,26 @@ class CronExpression
         // @codeCoverageIgnoreStart
         throw new RuntimeException('Impossible CRON expression');
         // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * Workout what timeZone should be used.
+     *
+     * @param string|\DateTime $currentTime      Relative calculation date
+     * @param string|null      $timeZone         TimeZone to use instead of the system default
+     *
+     * @return string
+     */
+    protected function determineTimeZone($currentTime, $timeZone)
+    {
+        if (! is_null($timeZone)) {
+            return $timeZone;
+        }
+
+        if ($currentTime instanceOf Datetime) {
+            return $currentTime->getTimeZone()->getName();
+        }
+
+        return date_default_timezone_get();
     }
 }
