@@ -96,13 +96,6 @@ class AbstractFieldTest extends TestCase
         $this->assertFalse($f->isInIncrementsOfRanges('34', '4/1'));
     }
 
-    public function testStepCannotBeLargerThanRange()
-    {
-        $this->expectException(\OutOfRangeException::class);
-        $f = new MonthField();
-        $f->isInIncrementsOfRanges('2', '3-12/13');
-    }
-
     /**
      * @covers \Cron\AbstractField::isSatisfied
      */

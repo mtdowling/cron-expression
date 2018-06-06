@@ -3,6 +3,7 @@
 namespace Cron\Tests;
 
 use Cron\CronExpression;
+use Cron\MonthField;
 use DateTime;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -531,5 +532,29 @@ class CronExpressionTest extends TestCase
         $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
         $e = CronExpression::factory('* 01 * * *');
         $this->assertTrue($e->isDue(new DateTime('2014-04-07 01:00:00')));
+    }
+
+
+    /**
+     * Ranges with large steps should "wrap around" to the appropriate value
+     * cronie allows for steps that are larger than the range of a field, with it wrapping around like a ring buffer. We
+     * should do the same.
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/6
+     */
+    public function testRangesWrapAroundWithLargeSteps()
+    {
+        $f = new MonthField();
+        $this->assertTrue($f->validate('*/123'));
+        $this->assertSame([4], $f->getRangeForExpression('*/123', 12));
+
+        $e = CronExpression::factory('* * * */123 *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+
+        $nextRunDate = $e->getNextRunDate(new DateTime('2014-04-07 00:00:00'));
+        $this->assertSame('2014-04-07 00:01:00', $nextRunDate->format('Y-m-d H:i:s'));
+
+        $nextRunDate = $e->getNextRunDate(new DateTime('2014-05-07 00:00:00'));
+        $this->assertSame('2015-04-01 00:00:00', $nextRunDate->format('Y-m-d H:i:s'));
     }
 }
