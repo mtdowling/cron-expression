@@ -257,10 +257,16 @@ abstract class AbstractField implements FieldInterface
             return $this->validate($chunks[0]) && $this->validate($chunks[1]);
         }
 
-        // We should have a numeric by now, so coerce this into an integer
-        if (filter_var($value, FILTER_VALIDATE_INT) !== false) {
-            $value = (int) $value;
+        if (!is_numeric($value)) {
+            return false;
         }
+
+        if (is_float($value) || strpos($value, '.') !== false) {
+            return false;
+        }
+
+        // We should have a numeric by now, so coerce this into an integer
+        $value = (int) $value;
 
         return in_array($value, $this->fullRange, true);
     }

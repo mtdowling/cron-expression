@@ -18,6 +18,8 @@ class DayOfWeekFieldTest extends TestCase
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->validate('1'));
+        $this->assertTrue($f->validate('01'));
+        $this->assertTrue($f->validate('00'));
         $this->assertTrue($f->validate('*'));
         $this->assertFalse($f->validate('*/3,1,1-12'));
         $this->assertTrue($f->validate('SUN-2'));

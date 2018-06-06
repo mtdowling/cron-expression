@@ -508,4 +508,28 @@ class CronExpressionTest extends TestCase
         // see https://github.com/dragonmantank/cron-expression/issues/5
         $this->assertTrue(CronExpression::isValidExpression('2,17,35,47 5-7,11-13 * * *'));
     }
+
+    /**
+     * Makes sure that 00 is considered a valid value for 0-based fields
+     * cronie allows numbers with a leading 0, so adding support for this as well
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/12
+     */
+    public function testDoubleZeroIsValid()
+    {
+        $this->assertTrue(CronExpression::isValidExpression('00 * * * *'));
+        $this->assertTrue(CronExpression::isValidExpression('01 * * * *'));
+        $this->assertTrue(CronExpression::isValidExpression('* 00 * * *'));
+        $this->assertTrue(CronExpression::isValidExpression('* 01 * * *'));
+
+        $e = CronExpression::factory('00 * * * *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+        $e = CronExpression::factory('01 * * * *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:01:00')));
+
+        $e = CronExpression::factory('* 00 * * *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+        $e = CronExpression::factory('* 01 * * *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 01:00:00')));
+    }
 }
