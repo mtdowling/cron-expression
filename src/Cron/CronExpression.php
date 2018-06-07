@@ -62,7 +62,7 @@ class CronExpression
      *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
      *      `@daily` - Run once a day, midnight - 0 0 * * *
      *      `@hourly` - Run once an hour, first minute - 0 * * * *
-     * @param FieldFactory $fieldFactory Field factory to use
+     * @param FieldFactory|null $fieldFactory Field factory to use
      *
      * @return CronExpression
      */
@@ -107,9 +107,9 @@ class CronExpression
      * Parse a CRON expression
      *
      * @param string       $expression   CRON expression (e.g. '8 * * * *')
-     * @param FieldFactory $fieldFactory Factory to create cron fields
+     * @param FieldFactory|null $fieldFactory Factory to create cron fields
      */
-    public function __construct($expression, FieldFactory $fieldFactory)
+    public function __construct($expression, FieldFactory $fieldFactory = null)
     {
         $this->fieldFactory = $fieldFactory;
         $this->setExpression($expression);
