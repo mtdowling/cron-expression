@@ -1,17 +1,31 @@
 language: php
 
-php:
-  - 7.0
-  - 7.1
-  - hhvm
-
 sudo: false
 
-install: travis_retry composer install --no-interaction --prefer-dist
-
-script: phpunit --coverage-text
-
 matrix:
+  include:
+    - php: 7.0
+    - php: 7.0
+      env: dependencies=lowest
+    - php: 7.1
+    - php: 7.1
+      env: dependencies=lowest
+    - php: 7.2
+    - php: 7.2
+      env: dependencies=lowest
+    - php: nighly
+    - php: nighly
+      env: dependencies=lowest
   allow_failures:
-    - php: hhvm
+    - php: nighly
   fast_finish: true
+
+install:
+    - |
+        if [[ "$dependencies" = "lowest" ]]; then
+          travis_retry composer update --no-interaction --prefer-lowest --prefer-stable -n
+        else
+          travis_retry composer install --no-interaction --prefer-dist
+        fi
+
+script: vendor/bin/phpunit --coverage-text
