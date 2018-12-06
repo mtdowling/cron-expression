@@ -21,11 +21,24 @@ use InvalidArgumentException;
  */
 class DayOfWeekField extends AbstractField
 {
+    /**
+     * @inheritDoc
+     */
     protected $rangeStart = 0;
+
+    /**
+     * @inheritDoc
+     */
     protected $rangeEnd = 7;
 
+    /**
+     * @var array Weekday range
+     */
     protected $nthRange;
 
+    /**
+     * @inheritDoc
+     */
     protected $literals = [1 => 'MON', 2 => 'TUE', 3 => 'WED', 4 => 'THU', 5 => 'FRI', 6 => 'SAT', 7 => 'SUN'];
 
     /**
