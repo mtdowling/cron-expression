@@ -1,9 +1,9 @@
 <?php
 
 namespace Cron;
+
 use DateTime;
 use DateTimeZone;
-
 
 /**
  * Hours field.  Allows: * , / -

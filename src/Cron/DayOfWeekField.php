@@ -5,7 +5,6 @@ namespace Cron;
 use DateTime;
 use InvalidArgumentException;
 
-
 /**
  * Day of week field.  Allows: * / , - ? L #
  *
