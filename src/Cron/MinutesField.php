@@ -4,7 +4,6 @@ namespace Cron;
 
 use DateTime;
 
-
 /**
  * Minutes field.  Allows: * , / -
  */
