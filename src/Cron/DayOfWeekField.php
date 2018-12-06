@@ -28,12 +28,18 @@ class DayOfWeekField extends AbstractField
 
     protected $literals = [1 => 'MON', 2 => 'TUE', 3 => 'WED', 4 => 'THU', 5 => 'FRI', 6 => 'SAT', 7 => 'SUN'];
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->nthRange = range(1, 5);
         parent::__construct();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function isSatisfiedBy(DateTime $date, $value)
     {
         if ($value == '?') {
@@ -129,6 +135,9 @@ class DayOfWeekField extends AbstractField
         return $this->isSatisfied($fieldValue, $value);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function increment(DateTime $date, $invert = false)
     {
         if ($invert) {

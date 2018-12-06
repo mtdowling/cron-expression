@@ -13,11 +13,19 @@ class MinutesField extends AbstractField
     protected $rangeStart = 0;
     protected $rangeEnd = 59;
 
+    /**
+     * @inheritDoc
+     */
     public function isSatisfiedBy(DateTime $date, $value)
     {
         return $this->isSatisfied($date->format('i'), $value);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param string|null $parts
+     */
     public function increment(DateTime $date, $invert = false, $parts = null)
     {
         if (is_null($parts)) {

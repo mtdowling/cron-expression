@@ -13,11 +13,19 @@ class HoursField extends AbstractField
     protected $rangeStart = 0;
     protected $rangeEnd = 23;
 
+    /**
+     * @inheritDoc
+     */
     public function isSatisfiedBy(DateTime $date, $value)
     {
         return $this->isSatisfied($date->format('H'), $value);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param string|null $parts
+     */
     public function increment(DateTime $date, $invert = false, $parts = null)
     {
         // Change timezone to UTC temporarily. This will
