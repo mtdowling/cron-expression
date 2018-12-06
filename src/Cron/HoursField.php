@@ -10,7 +10,14 @@ use DateTimeZone;
  */
 class HoursField extends AbstractField
 {
+    /**
+     * @inheritDoc
+     */
     protected $rangeStart = 0;
+
+    /**
+     * @inheritDoc
+     */
     protected $rangeEnd = 23;
 
     /**

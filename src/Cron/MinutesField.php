@@ -10,7 +10,14 @@ use DateTime;
  */
 class MinutesField extends AbstractField
 {
+    /**
+     * @inheritDoc
+     */
     protected $rangeStart = 0;
+
+    /**
+     * @inheritDoc
+     */
     protected $rangeEnd = 59;
 
     /**

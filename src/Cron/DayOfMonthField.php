@@ -24,7 +24,14 @@ use DateTime;
  */
 class DayOfMonthField extends AbstractField
 {
+    /**
+     * @inheritDoc
+     */
     protected $rangeStart = 1;
+
+    /**
+     * @inheritDoc
+     */
     protected $rangeEnd = 31;
 
     /**
