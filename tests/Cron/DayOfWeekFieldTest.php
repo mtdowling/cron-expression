@@ -104,6 +104,18 @@ class DayOfWeekFieldTest extends TestCase
     }
 
     /**
+     * @covers \Cron\DayOfWeekField::isSatisfiedBy
+     */
+    public function testHandlesLastWeekdayOfTheMonth()
+    {
+        $f = new DayOfWeekField();
+        $this->assertTrue($f->isSatisfiedBy(new DateTime('2018-12-28 00:00:00'), 'FRIL'));
+        $this->assertTrue($f->isSatisfiedBy(new DateTime('2018-12-28 00:00:00'), '5L'));
+        $this->assertFalse($f->isSatisfiedBy(new DateTime('2018-12-21 00:00:00'), 'FRIL'));
+        $this->assertFalse($f->isSatisfiedBy(new DateTime('2018-12-21 00:00:00'), '5L'));
+    }
+
+    /**
      * @see https://github.com/mtdowling/cron-expression/issues/47
      */
     public function testIssue47() {
