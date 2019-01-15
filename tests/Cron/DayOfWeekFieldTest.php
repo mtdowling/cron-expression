@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron\Tests;
 
 use Cron\DayOfWeekField;
@@ -52,7 +54,7 @@ class DayOfWeekFieldTest extends TestCase
 
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Weekday must be a value between 0 and 7. 12 given
      */
     public function testValidatesHashValueWeekday()
@@ -63,7 +65,7 @@ class DayOfWeekFieldTest extends TestCase
 
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage There are never more than 5 or less than 1 of a given weekday in a month
      */
     public function testValidatesHashValueNth()
@@ -118,7 +120,8 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @see https://github.com/mtdowling/cron-expression/issues/47
      */
-    public function testIssue47() {
+    public function testIssue47()
+    {
         $f = new DayOfWeekField();
         $this->assertFalse($f->validate('mon,'));
         $this->assertFalse($f->validate('mon-'));
@@ -136,6 +139,6 @@ class DayOfWeekFieldTest extends TestCase
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->validate('MON-FRI'));
-        $this->assertSame([1,2,3,4,5], $f->getRangeForExpression('MON-FRI', 7));
+        $this->assertSame([1, 2, 3, 4, 5], $f->getRangeForExpression('MON-FRI', 7));
     }
 }

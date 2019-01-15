@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron\Tests;
 
 use Cron\MonthField;
@@ -55,7 +57,6 @@ class MonthFieldTest extends TestCase
         $this->assertSame('2011-02-28 23:59:00', $d->format('Y-m-d H:i:s'));
         date_default_timezone_set($tz);
     }
-
 
     /**
      * @covers \Cron\MonthField::increment

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron\Tests;
 
 use Cron\FieldFactory;
@@ -15,24 +17,24 @@ class FieldFactoryTest extends TestCase
      */
     public function testRetrievesFieldInstances()
     {
-        $mappings = array(
+        $mappings = [
             0 => 'Cron\MinutesField',
             1 => 'Cron\HoursField',
             2 => 'Cron\DayOfMonthField',
             3 => 'Cron\MonthField',
             4 => 'Cron\DayOfWeekField',
-        );
+        ];
 
         $f = new FieldFactory();
 
         foreach ($mappings as $position => $class) {
-            $this->assertSame($class, get_class($f->getField($position)));
+            $this->assertSame($class, \get_class($f->getField($position)));
         }
     }
 
     /**
      * @covers \Cron\FieldFactory::getField
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testValidatesFieldPosition()
     {

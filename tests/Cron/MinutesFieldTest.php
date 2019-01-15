@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron\Tests;
 
 use Cron\MinutesField;
@@ -39,6 +41,7 @@ class MinutesFieldTest extends TestCase
      * Various bad syntaxes that are reported to work, but shouldn't.
      *
      * @author Chris Tankersley
+     *
      * @since 2017-08-18
      */
     public function testBadSyntaxesShouldNotValidate()
