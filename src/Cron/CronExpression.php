@@ -4,6 +4,7 @@ namespace Cron;
 
 use DateTime;
 use DateTimeImmutable;
+use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
@@ -391,8 +392,8 @@ class CronExpression
     /**
      * Workout what timeZone should be used.
      *
-     * @param string|\DateTime $currentTime      Relative calculation date
-     * @param string|null      $timeZone         TimeZone to use instead of the system default
+     * @param string|\DateTimeInterface $currentTime      Relative calculation date
+     * @param string|null               $timeZone         TimeZone to use instead of the system default
      *
      * @return string
      */
@@ -402,7 +403,7 @@ class CronExpression
             return $timeZone;
         }
 
-        if ($currentTime instanceOf Datetime) {
+        if ($currentTime instanceOf DateTimeInterface) {
             return $currentTime->getTimeZone()->getName();
         }
 
