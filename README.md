@@ -71,3 +71,8 @@ Requirements
 - PHP 7.0+
 - PHPUnit is required to run the unit tests
 - Composer is required to run the unit tests
+
+Projects that Use cron-expression
+=================================
+* Part of the [Laravel Framework](https://github.com/laravel/framework/)
+* Available as a [Symfony Bundle - setono/cron-expression-bundle](https://github.com/Setono/CronExpressionBundle)
