@@ -24,7 +24,14 @@ use DateTime;
  */
 class DayOfMonthField extends AbstractField
 {
+    /**
+     * @inheritDoc
+     */
     protected $rangeStart = 1;
+
+    /**
+     * @inheritDoc
+     */
     protected $rangeEnd = 31;
 
     /**
@@ -59,6 +66,9 @@ class DayOfMonthField extends AbstractField
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function isSatisfiedBy(DateTime $date, $value)
     {
         // ? states that the field value is to be skipped
@@ -88,6 +98,9 @@ class DayOfMonthField extends AbstractField
         return $this->isSatisfied($date->format('d'), $value);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function increment(DateTime $date, $invert = false)
     {
         if ($invert) {
