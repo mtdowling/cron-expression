@@ -557,4 +557,16 @@ class CronExpressionTest extends TestCase
         $nextRunDate = $e->getNextRunDate(new DateTime('2014-05-07 00:00:00'));
         $this->assertSame('2015-04-01 00:00:00', $nextRunDate->format('Y-m-d H:i:s'));
     }
+
+    /**
+     * When there is an issue with a field, we should report the human readable position
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/29
+     */
+    public function testFieldPositionIsHumanAdjusted()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("6 is not a valid position");
+        $e = CronExpression::factory('0 * * * * ? *');
+    }
 }
