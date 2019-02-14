@@ -13,11 +13,14 @@ matrix:
     - php: 7.2
     - php: 7.2
       env: dependencies=lowest
-    - php: nighly
-    - php: nighly
+    - php: 7.3
+    - php: 7.3
+      env: dependencies=lowest
+    - php: nightly
+    - php: nightly
       env: dependencies=lowest
   allow_failures:
-    - php: nighly
+    - php: nightly
   fast_finish: true
 
 install:
