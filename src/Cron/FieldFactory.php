@@ -8,7 +8,7 @@ use InvalidArgumentException;
  * CRON field factory implementing a flyweight factory
  * @link http://en.wikipedia.org/wiki/Cron
  */
-class FieldFactory
+class FieldFactory implements FieldFactoryInterface
 {
     /**
      * @var array Cache of instantiated fields
