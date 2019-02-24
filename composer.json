@@ -17,7 +17,8 @@
         }
     ],
     "require": {
-        "php": "^7.0"
+        "php": "^7.0",
+        "phpstan/phpstan": "^0.11"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.4|^7.0"
@@ -36,5 +37,8 @@
         "branch-alias": {
             "dev-master": "2.3-dev"
         }
+    },
+    "scripts": {
+        "phpstan": "./vendor/bin/phpstan analyse -l 1 src"
     }
 }
