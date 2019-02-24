@@ -30,7 +30,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/Cron/"
+            "Cron\\Tests\\": "tests/Cron/"
         }
     },
     "extra": {
@@ -39,6 +39,6 @@
         }
     },
     "scripts": {
-        "phpstan": "./vendor/bin/phpstan analyse -l 1 src"
+        "phpstan": "./vendor/bin/phpstan analyse -l 0 src tests"
     }
 }
