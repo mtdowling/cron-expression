@@ -5,6 +5,7 @@ namespace Cron\Tests;
 use Cron\CronExpression;
 use Cron\MonthField;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -228,6 +229,7 @@ class CronExpressionTest extends TestCase
         $this->assertTrue($cron->isDue('now'));
         $this->assertTrue($cron->isDue(new DateTime('now')));
         $this->assertTrue($cron->isDue(date('Y-m-d H:i')));
+        $this->assertTrue($cron->isDue(new DateTimeImmutable('now')));
     }
 
     /**
@@ -405,6 +407,18 @@ class CronExpressionTest extends TestCase
         $this->assertEquals($nextRun, new DateTime("2008-11-23 00:00:00"));
         $nextRun = $cron->getNextRunDate("2008-11-09 00:00:00", 3, true);
         $this->assertEquals($nextRun, new DateTime("2008-11-30 00:00:00"));
+    }
+
+    /**
+     * @covers \Cron\CronExpression::getRunDate
+     */
+    public function testGetRunDateHandlesDifferentDates()
+    {
+        $cron = CronExpression::factory('@weekly');
+        $date = new DateTime("2019-03-10 00:00:00");
+        $this->assertEquals($date, $cron->getNextRunDate("2019-03-03 08:00:00"));
+        $this->assertEquals($date, $cron->getNextRunDate(new DateTime("2019-03-03 08:00:00")));
+        $this->assertEquals($date, $cron->getNextRunDate(new DateTimeImmutable("2019-03-03 08:00:00")));
     }
 
     /**
