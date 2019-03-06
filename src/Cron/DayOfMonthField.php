@@ -3,6 +3,7 @@
 namespace Cron;
 
 use DateTime;
+use DateTimeInterface;
 
 /**
  * Day of month field.  Allows: * , / - ? L W
@@ -69,7 +70,7 @@ class DayOfMonthField extends AbstractField
     /**
      * @inheritDoc
      */
-    public function isSatisfiedBy(DateTime $date, $value)
+    public function isSatisfiedBy(DateTimeInterface $date, $value)
     {
         // ? states that the field value is to be skipped
         if ($value == '?') {
@@ -100,15 +101,15 @@ class DayOfMonthField extends AbstractField
 
     /**
      * @inheritDoc
+     *
+     * @param \DateTime|\DateTimeImmutable &$date
      */
-    public function increment(DateTime $date, $invert = false)
+    public function increment(DateTimeInterface &$date, $invert = false)
     {
         if ($invert) {
-            $date->modify('previous day');
-            $date->setTime(23, 59);
+            $date = $date->modify('previous day')->setTime(23, 59);
         } else {
-            $date->modify('next day');
-            $date->setTime(0, 0);
+            $date = $date->modify('next day')->setTime(0, 0);
         }
 
         return $this;

@@ -3,6 +3,7 @@
 namespace Cron;
 
 use DateTime;
+use DateTimeInterface;
 use InvalidArgumentException;
 
 /**
@@ -51,8 +52,10 @@ class DayOfWeekField extends AbstractField
 
     /**
      * @inheritDoc
+     *
+     * @param \DateTime|\DateTimeImmutable $date
      */
-    public function isSatisfiedBy(DateTime $date, $value)
+    public function isSatisfiedBy(DateTimeInterface $date, $value)
     {
         if ($value == '?') {
             return true;
@@ -71,7 +74,7 @@ class DayOfWeekField extends AbstractField
             $weekday = str_replace('7', '0', $weekday);
 
             $tdate = clone $date;
-            $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
+            $tdate = $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
             while ($tdate->format('w') != $weekday) {
                 $tdateClone = new DateTime();
                 $tdate = $tdateClone
@@ -114,7 +117,7 @@ class DayOfWeekField extends AbstractField
             }
 
             $tdate = clone $date;
-            $tdate->setDate($currentYear, $currentMonth, 1);
+            $tdate = $tdate->setDate($currentYear, $currentMonth, 1);
             $dayCount = 0;
             $currentDay = 1;
             while ($currentDay < $lastDayOfMonth + 1) {
@@ -123,7 +126,7 @@ class DayOfWeekField extends AbstractField
                         break;
                     }
                 }
-                $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
+                $tdate = $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
             }
 
             return $date->format('j') == $currentDay;
@@ -149,15 +152,15 @@ class DayOfWeekField extends AbstractField
 
     /**
      * @inheritDoc
+     *
+     * @param \DateTime|\DateTimeImmutable &$date
      */
-    public function increment(DateTime $date, $invert = false)
+    public function increment(DateTimeInterface &$date, $invert = false)
     {
         if ($invert) {
-            $date->modify('-1 day');
-            $date->setTime(23, 59, 0);
+            $date = $date->modify('-1 day')->setTime(23, 59, 0);
         } else {
-            $date->modify('+1 day');
-            $date->setTime(0, 0, 0);
+            $date = $date->modify('+1 day')->setTime(0, 0, 0);
         }
 
         return $this;
