@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Cron;
 
-use DateTime;
+use DateTimeInterface;
 
 /**
  * Minutes field.  Allows: * , / -.
@@ -24,25 +24,21 @@ class MinutesField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    public function isSatisfiedBy(DateTime $date, String $value): bool
+    public function isSatisfiedBy(DateTimeInterface $date, $value):bool
     {
-        return $this->isSatisfied((int) $date->format('i'), $value);
+        return $this->isSatisfied($date->format('i'), $value);
     }
 
     /**
      * {@inheritdoc}
      *
-     * @param null|string $parts
+     * @param \DateTime|\DateTimeImmutable &$date
+     * @param string|null                  $parts
      */
-    public function increment(DateTime $date, bool $invert = false, ?string $parts = null): FieldInterface
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface
     {
-        if (null === $parts) {
-            if ($invert) {
-                $date->modify('-1 minute');
-            } else {
-                $date->modify('+1 minute');
-            }
-
+        if (is_null($parts)) {
+            $date = $date->modify(($invert ? '-' : '+') . '1 minute');
             return $this;
         }
 
@@ -66,10 +62,10 @@ class MinutesField extends AbstractField
         }
 
         if ((!$invert && $current_minute >= $minutes[$position]) || ($invert && $current_minute <= $minutes[$position])) {
-            $date->modify(($invert ? '-' : '+') . '1 hour');
-            $date->setTime((int) $date->format('H'), $invert ? 59 : 0);
+            $date = $date->modify(($invert ? '-' : '+') . '1 hour');
+            $date = $date->setTime((int) $date->format('H'), $invert ? 59 : 0);
         } else {
-            $date->setTime((int) $date->format('H'), (int) $minutes[$position]);
+            $date = $date->setTime((int) $date->format('H'), (int) $minutes[$position]);
         }
 
         return $this;

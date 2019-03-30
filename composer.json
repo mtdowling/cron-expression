@@ -18,6 +18,7 @@
     ],
     "require": {
         "php": "^7.2"
+        "phpstan/phpstan": "^0.11"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.4|^7.0"
@@ -29,12 +30,15 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/Cron/"
+            "Cron\\Tests\\": "tests/Cron/"
         }
     },
     "extra": {
         "branch-alias": {
             "dev-master": "2.3-dev"
         }
+    },
+    "scripts": {
+        "phpstan": "./vendor/bin/phpstan analyse -l 0 src tests"
     }
 }

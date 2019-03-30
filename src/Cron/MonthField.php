@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Cron;
 
-use DateTime;
+use DateTimeInterface;
 
 /**
  * Month field.  Allows: * , / -.
@@ -30,24 +30,28 @@ class MonthField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    public function isSatisfiedBy(DateTime $date, string $value): bool
+    public function isSatisfiedBy(DateTimeInterface $date, $value): bool
     {
+        if ($value == '?') {
+            return true;
+        }
+
         $value = $this->convertLiterals($value);
 
         return $this->isSatisfied((int) $date->format('m'), $value);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
+     *
+     * @param \DateTime|\DateTimeImmutable &$date
      */
-    public function increment(DateTime $date, bool $invert = false, ?string $parts = null): FieldInterface
+    public function increment(DateTimeInterface &$date, $invert = false): FieldInterface
     {
         if ($invert) {
-            $date->modify('last day of previous month');
-            $date->setTime(23, 59);
+            $date = $date->modify('last day of previous month')->setTime(23, 59);
         } else {
-            $date->modify('first day of next month');
-            $date->setTime(0, 0);
+            $date = $date->modify('first day of next month')->setTime(0, 0);
         }
 
         return $this;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Cron;
 
 use DateTime;
+use DateTimeInterface;
 use InvalidArgumentException;
 
 /**
@@ -52,9 +53,11 @@ class DayOfWeekField extends AbstractField
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
+     *
+     * @param \DateTime|\DateTimeImmutable $date
      */
-    public function isSatisfiedBy(DateTime $date, string $value): bool
+    public function isSatisfiedBy(DateTimeInterface $date, $value): bool
     {
         if ('?' === $value) {
             return true;
@@ -73,9 +76,8 @@ class DayOfWeekField extends AbstractField
             $weekday = (int) str_replace(7, 0, $weekday);
 
             $tdate = clone $date;
-            $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
-
-            while ((int) $tdate->format('w') !== $weekday) {
+            $tdate = $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
+            while ($tdate->format('w') != $weekday) {
                 $tdateClone = new DateTime();
                 $tdate = $tdateClone
                     ->setTimezone($tdate->getTimezone())
@@ -117,7 +119,7 @@ class DayOfWeekField extends AbstractField
             }
 
             $tdate = clone $date;
-            $tdate->setDate($currentYear, $currentMonth, 1);
+            $tdate = $tdate->setDate($currentYear, $currentMonth, 1);
             $dayCount = 0;
             $currentDay = 1;
             while ($currentDay < $lastDayOfMonth + 1) {
@@ -126,7 +128,7 @@ class DayOfWeekField extends AbstractField
                         break;
                     }
                 }
-                $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
+                $tdate = $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
             }
 
             return (int) $date->format('j') === $currentDay;
@@ -153,16 +155,16 @@ class DayOfWeekField extends AbstractField
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
+     *
+     * @param \DateTime|\DateTimeImmutable &$date
      */
-    public function increment(DateTime $date, bool $invert = false, ?string $parts = null): FieldInterface
+    public function increment(DateTimeInterface &$date, $invert = false): FieldInterface
     {
         if ($invert) {
-            $date->modify('-1 day');
-            $date->setTime(23, 59, 0);
+            $date = $date->modify('-1 day')->setTime(23, 59, 0);
         } else {
-            $date->modify('+1 day');
-            $date->setTime(0, 0, 0);
+            $date = $date->modify('+1 day')->setTime(0, 0, 0);
         }
 
         return $this;
