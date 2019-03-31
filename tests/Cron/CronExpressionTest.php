@@ -426,7 +426,19 @@ class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::getRunDate
      */
-    public function testSkipsCurrentDateByDefault(): void
+    public function testGetRunDateHandlesDifferentDates()
+    {
+        $cron = CronExpression::factory('@weekly');
+        $date = new DateTime("2019-03-10 00:00:00");
+        $this->assertEquals($date, $cron->getNextRunDate("2019-03-03 08:00:00"));
+        $this->assertEquals($date, $cron->getNextRunDate(new DateTime("2019-03-03 08:00:00")));
+        $this->assertEquals($date, $cron->getNextRunDate(new DateTimeImmutable("2019-03-03 08:00:00")));
+    }
+
+    /**
+     * @covers \Cron\CronExpression::getRunDate
+     */
+    public function testSkipsCurrentDateByDefault()
     {
         $cron = CronExpression::factory('* * * * *');
         $current = new DateTime('now');
@@ -583,6 +595,7 @@ class CronExpressionTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('6 is not a valid position');
+
         $e = CronExpression::factory('0 * * * * ? *');
     }
 }

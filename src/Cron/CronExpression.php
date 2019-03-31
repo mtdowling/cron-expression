@@ -410,8 +410,8 @@ class CronExpression
     /**
      * Workout what timeZone should be used.
      *
-     * @param \DateTimeInterface|string $currentTime Relative calculation date
-     * @param null|string $timeZone TimeZone to use instead of the system default
+     * @param string|\DateTimeInterface $currentTime      Relative calculation date
+     * @param string|null               $timeZone         TimeZone to use instead of the system default
      *
      * @return string
      */
@@ -421,8 +421,8 @@ class CronExpression
             return $timeZone;
         }
 
-        if ($currentTime instanceof DateTimeInterface) {
-            return $currentTime->getTimezone()->getName();
+        if ($currentTime instanceOf DateTimeInterface) {
+            return $currentTime->getTimeZone()->getName();
         }
 
         return date_default_timezone_get();

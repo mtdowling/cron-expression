@@ -26,11 +26,16 @@ class MinutesField extends AbstractField
      */
     public function isSatisfiedBy(DateTimeInterface $date, $value):bool
     {
+        if ($value == '?') {
+            return true;
+        }
+
         return $this->isSatisfied($date->format('i'), $value);
     }
 
     /**
      * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param \DateTime|\DateTimeImmutable &$date
      * @param string|null                  $parts

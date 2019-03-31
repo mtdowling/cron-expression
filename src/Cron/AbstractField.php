@@ -38,7 +38,7 @@ abstract class AbstractField implements FieldInterface
     protected $rangeEnd;
 
     /**
-     * Constructor.
+     * Constructor
      */
     public function __construct()
     {
