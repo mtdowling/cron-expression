@@ -30,7 +30,7 @@ class MinutesField extends AbstractField
             return true;
         }
 
-        return $this->isSatisfied($date->format('i'), $value);
+        return $this->isSatisfied((int)$date->format('i'), $value);
     }
 
     /**

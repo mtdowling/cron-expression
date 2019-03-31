@@ -47,7 +47,7 @@ class HoursField extends AbstractField
             $date = $date->modify(($invert ? '-' : '+') . '1 hour');
             $date = $date->setTimezone($timezone);
 
-            $date = $date->setTime($date->format('H'), $invert ? 59 : 0);
+            $date = $date->setTime((int)$date->format('H'), $invert ? 59 : 0);
             return $this;
         }
 

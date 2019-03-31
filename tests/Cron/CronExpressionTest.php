@@ -426,18 +426,6 @@ class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::getRunDate
      */
-    public function testGetRunDateHandlesDifferentDates()
-    {
-        $cron = CronExpression::factory('@weekly');
-        $date = new DateTime("2019-03-10 00:00:00");
-        $this->assertEquals($date, $cron->getNextRunDate("2019-03-03 08:00:00"));
-        $this->assertEquals($date, $cron->getNextRunDate(new DateTime("2019-03-03 08:00:00")));
-        $this->assertEquals($date, $cron->getNextRunDate(new DateTimeImmutable("2019-03-03 08:00:00")));
-    }
-
-    /**
-     * @covers \Cron\CronExpression::getRunDate
-     */
     public function testSkipsCurrentDateByDefault()
     {
         $cron = CronExpression::factory('* * * * *');
