@@ -27,17 +27,7 @@ class HoursFieldTest extends TestCase
         $this->assertFalse($f->validate('*/3,1,1-12'));
     }
 
-    /**
-     * @covers \Cron\HoursField::isSatisfiedBy
-     */
-    public function testChecksIfSatisfied()
-    {
-        $f = new HoursField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
-        $this->assertTrue($f->isSatisfiedBy(new DateTimeImmutable(), '?'));
-    }
-
-    /**
+        /**
      * @covers \Cron\HoursField::increment
      */
     public function testIncrementsDate()
