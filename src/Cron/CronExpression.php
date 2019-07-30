@@ -421,7 +421,7 @@ class CronExpression
             return $timeZone;
         }
 
-        if ($currentTime instanceOf DateTimeInterface) {
+        if ($currentTime instanceof DateTimeInterface) {
             return $currentTime->getTimeZone()->getName();
         }
 

@@ -27,7 +27,7 @@ class HoursFieldTest extends TestCase
         $this->assertFalse($f->validate('*/3,1,1-12'));
     }
 
-        /**
+    /**
      * @covers \Cron\HoursField::increment
      */
     public function testIncrementsDate()
