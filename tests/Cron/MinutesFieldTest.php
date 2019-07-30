@@ -23,6 +23,7 @@ class MinutesFieldTest extends TestCase
         $this->assertTrue($f->validate('1'));
         $this->assertTrue($f->validate('*'));
         $this->assertFalse($f->validate('*/3,1,1-12'));
+        $this->assertFalse($f->validate('1/10'));
     }
 
     /**

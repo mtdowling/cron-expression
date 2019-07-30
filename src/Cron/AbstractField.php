@@ -250,6 +250,11 @@ abstract class AbstractField implements FieldInterface
         if (false !== strpos($value, '/')) {
             [$range, $step] = explode('/', $value);
 
+            // Don't allow numeric ranges
+            if (is_numeric($range)) {
+                return false;
+            }
+
             return $this->validate($range) && filter_var($step, FILTER_VALIDATE_INT);
         }
 
