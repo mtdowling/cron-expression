@@ -154,4 +154,19 @@ class DayOfWeekFieldTest extends TestCase
         $this->assertTrue($f->validate('MON-FRI'));
         $this->assertSame([1, 2, 3, 4, 5], $f->getRangeForExpression('MON-FRI', 7));
     }
+
+    /**
+     * Incoming literals should ignore case
+     *
+     * @author Chris Tankersley <chris@ctankersley.com?
+     * @since 2019-07-29
+     * @see https://github.com/dragonmantank/cron-expression/issues/24
+     */
+    public function testLiteralsIgnoreCasingProperly()
+    {
+        $f = new DayOfWeekField();
+        $this->assertTrue($f->validate('MON'));
+        $this->assertTrue($f->validate('Mon'));
+        $this->assertTrue($f->validate('mon'));
+    }
 }

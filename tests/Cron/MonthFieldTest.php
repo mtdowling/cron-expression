@@ -102,4 +102,19 @@ class MonthFieldTest extends TestCase
         $f->increment($d, true);
         $this->assertSame('2010-12-31 23:59:00', $d->format('Y-m-d H:i:s'));
     }
+
+    /**
+     * Incoming literals should ignore case
+     *
+     * @author Chris Tankersley <chris@ctankersley.com?
+     * @since 2019-07-29
+     * @see https://github.com/dragonmantank/cron-expression/issues/24
+     */
+    public function testLiteralsIgnoreCasingProperly()
+    {
+        $f = new MonthField();
+        $this->assertTrue($f->validate('JAN'));
+        $this->assertTrue($f->validate('Jan'));
+        $this->assertTrue($f->validate('jan'));
+    }
 }
