@@ -6,18 +6,13 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Michael Dowling",
-            "email": "mtdowling@gmail.com",
-            "homepage": "https://github.com/mtdowling"
-        },
-        {
             "name": "Chris Tankersley",
             "email": "chris@ctankersley.com",
             "homepage": "https://github.com/dragonmantank"
         }
     ],
     "require": {
-        "php": "^7.2"
+        "php": "^7.1"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.11",
