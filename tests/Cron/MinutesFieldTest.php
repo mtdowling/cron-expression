@@ -74,4 +74,18 @@ class MinutesFieldTest extends TestCase
         $this->assertFalse($f->validate('1-2-3'));
         $this->assertFalse($f->validate('-1'));
     }
+
+    /**
+     * Ranges that are invalid should not validate.
+     * In this case `0/5` would be invalid because `0` is not part of the minute range.
+     *
+     * @author Chris Tankersley
+     * @since 2019-07-29
+     * @see https://github.com/dragonmantank/cron-expression/issues/18
+     */
+    public function testInvalidRangeShouldNotValidate()
+    {
+        $f = new MinutesField();
+        $this->assertFalse($f->validate('0/5'));
+    }
 }
