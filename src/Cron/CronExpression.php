@@ -388,7 +388,10 @@ class CronExpression
 
             // Skip this match if needed
             if ((!$allowCurrentDate && $nextRun == $currentDate) || --$nth > -1) {
-                $this->fieldFactory->getField(0)->increment($nextRun, $invert, isset($parts[0]) ? $parts[0] : null);
+                //Fix bug #170 - getMultipleRunDates error
+                //$this->fieldFactory->getField(0)->increment($nextRun, $invert, isset($parts[0]) ? $parts[0] : null);
+                
+                $field->increment($nextRun, $invert, $part);
                 continue;
             }
 
