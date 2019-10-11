@@ -158,7 +158,7 @@ class CronExpressionTest extends TestCase
             // Test Day of the Week and the Day of the Month (issue #1)
             ['0 0 1 1 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false],
             ['0 0 1 JAN 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false],
-            ['0 0 1 * 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false],
+            ['0 0 1 * 0', strtotime('2011-06-15 23:09:00'), '2011-06-19 00:00:00', false],
             // Test the W day of the week modifier for day of the month field
             ['0 0 2W * *', strtotime('2011-07-01 00:00:00'), '2011-07-01 00:00:00', true],
             ['0 0 1W * *', strtotime('2011-05-01 00:00:00'), '2011-05-02 00:00:00', false],
@@ -180,7 +180,7 @@ class CronExpressionTest extends TestCase
             ['* * * * 3#4', strtotime('2011-07-01 00:00:00'), '2011-07-27 00:00:00', false],
 
             // Issue #7, documented example failed
-            ['3-59/15 6-12 */15 1 2-5', strtotime('2017-01-08 00:00:00'), '2017-01-31 06:03:00', false],
+            ['3-59/15 6-12 */15 1 2-5', strtotime('2017-01-08 00:00:00'), '2017-01-10 06:03:00', false],
 
             // https://github.com/laravel/framework/commit/07d160ac3cc9764d5b429734ffce4fa311385403
             ['* * * * MON-FRI', strtotime('2017-01-08 00:00:00'), strtotime('2017-01-09 00:00:00'), false],
@@ -585,5 +585,20 @@ class CronExpressionTest extends TestCase
         $this->expectExceptionMessage('6 is not a valid position');
 
         $e = CronExpression::factory('0 * * * * ? *');
+    }
+
+    /**
+     * @see https://github.com/dragonmantank/cron-expression/issues/35
+     */
+    public function testMakeDayOfWeekAnOrSometimes()
+    {
+        $cron = CronExpression::factory('30 0 1 * 1');
+        $runs = $cron->getMultipleRunDates(5, date("2019-10-10 23:20:00"), false, true);
+
+        $this->assertSame("2019-10-14 00:30:00", $runs[0]->format('Y-m-d H:i:s'));
+        $this->assertSame("2019-10-21 00:30:00", $runs[1]->format('Y-m-d H:i:s'));
+        $this->assertSame("2019-10-28 00:30:00", $runs[2]->format('Y-m-d H:i:s'));
+        $this->assertSame("2019-11-01 00:30:00", $runs[3]->format('Y-m-d H:i:s'));
+        $this->assertSame("2019-11-04 00:30:00", $runs[4]->format('Y-m-d H:i:s'));
     }
 }
