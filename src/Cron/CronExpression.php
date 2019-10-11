@@ -312,7 +312,7 @@ class CronExpression
         $currentTime->setTimezone(new DateTimeZone($timeZone));
 
         // drop the seconds to 0
-        $currentTime = DateTime::createFromFormat('Y-m-d H:i', $currentTime->format('Y-m-d H:i'));
+        $currentTime->setTime((int) $currentTime->format('H'), (int) $currentTime->format('i'), 0);
 
         try {
             return $this->getNextRunDate($currentTime, 0, true)->getTimestamp() === $currentTime->getTimestamp();
