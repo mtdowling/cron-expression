@@ -115,7 +115,7 @@ class CronExpression
      */
     public function __construct(string $expression, FieldFactory $fieldFactory = null)
     {
-        $this->fieldFactory = $fieldFactory;
+        $this->fieldFactory = $fieldFactory ?: new FieldFactory();
         $this->setExpression($expression);
     }
 
