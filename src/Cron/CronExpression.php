@@ -303,7 +303,7 @@ class CronExpression
         if ('now' === $currentTime) {
             $currentTime = new DateTime();
         } elseif ($currentTime instanceof DateTime) {
-            //
+            $currentTime = clone $currentTime;
         } elseif ($currentTime instanceof DateTimeImmutable) {
             $currentTime = DateTime::createFromFormat('U', $currentTime->format('U'));
         } else {
