@@ -80,8 +80,9 @@ class CronExpression
             '@hourly' => '0 * * * *',
         ];
 
-        if (isset($mappings[$expression])) {
-            $expression = $mappings[$expression];
+        $shortcut = strtolower($expression);
+        if (isset($mappings[$shortcut])) {
+            $expression = $mappings[$shortcut];
         }
 
         return new static($expression, $fieldFactory ?: new FieldFactory());
