@@ -28,11 +28,6 @@
             "Cron\\Tests\\": "tests/Cron/"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.3-dev"
-        }
-    },
     "scripts": {
         "phpstan": "./vendor/bin/phpstan analyse -l 0 src tests"
     }
