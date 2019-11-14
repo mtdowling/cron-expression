@@ -1,5 +1,21 @@
 # Change Log
 
+## [2.4.0] - 2019-11-14
+### Added
+- Additional docblocks for IDE and documentation
+- Added phpstan as a development dependency
+### Changed
+- Changed some DI testing during TravisCI runs
+- `\Cron\CronExpression::determineTimezone()` now checks for `\DateTimeInterface` instead of just `\DateTime`
+- Errors with fields now report a more human-understandable error and are 1-based instead of 0-based
+- Better support for `\DateTimeImmutable` across the library by typehinting for `\DateTimeInterface` now
+- Literals should now be less case-sensative across the board
+### Fixed
+- Fixed infinite loop when determining last day of week from literals
+- Fixed bug where single number ranges were allowed (ex: `1/10`)
+- Fixed nullable FieldFactory in CronExpression where no factory could be supplied
+- Fixed issue where logic for dropping seconds to 0 could lead to a timezone change
+
 ## [2.3.0] - 2019-03-30
 ### Added
 - Added support for DateTimeImmutable via DateTimeInterface
