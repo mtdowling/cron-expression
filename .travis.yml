@@ -1,6 +1,6 @@
 language: php
 
-sudo: false
+dist: bionic
 
 matrix:
   include:
@@ -13,12 +13,9 @@ matrix:
     - php: 7.3
     - php: 7.3
       env: dependencies=lowest
-    - php: nightly
-    - php: nightly
+    - php: 7.4
+    - php: 7.4
       env: dependencies=lowest
-  allow_failures:
-    - php: nightly
-  fast_finish: true
 
 install:
     - |
