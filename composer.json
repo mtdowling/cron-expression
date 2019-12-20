@@ -24,5 +24,6 @@
         "psr-4": {
             "Tests\\": "tests/Cron/"
         }
-    }
+    },
+    "abandoned": "dragonmantank/cron-expression"
 }
