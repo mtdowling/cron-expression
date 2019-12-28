@@ -171,7 +171,7 @@ class CronExpression
     public function setMaxIterationCount($maxIterationCount)
     {
         $this->maxIterationCount = $maxIterationCount;
-        
+
         return $this;
     }
 
@@ -286,30 +286,27 @@ class CronExpression
         if (is_null($timeZone)) {
             $timeZone = date_default_timezone_get();
         }
-        
-        if ('now' === $currentTime) {
-            $currentDate = date('Y-m-d H:i');
-            $currentTime = strtotime($currentDate);
-        } elseif ($currentTime instanceof DateTime) {
+
+        if ($currentTime instanceof DateTime) {
             $currentDate = clone $currentTime;
-            // Ensure time in 'current' timezone is used
-            $currentDate->setTimezone(new DateTimeZone($timeZone));
-            $currentDate = $currentDate->format('Y-m-d H:i');
-            $currentTime = strtotime($currentDate);
         } elseif ($currentTime instanceof DateTimeImmutable) {
             $currentDate = DateTime::createFromFormat('U', $currentTime->format('U'));
-            $currentDate->setTimezone(new DateTimeZone($timeZone));
-            $currentDate = $currentDate->format('Y-m-d H:i');
-            $currentTime = strtotime($currentDate);
         } else {
-            $currentTime = new DateTime($currentTime);
-            $currentTime->setTime($currentTime->format('H'), $currentTime->format('i'), 0);
-            $currentDate = $currentTime->format('Y-m-d H:i');
-            $currentTime = $currentTime->getTimeStamp();
+            $currentDate = new DateTime($currentTime ?: 'now', new DateTimeZone($timeZone));
         }
 
+        //Set seconds to zero
+        $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
+
+        //Set timezone
+        $currentDate->setTimezone(new DateTimeZone($timeZone));
+
+        //Format Dates
+        $currentTime = $currentDate->getTimeStamp();
+        $currentDate = $currentDate->format('Y-m-d H:i');
+
         try {
-            return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
+            return $this->getNextRunDate($currentDate, 0, true, $timeZone)->getTimestamp() == $currentTime;
         } catch (Exception $e) {
             return false;
         }
@@ -333,16 +330,17 @@ class CronExpression
         if (is_null($timeZone)) {
             $timeZone = date_default_timezone_get();
         }
-        
+
         if ($currentTime instanceof DateTime) {
             $currentDate = clone $currentTime;
         } elseif ($currentTime instanceof DateTimeImmutable) {
             $currentDate = DateTime::createFromFormat('U', $currentTime->format('U'));
-            $currentDate->setTimezone($currentTime->getTimezone());
         } else {
-            $currentDate = new DateTime($currentTime ?: 'now');
-            $currentDate->setTimezone(new DateTimeZone($timeZone));
+            $currentDate = new DateTime($currentTime ?: 'now', new DateTimeZone($timeZone));
         }
+
+        //Set timezone
+        $currentDate->setTimezone(new DateTimeZone($timeZone));
 
         $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
         $nextRun = clone $currentDate;
