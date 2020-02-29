@@ -4,5 +4,5 @@ namespace Cron;
 
 interface FieldFactoryInterface
 {
-    public function getField($position);
+    public function getField(int $position);
 }
