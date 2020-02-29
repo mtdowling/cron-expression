@@ -1,29 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use InvalidArgumentException;
 
 /**
- * CRON field factory implementing a flyweight factory
- * @link http://en.wikipedia.org/wiki/Cron
+ * CRON field factory implementing a flyweight factory.
+ *
+ * @see http://en.wikipedia.org/wiki/Cron
  */
 class FieldFactory
 {
     /**
      * @var array Cache of instantiated fields
      */
-    private $fields = array();
+    private $fields = [];
 
     /**
-     * Get an instance of a field object for a cron expression position
+     * Get an instance of a field object for a cron expression position.
      *
      * @param int $position CRON expression position value to retrieve
      *
-     * @return FieldInterface
      * @throws InvalidArgumentException if a position is not valid
      */
-    public function getField($position)
+    public function getField(int $position): FieldInterface
     {
         return $this->fields[$position] ?? $this->fields[$position] = $this->instantiateField($position);
     }
