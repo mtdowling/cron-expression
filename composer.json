@@ -6,20 +6,16 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Michael Dowling",
-            "email": "mtdowling@gmail.com",
-            "homepage": "https://github.com/mtdowling"
-        },
-        {
             "name": "Chris Tankersley",
             "email": "chris@ctankersley.com",
             "homepage": "https://github.com/dragonmantank"
         }
     ],
     "require": {
-        "php": "^7.0"
+        "php": "^7.1"
     },
     "require-dev": {
+        "phpstan/phpstan": "^0.11",
         "phpunit/phpunit": "^6.4|^7.0"
     },
     "autoload": {
@@ -29,12 +25,13 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/Cron/"
+            "Cron\\Tests\\": "tests/Cron/"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.3-dev"
-        }
+    "replace": {
+        "mtdowling/cron-expression": "^1.0"
+    },
+    "scripts": {
+        "phpstan": "./vendor/bin/phpstan analyse -l 0 src tests"
     }
 }

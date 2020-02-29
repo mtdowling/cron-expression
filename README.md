@@ -1,7 +1,7 @@
 PHP Cron Expression Parser
 ==========================
 
-[![Latest Stable Version](https://poser.pugx.org/dragonmantank/cron-expression/v/stable.png)](https://packagist.org/packages/dragonmantank/cron-expression) [![Total Downloads](https://poser.pugx.org/dragonmantank/cron-expression/downloads.png)](https://packagist.org/packages/dragonmantank/cron-expression) [![Build Status](https://secure.travis-ci.org/dragonmantank/cron-expression.png)](http://travis-ci.org/dragonmantank/cron-expression)
+[![Latest Stable Version](https://poser.pugx.org/dragonmantank/cron-expression/v/stable.png)](https://packagist.org/packages/dragonmantank/cron-expression) [![Total Downloads](https://poser.pugx.org/dragonmantank/cron-expression/downloads.png)](https://packagist.org/packages/dragonmantank/cron-expression) [![Build Status](https://secure.travis-ci.org/dragonmantank/cron-expression.png)](http://travis-ci.org/dragonmantank/cron-expression) [![StyleCI](https://github.styleci.io/repos/103715337/shield?branch=master)](https://github.styleci.io/repos/103715337)
 
 The PHP cron expression parser can parse a CRON expression, determine if it is
 due to run, calculate the next run date of the expression, and calculate the previous
@@ -65,10 +65,18 @@ A CRON expression is a string representing the schedule for a particular command
     |    +-------------------- hour (0 - 23)
     +------------------------- min (0 - 59)
 
+This library also supports a few macros:
+
+* `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - `0 0 1 1 *`
+* `@monthly` - Run once a month, midnight, first of month - `0 0 1 * *`
+* `@weekly` - Run once a week, midnight on Sun - `0 0 * * 0`
+* `@daily` - Run once a day, midnight - `0 0 * * *`
+* `@hourly` - Run once an hour, first minute - `0 * * * *`
+
 Requirements
 ============
 
-- PHP 7.0+
+- PHP 7.1+
 - PHPUnit is required to run the unit tests
 - Composer is required to run the unit tests
 
@@ -76,3 +84,4 @@ Projects that Use cron-expression
 =================================
 * Part of the [Laravel Framework](https://github.com/laravel/framework/)
 * Available as a [Symfony Bundle - setono/cron-expression-bundle](https://github.com/Setono/CronExpressionBundle)
+* Framework agnostic, PHP-based job scheduler - [Crunz](https://github.com/lavary/crunz)
