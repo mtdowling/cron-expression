@@ -169,5 +169,6 @@ class DayOfWeekFieldTest extends TestCase
         $this->assertTrue($f->validate('MON'));
         $this->assertTrue($f->validate('Mon'));
         $this->assertTrue($f->validate('mon'));
+        $this->assertTrue($f->validate('Mon,Wed,Fri'));
     }
 }

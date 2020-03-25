@@ -187,9 +187,11 @@ class CronExpressionTest extends TestCase
             ['* * * * TUE', strtotime('2017-01-08 00:00:00'), strtotime('2017-01-10 00:00:00'), false],
 
             // Issue #60, make sure that casing is less relevant for shortcuts, months, and days
-            ['0 1 15 JUL mon,Wed,FRi', strtotime('2019-11-14 00:00:00'), strtotime('2020-07-15 01:00:00'), false],
-            ['0 1 15 jul mon,Wed,FRi', strtotime('2019-11-14 00:00:00'), strtotime('2020-07-15 01:00:00'), false],
+            ['0 1 15 JUL mon,Wed,FRi', strtotime('2019-11-14 00:00:00'), strtotime('2020-07-01 01:00:00'), false],
+            ['0 1 15 jul mon,Wed,FRi', strtotime('2019-11-14 00:00:00'), strtotime('2020-07-01 01:00:00'), false],
             ['@Weekly', strtotime('2019-11-14 00:00:00'), strtotime('2019-11-17 00:00:00'), false],
+            ['@WEEKLY', strtotime('2019-11-14 00:00:00'), strtotime('2019-11-17 00:00:00'), false],
+            ['@WeeklY', strtotime('2019-11-14 00:00:00'), strtotime('2019-11-17 00:00:00'), false],
         ];
     }
 
