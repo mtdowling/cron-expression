@@ -1,6 +1,13 @@
 # Change Log
 
-## [2.4.0] - 2019-11-14
+## [3.0.0] - 2020-03-25
+
+**MAJOR CHANGE** - In previous versions of this library, setting both a "Day of Month" and a "Day of Week" would be interpreted as an `AND` statement, not an `OR` statement. For example:
+
+`30 0 1 * 1`
+
+would evaluate to "Run 30 minutes after the 0 hour when the Day Of Month is 1 AND a Monday" instead of "Run 30 minutes after the 0 hour on Day Of Month 1 OR a Monday", where the latter is more inline with most cron systems. This means that if your cron expression has both of these fields set, you may see your expression fire more often starting with v3.0.0. 
+
 ### Added
 - Additional docblocks for IDE and documentation
 - Added phpstan as a development dependency
@@ -10,6 +17,7 @@
 - Errors with fields now report a more human-understandable error and are 1-based instead of 0-based
 - Better support for `\DateTimeImmutable` across the library by typehinting for `\DateTimeInterface` now
 - Literals should now be less case-sensative across the board
+- Changed logic for when both a Day of Week and a Day of Month are supplied to now be an OR statement, not an AND
 ### Fixed
 - Fixed infinite loop when determining last day of week from literals
 - Fixed bug where single number ranges were allowed (ex: `1/10`)

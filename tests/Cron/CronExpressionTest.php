@@ -606,4 +606,17 @@ class CronExpressionTest extends TestCase
         $this->assertSame("2019-11-01 00:30:00", $runs[3]->format('Y-m-d H:i:s'));
         $this->assertSame("2019-11-04 00:30:00", $runs[4]->format('Y-m-d H:i:s'));
     }
+
+    /**
+     * Make sure that getNextRunDate() does not add arbitrary minutes
+     * 
+     * @see https://github.com/mtdowling/cron-expression/issues/152
+     */
+    public function testNextRunDateShouldNotAddMinutes()
+    {
+        $e = CronExpression::factory('* 19 * * *');
+        $nextRunDate = $e->getNextRunDate();
+
+        $this->assertSame("00", $nextRunDate->format("i"));
+    }
 }
