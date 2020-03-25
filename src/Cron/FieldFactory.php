@@ -11,7 +11,7 @@ use InvalidArgumentException;
  *
  * @see http://en.wikipedia.org/wiki/Cron
  */
-class FieldFactory
+class FieldFactory implements FieldFactoryInterface
 {
     /**
      * @var array Cache of instantiated fields
