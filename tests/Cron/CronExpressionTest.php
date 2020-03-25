@@ -611,7 +611,7 @@ class CronExpressionTest extends TestCase
 
     /**
      * Make sure that getNextRunDate() does not add arbitrary minutes
-     * 
+     *
      * @see https://github.com/mtdowling/cron-expression/issues/152
      */
     public function testNextRunDateShouldNotAddMinutes()
