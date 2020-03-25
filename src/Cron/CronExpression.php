@@ -366,6 +366,24 @@ class CronExpression
             $fields[$position] = $this->fieldFactory->getField($position);
         }
 
+        if (isset($parts[2]) && isset($parts[4])) {
+            $domExpression = sprintf('%s %s %s %s *', $this->getExpression(0), $this->getExpression(1), $this->getExpression(2), $this->getExpression(3));
+            $dowExpression = sprintf('%s %s * %s %s', $this->getExpression(0), $this->getExpression(1), $this->getExpression(3), $this->getExpression(4));
+
+            $domExpression = new self($domExpression);
+            $dowExpression = new self($dowExpression);
+
+            $domRunDates = $domExpression->getMultipleRunDates($nth + 1, $currentTime, $invert, $allowCurrentDate, $timeZone);
+            $dowRunDates = $dowExpression->getMultipleRunDates($nth + 1, $currentTime, $invert, $allowCurrentDate, $timeZone);
+
+            $combined = array_merge($domRunDates, $dowRunDates);
+            usort($combined, function($a, $b) {
+                return $a->format('Y-m-d H:i:s') <=> $b->format('Y-m-d H:i:s');
+            });
+
+            return $combined[$nth];
+        }
+
         // Set a hard limit to bail on an impossible date
         for ($i = 0; $i < $this->maxIterationCount; ++$i) {
             foreach ($parts as $position => $part) {
