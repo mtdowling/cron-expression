@@ -11,6 +11,7 @@ would evaluate to "Run 30 minutes after the 0 hour when the Day Of Month is 1 AN
 ### Added
 - Additional docblocks for IDE and documentation
 - Added phpstan as a development dependency
+- Added a `Cron\FieldFactoryInterface` to make migrations easier (#38)
 ### Changed
 - Changed some DI testing during TravisCI runs
 - `\Cron\CronExpression::determineTimezone()` now checks for `\DateTimeInterface` instead of just `\DateTime`
