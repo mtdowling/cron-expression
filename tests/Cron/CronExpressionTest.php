@@ -192,6 +192,10 @@ class CronExpressionTest extends TestCase
             ['@Weekly', strtotime('2019-11-14 00:00:00'), strtotime('2019-11-17 00:00:00'), false],
             ['@WEEKLY', strtotime('2019-11-14 00:00:00'), strtotime('2019-11-17 00:00:00'), false],
             ['@WeeklY', strtotime('2019-11-14 00:00:00'), strtotime('2019-11-17 00:00:00'), false],
+
+            // Issue #76, DOW and DOM do not support ?
+            ['0 12 * * ?', strtotime('2020-08-20 00:00:00'), strtotime('2020-08-20 12:00:00'), false],
+            ['0 12 ? * *', strtotime('2020-08-20 00:00:00'), strtotime('2020-08-20 12:00:00'), false],
         ];
     }
 
