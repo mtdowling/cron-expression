@@ -73,7 +73,7 @@ class DayOfWeekField extends AbstractField
         // Find out if this is the last specific weekday of the month
         if (strpos($value, 'L')) {
             $weekday = (int) $this->convertLiterals(substr($value, 0, strpos($value, 'L')));
-            $weekday = (int) str_replace(7, 0, $weekday);
+            $weekday %= 7;
 
             $tdate = clone $date;
             $tdate = $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
