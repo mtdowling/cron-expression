@@ -16,7 +16,7 @@ class FieldFactoryTest extends TestCase
     /**
      * @covers \Cron\FieldFactory::getField
      */
-    public function testRetrievesFieldInstances()
+    public function testRetrievesFieldInstances(): void
     {
         $mappings = [
             0 => 'Cron\MinutesField',
@@ -36,7 +36,7 @@ class FieldFactoryTest extends TestCase
     /**
      * @covers \Cron\FieldFactory::getField
      */
-    public function testValidatesFieldPosition()
+    public function testValidatesFieldPosition(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $f = new FieldFactory();

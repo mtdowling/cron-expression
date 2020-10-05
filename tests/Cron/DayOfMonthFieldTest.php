@@ -17,7 +17,7 @@ class DayOfMonthFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfMonthField::validate
      */
-    public function testValidatesField()
+    public function testValidatesField(): void
     {
         $f = new DayOfMonthField();
         $this->assertTrue($f->validate('1'));
@@ -33,7 +33,7 @@ class DayOfMonthFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfMonthField::isSatisfiedBy
      */
-    public function testChecksIfSatisfied()
+    public function testChecksIfSatisfied(): void
     {
         $f = new DayOfMonthField();
         $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
@@ -43,7 +43,7 @@ class DayOfMonthFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfMonthField::increment
      */
-    public function testIncrementsDate()
+    public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new DayOfMonthField();
@@ -58,7 +58,7 @@ class DayOfMonthFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfMonthField::increment
      */
-    public function testIncrementsDateTimeImmutable()
+    public function testIncrementsDateTimeImmutable(): void
     {
         $d = new DateTimeImmutable('2011-03-15 11:15:00');
         $f = new DayOfMonthField();
@@ -72,7 +72,7 @@ class DayOfMonthFieldTest extends TestCase
      *
      * @since 2017-01-22
      */
-    public function testDoesNotAccept0Date()
+    public function testDoesNotAccept0Date(): void
     {
         $f = new DayOfMonthField();
         $this->assertFalse($f->validate('0'));

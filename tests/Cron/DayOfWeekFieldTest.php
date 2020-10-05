@@ -18,7 +18,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::validate
      */
-    public function testValidatesField()
+    public function testValidatesField(): void
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->validate('1'));
@@ -34,7 +34,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
      */
-    public function testChecksIfSatisfied()
+    public function testChecksIfSatisfied(): void
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
@@ -44,7 +44,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::increment
      */
-    public function testIncrementsDate()
+    public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new DayOfWeekField();
@@ -59,7 +59,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::increment
      */
-    public function testIncrementsDateTimeImmutable()
+    public function testIncrementsDateTimeImmutable(): void
     {
         $d = new DateTimeImmutable('2011-03-15 11:15:00');
         $f = new DayOfWeekField();
@@ -70,7 +70,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
      */
-    public function testValidatesHashValueWeekday()
+    public function testValidatesHashValueWeekday(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Weekday must be a value between 0 and 7. 12 given');
@@ -81,7 +81,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
      */
-    public function testValidatesHashValueNth()
+    public function testValidatesHashValueNth(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('There are never more than 5 or less than 1 of a given weekday in a month');
@@ -92,7 +92,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::validate
      */
-    public function testValidateWeekendHash()
+    public function testValidateWeekendHash(): void
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->validate('MON#1'));
@@ -108,7 +108,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
      */
-    public function testHandlesZeroAndSevenDayOfTheWeekValues()
+    public function testHandlesZeroAndSevenDayOfTheWeekValues(): void
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '0-2'));
@@ -123,7 +123,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
      */
-    public function testHandlesLastWeekdayOfTheMonth()
+    public function testHandlesLastWeekdayOfTheMonth(): void
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->isSatisfiedBy(new DateTime('2018-12-28 00:00:00'), 'FRIL'));
@@ -135,7 +135,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @see https://github.com/mtdowling/cron-expression/issues/47
      */
-    public function testIssue47()
+    public function testIssue47(): void
     {
         $f = new DayOfWeekField();
         $this->assertFalse($f->validate('mon,'));
@@ -150,7 +150,7 @@ class DayOfWeekFieldTest extends TestCase
     /**
      * @see https://github.com/laravel/framework/commit/07d160ac3cc9764d5b429734ffce4fa311385403
      */
-    public function testLiteralsExpandProperly()
+    public function testLiteralsExpandProperly(): void
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->validate('MON-FRI'));
@@ -164,7 +164,7 @@ class DayOfWeekFieldTest extends TestCase
      * @since 2019-07-29
      * @see https://github.com/dragonmantank/cron-expression/issues/24
      */
-    public function testLiteralsIgnoreCasingProperly()
+    public function testLiteralsIgnoreCasingProperly(): void
     {
         $f = new DayOfWeekField();
         $this->assertTrue($f->validate('MON'));
