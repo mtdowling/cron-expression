@@ -102,8 +102,8 @@ class DayOfMonthField extends AbstractField
             // Find out if the current day is the nearest day of the week
             /** @phpstan-ignore-next-line */
             return $date->format('j') === self::getNearestWeekday(
-                    (int) $date->format('Y'),
-                    (int) $date->format('m'),
+                (int) $date->format('Y'),
+                (int) $date->format('m'),
                 $targetDay
             )->format('j');
         }

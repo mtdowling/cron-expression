@@ -100,11 +100,12 @@ abstract class AbstractField implements FieldInterface
      */
     public function isInRange(int $dateValue, $value): bool
     {
-        $parts = array_map(function ($value) {
-            $value = trim($value);
+        $parts = array_map(
+            function ($value) {
+                $value = trim($value);
 
-            return $this->convertLiterals($value);
-        },
+                return $this->convertLiterals($value);
+            },
             explode('-', $value, 2)
         );
 
