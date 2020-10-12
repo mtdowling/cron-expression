@@ -16,6 +16,8 @@ matrix:
     - php: 7.4
     - php: 7.4
       env: dependencies=lowest
+    - php: nightly
+      install: travis_retry composer install --no-interaction --prefer-dist --ignore-platform-reqs
 
 install:
     - |
