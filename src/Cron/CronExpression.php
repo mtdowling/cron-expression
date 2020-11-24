@@ -268,6 +268,17 @@ class CronExpression
     }
 
     /**
+     * Gets the parts of the cron expression as an array.
+     *
+     * @return string[]
+     *   The array of parts that make up this expression.
+     */
+    public function getParts()
+    {
+        return $this->cronParts;
+    }
+
+    /**
      * Helper method to output the full expression.
      *
      * @return string Full CRON expression
