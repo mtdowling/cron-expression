@@ -34,6 +34,15 @@ class CronExpression
     public const WEEKDAY = 4;
     public const YEAR = 5;
 
+    public const MAPPINGS = [
+        '@yearly' => '0 0 1 1 *',
+        '@annually' => '0 0 1 1 *',
+        '@monthly' => '0 0 1 * *',
+        '@weekly' => '0 0 * * 0',
+        '@daily' => '0 0 * * *',
+        '@hourly' => '0 * * * *',
+    ];
+
     /**
      * @var array CRON expression parts
      */
@@ -52,41 +61,21 @@ class CronExpression
     /**
      * @var array Order in which to test of cron parts
      */
-    private static $order = [self::YEAR, self::MONTH, self::DAY, self::WEEKDAY, self::HOUR, self::MINUTE];
+    private static $order = [
+        self::YEAR,
+        self::MONTH,
+        self::DAY,
+        self::WEEKDAY,
+        self::HOUR,
+        self::MINUTE,
+    ];
 
     /**
-     * Factory method to create a new CronExpression.
-     *
-     * @param string $expression The CRON expression to create.  There are
-     *                           several special predefined values which can be used to substitute the
-     *                           CRON expression:
-     *
-     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
-     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
-     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
-     *      `@daily` - Run once a day, midnight - 0 0 * * *
-     *      `@hourly` - Run once an hour, first minute - 0 * * * *
-     * @param null|FieldFactoryInterface $fieldFactory Field factory to use
-     *
-     * @return CronExpression
+     * @deprecated since version 3.0.2, use __construct instead.
      */
     public static function factory(string $expression, FieldFactoryInterface $fieldFactory = null): CronExpression
     {
-        $mappings = [
-            '@yearly' => '0 0 1 1 *',
-            '@annually' => '0 0 1 1 *',
-            '@monthly' => '0 0 1 * *',
-            '@weekly' => '0 0 * * 0',
-            '@daily' => '0 0 * * *',
-            '@hourly' => '0 * * * *',
-        ];
-
-        $shortcut = strtolower($expression);
-        if (isset($mappings[$shortcut])) {
-            $expression = $mappings[$shortcut];
-        }
-
-        return new self($expression, $fieldFactory ?: new FieldFactory());
+        return new static($expression, $fieldFactory);
     }
 
     /**
@@ -95,13 +84,11 @@ class CronExpression
      * @param string $expression the CRON expression to validate
      *
      * @return bool True if a valid CRON expression was passed. False if not.
-     *
-     * @see \Cron\CronExpression::factory
      */
     public static function isValidExpression(string $expression): bool
     {
         try {
-            self::factory($expression);
+            new CronExpression($expression);
         } catch (InvalidArgumentException $e) {
             return false;
         }
@@ -117,6 +104,9 @@ class CronExpression
      */
     public function __construct(string $expression, FieldFactoryInterface $fieldFactory = null)
     {
+        $shortcut = strtolower($expression);
+        $expression = self::MAPPINGS[$shortcut] ?? $expression;
+
         $this->fieldFactory = $fieldFactory ?: new FieldFactory();
         $this->setExpression($expression);
     }
@@ -279,6 +269,17 @@ class CronExpression
         }
 
         return null;
+    }
+
+    /**
+     * Gets the parts of the cron expression as an array.
+     *
+     * @return string[]
+     *   The array of parts that make up this expression.
+     */
+    public function getParts()
+    {
+        return $this->cronParts;
     }
 
     /**
