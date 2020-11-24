@@ -1,5 +1,22 @@
 # Change Log
 
+## [3.1.0] - 2020-11-24
+
+### Added
+- Added `CronExpression::getParts()` method to get parts of the expression as an array (#83)
+
+### Changed
+- Changed to Interfaces for some type hints (#97, #86)
+- Dropped minimum PHP version to 7.2
+- Few syntax changes for phpstan compatibility (#93)
+
+### Fixed
+- N/A
+
+### Deprecated
+- Deprecated `CronExpression::factory` in favor of the constructor (#56)
+- Deprecated `CronExpression::YEAR` as a formality, the functionality is already removed (#87)
+
 ## [3.0.1] - 2020-10-12
 ### Added
 - Added support for PHP 8 (#92)
