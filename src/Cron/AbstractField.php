@@ -48,7 +48,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Check to see if a field is satisfied by a value.
      *
-     * @param string $dateValue Date value to check
+     * @param int $dateValue Date value to check
      * @param string $value Value to test
      *
      * @return bool
@@ -100,11 +100,12 @@ abstract class AbstractField implements FieldInterface
      */
     public function isInRange(int $dateValue, $value): bool
     {
-        $parts = array_map(function ($value) {
-            $value = trim($value);
+        $parts = array_map(
+            function ($value) {
+                $value = trim($value);
 
-            return $this->convertLiterals($value);
-        },
+                return $this->convertLiterals($value);
+            },
             explode('-', $value, 2)
         );
 
@@ -114,7 +115,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Test if a value is within an increments of ranges (offset[-to]/step size).
      *
-     * @param string $dateValue Set date value
+     * @param int $dateValue Set date value
      * @param string $value Value to test
      *
      * @return bool
@@ -126,6 +127,7 @@ abstract class AbstractField implements FieldInterface
         $step = $chunks[1] ?? 0;
 
         // No step or 0 steps aren't cool
+        /** @phpstan-ignore-next-line */
         if (null === $step || '0' === $step || 0 === $step) {
             return false;
         }
@@ -289,7 +291,7 @@ abstract class AbstractField implements FieldInterface
             return false;
         }
 
-        if (\is_float($value) || false !== strpos($value, '.')) {
+        if (false !== strpos($value, '.')) {
             return false;
         }
 

@@ -27,4 +27,6 @@ install:
           travis_retry composer install --no-interaction --prefer-dist
         fi
 
-script: vendor/bin/phpunit --coverage-text
+script:
+  - vendor/bin/phpunit --coverage-text
+  - composer phpstan

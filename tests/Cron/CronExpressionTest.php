@@ -11,6 +11,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
@@ -225,6 +226,7 @@ class CronExpressionTest extends TestCase
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
 
+        $nextRunDate = new DateTime();
         if (\is_string($nextRun)) {
             $nextRunDate = new DateTime($nextRun);
         } elseif (\is_int($nextRun)) {
@@ -329,18 +331,22 @@ class CronExpressionTest extends TestCase
         $tzServer = new \DateTimeZone('Europe/London');
 
         $dtCurrent = \DateTime::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
+        Assert::isInstanceOf($dtCurrent, DateTime::class);
         $dtPrev = $cron->getPreviousRunDate($dtCurrent, 0, true, $tzCron);
         $this->assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
         $dtCurrent = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
+        Assert::isInstanceOf($dtCurrent, \DateTimeImmutable::class);
         $dtPrev = $cron->getPreviousRunDate($dtCurrent, 0, true, $tzCron);
         $this->assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
         $dtCurrent = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
+        Assert::isInstanceOf($dtCurrent, \DateTimeImmutable::class);
         $dtPrev = $cron->getPreviousRunDate($dtCurrent->format('c'), 0, true, $tzCron);
         $this->assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
         $dtCurrent = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
+        Assert::isInstanceOf($dtCurrent, \DateTimeImmutable::class);
         $dtPrev = $cron->getPreviousRunDate($dtCurrent->format('\\@U'), 0, true, $tzCron);
         $this->assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
     }
@@ -425,7 +431,7 @@ class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::getRunDate
      */
-    public function testGetRunDateHandlesDifferentDates()
+    public function testGetRunDateHandlesDifferentDates(): void
     {
         $cron = new CronExpression('@weekly');
         $date = new DateTime("2019-03-10 00:00:00");
@@ -437,7 +443,7 @@ class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::getRunDate
      */
-    public function testSkipsCurrentDateByDefault()
+    public function testSkipsCurrentDateByDefault(): void
     {
         $cron = new CronExpression('* * * * *');
         $current = new DateTime('now');
@@ -600,7 +606,7 @@ class CronExpressionTest extends TestCase
     /**
      * @see https://github.com/dragonmantank/cron-expression/issues/35
      */
-    public function testMakeDayOfWeekAnOrSometimes()
+    public function testMakeDayOfWeekAnOrSometimes(): void
     {
         $cron = new CronExpression('30 0 1 * 1');
         $runs = $cron->getMultipleRunDates(5, date("2019-10-10 23:20:00"), false, true);
@@ -617,7 +623,7 @@ class CronExpressionTest extends TestCase
      *
      * @see https://github.com/mtdowling/cron-expression/issues/152
      */
-    public function testNextRunDateShouldNotAddMinutes()
+    public function testNextRunDateShouldNotAddMinutes(): void
     {
         $e = new CronExpression('* 19 * * *');
         $nextRunDate = $e->getNextRunDate();

@@ -17,7 +17,7 @@ class MonthFieldTest extends TestCase
     /**
      * @covers \Cron\MonthField::validate
      */
-    public function testValidatesField()
+    public function testValidatesField(): void
     {
         $f = new MonthField();
         $this->assertTrue($f->validate('12'));
@@ -30,7 +30,7 @@ class MonthFieldTest extends TestCase
     /**
      * @covers \Cron\MonthField::isSatisfiedBy
      */
-    public function testChecksIfSatisfied()
+    public function testChecksIfSatisfied(): void
     {
         $f = new MonthField();
         $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
@@ -40,7 +40,7 @@ class MonthFieldTest extends TestCase
     /**
      * @covers \Cron\MonthField::increment
      */
-    public function testIncrementsDate()
+    public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new MonthField();
@@ -55,7 +55,7 @@ class MonthFieldTest extends TestCase
     /**
      * @covers \Cron\MonthField::increment
      */
-    public function testIncrementsDateTimeImmutable()
+    public function testIncrementsDateTimeImmutable(): void
     {
         $d = new DateTimeImmutable('2011-03-15 11:15:00');
         $f = new MonthField();
@@ -66,7 +66,7 @@ class MonthFieldTest extends TestCase
     /**
      * @covers \Cron\MonthField::increment
      */
-    public function testIncrementsDateWithThirtyMinuteTimezone()
+    public function testIncrementsDateWithThirtyMinuteTimezone(): void
     {
         $tz = date_default_timezone_get();
         date_default_timezone_set('America/St_Johns');
@@ -84,7 +84,7 @@ class MonthFieldTest extends TestCase
     /**
      * @covers \Cron\MonthField::increment
      */
-    public function testIncrementsYearAsNeeded()
+    public function testIncrementsYearAsNeeded(): void
     {
         $f = new MonthField();
         $d = new DateTime('2011-12-15 00:00:00');
@@ -95,7 +95,7 @@ class MonthFieldTest extends TestCase
     /**
      * @covers \Cron\MonthField::increment
      */
-    public function testDecrementsYearAsNeeded()
+    public function testDecrementsYearAsNeeded(): void
     {
         $f = new MonthField();
         $d = new DateTime('2011-01-15 00:00:00');
@@ -110,7 +110,7 @@ class MonthFieldTest extends TestCase
      * @since 2019-07-29
      * @see https://github.com/dragonmantank/cron-expression/issues/24
      */
-    public function testLiteralsIgnoreCasingProperly()
+    public function testLiteralsIgnoreCasingProperly(): void
     {
         $f = new MonthField();
         $this->assertTrue($f->validate('JAN'));

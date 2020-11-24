@@ -17,7 +17,7 @@ class HoursFieldTest extends TestCase
     /**
      * @covers \Cron\HoursField::validate
      */
-    public function testValidatesField()
+    public function testValidatesField(): void
     {
         $f = new HoursField();
         $this->assertTrue($f->validate('1'));
@@ -31,7 +31,7 @@ class HoursFieldTest extends TestCase
     /**
      * @covers \Cron\HoursField::increment
      */
-    public function testIncrementsDate()
+    public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new HoursField();
@@ -46,7 +46,7 @@ class HoursFieldTest extends TestCase
     /**
      * @covers \Cron\HoursField::increment
      */
-    public function testIncrementsDateTimeImmutable()
+    public function testIncrementsDateTimeImmutable(): void
     {
         $d = new DateTimeImmutable('2011-03-15 11:15:00');
         $f = new HoursField();
@@ -57,7 +57,7 @@ class HoursFieldTest extends TestCase
     /**
      * @covers \Cron\HoursField::increment
      */
-    public function testIncrementsDateWithThirtyMinuteOffsetTimezone()
+    public function testIncrementsDateWithThirtyMinuteOffsetTimezone(): void
     {
         $tz = date_default_timezone_get();
         date_default_timezone_set('America/St_Johns');
@@ -75,7 +75,7 @@ class HoursFieldTest extends TestCase
     /**
      * @covers \Cron\HoursField::increment
      */
-    public function testIncrementDateWithFifteenMinuteOffsetTimezone()
+    public function testIncrementDateWithFifteenMinuteOffsetTimezone(): void
     {
         $tz = date_default_timezone_get();
         date_default_timezone_set('Asia/Kathmandu');

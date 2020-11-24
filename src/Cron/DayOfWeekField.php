@@ -72,15 +72,15 @@ class DayOfWeekField extends AbstractField
 
         // Find out if this is the last specific weekday of the month
         if (strpos($value, 'L')) {
-            $weekday = (int) $this->convertLiterals(substr($value, 0, strpos($value, 'L')));
+            /** @phpstan-ignore-next-line */
+            $weekday = $this->convertLiterals(substr($value, 0, strpos($value, 'L')));
             $weekday %= 7;
 
             $tdate = clone $date;
             $tdate = $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
             while ($tdate->format('w') != $weekday) {
                 $tdateClone = new DateTime();
-                $tdate = $tdateClone
-                    ->setTimezone($tdate->getTimezone())
+                $tdate = $tdateClone->setTimezone($tdate->getTimezone())
                     ->setDate($currentYear, $currentMonth, --$lastDayOfMonth);
             }
 
@@ -157,9 +157,9 @@ class DayOfWeekField extends AbstractField
     /**
      * @inheritDoc
      *
-     * @param \DateTime|\DateTimeImmutable &$date
+     * @param \DateTime|\DateTimeImmutable $date
      */
-    public function increment(DateTimeInterface &$date, $invert = false): FieldInterface
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface
     {
         if ($invert) {
             $date = $date->modify('-1 day')->setTime(23, 59, 0);

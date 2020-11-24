@@ -17,7 +17,7 @@ class MinutesFieldTest extends TestCase
     /**
      * @covers \Cron\MinutesField::validate
      */
-    public function testValidatesField()
+    public function testValidatesField(): void
     {
         $f = new MinutesField();
         $this->assertTrue($f->validate('1'));
@@ -29,7 +29,7 @@ class MinutesFieldTest extends TestCase
     /**
      * @covers \Cron\MinutesField::isSatisfiedBy
      */
-    public function testChecksIfSatisfied()
+    public function testChecksIfSatisfied(): void
     {
         $f = new MinutesField();
         $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
@@ -39,7 +39,7 @@ class MinutesFieldTest extends TestCase
     /**
      * @covers \Cron\MinutesField::increment
      */
-    public function testIncrementsDate()
+    public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new MinutesField();
@@ -52,7 +52,7 @@ class MinutesFieldTest extends TestCase
     /**
      * @covers \Cron\MinutesField::increment
      */
-    public function testIncrementsDateTimeImmutable()
+    public function testIncrementsDateTimeImmutable(): void
     {
         $d = new DateTimeImmutable('2011-03-15 11:15:00');
         $f = new MinutesField();
@@ -67,7 +67,7 @@ class MinutesFieldTest extends TestCase
      *
      * @since 2017-08-18
      */
-    public function testBadSyntaxesShouldNotValidate()
+    public function testBadSyntaxesShouldNotValidate(): void
     {
         $f = new MinutesField();
         $this->assertFalse($f->validate('*-1'));
@@ -83,7 +83,7 @@ class MinutesFieldTest extends TestCase
      * @since 2019-07-29
      * @see https://github.com/dragonmantank/cron-expression/issues/18
      */
-    public function testInvalidRangeShouldNotValidate()
+    public function testInvalidRangeShouldNotValidate(): void
     {
         $f = new MinutesField();
         $this->assertFalse($f->validate('0/5'));

@@ -37,7 +37,7 @@ class MinutesField extends AbstractField
      * {@inheritdoc}
      * {@inheritDoc}
      *
-     * @param \DateTime|\DateTimeImmutable &$date
+     * @param \DateTime|\DateTimeImmutable $date
      * @param string|null                  $parts
      */
     public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface
