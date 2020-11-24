@@ -1,0 +1,44 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+name: Tests
+
+jobs:
+  phpstan:
+    name: PHPStan - PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [7.1, 7.2, 7.3, 7.4, 8.0]
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+
+      - name: PHPStan
+        uses: docker://oskarstark/phpstan-ga
+        with:
+          args: analyse  --level=max src tests
+
+  phpunit:
+    name: PHPUnit - PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [7.1, 7.2, 7.3, 7.4, 8.0]
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+
+      - name: PHPUnit
+        uses: php-actions/phpunit@v9
