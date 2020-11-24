@@ -75,6 +75,7 @@ class CronExpression
      */
     public static function factory(string $expression, FieldFactoryInterface $fieldFactory = null): CronExpression
     {
+        /** @phpstan-ignore-next-line */
         return new static($expression, $fieldFactory);
     }
 
