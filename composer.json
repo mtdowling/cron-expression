@@ -12,7 +12,7 @@
         }
     ],
     "require": {
-        "php": "^7.1|^8.0",
+        "php": "^7.2|^8.0",
         "webmozart/assert": "^1.7.0"
     },
     "require-dev": {
@@ -35,6 +35,7 @@
         "mtdowling/cron-expression": "^1.0"
     },
     "scripts": {
-        "phpstan": "./vendor/bin/phpstan analyse -l max src"
+        "phpstan": "./vendor/bin/phpstan analyse -l max src",
+        "test": "phpunit"
     }
 }
