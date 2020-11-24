@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         backupGlobals="false"
          backupStaticAttributes="false"
          bootstrap="./vendor/autoload.php"
          colors="true"
@@ -8,18 +9,19 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
 >
+
+    <coverage>
+        <include>
+            <directory suffix=".php">./src/Cron</directory>
+        </include>
+    </coverage>
 
     <testsuites>
         <testsuite name="Cron">
             <directory>./tests</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./src/Cron</directory>
-        </whitelist>
-    </filter>
 
 </phpunit>
