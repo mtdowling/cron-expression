@@ -48,22 +48,22 @@ class CronExpression
     /**
      * @var array CRON expression parts
      */
-    private $cronParts;
+    protected $cronParts;
 
     /**
      * @var FieldFactoryInterface CRON field factory
      */
-    private $fieldFactory;
+    protected $fieldFactory;
 
     /**
      * @var int Max iteration count when searching for next run date
      */
-    private $maxIterationCount = 1000;
+    protected $maxIterationCount = 1000;
 
     /**
      * @var array Order in which to test of cron parts
      */
-    private static $order = [
+    protected static $order = [
         self::YEAR,
         self::MONTH,
         self::DAY,
