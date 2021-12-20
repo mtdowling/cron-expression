@@ -2,34 +2,32 @@
 
 namespace Cron;
 
+use OutOfRangeException;
+
 /**
- * Abstract CRON expression field
+ * Abstract CRON expression field.
  */
 abstract class AbstractField implements FieldInterface
 {
     /**
-     * Full range of values that are allowed for this field type
-     * @var array
+     * Full range of values that are allowed for this field type.
      */
-    protected $fullRange = [];
+    protected array $fullRange = [];
 
     /**
-     * Literal values we need to convert to integers
-     * @var array
+     * Literal values we need to convert to integers.
      */
-    protected $literals = [];
+    protected array $literals = [];
 
     /**
-     * Start value of the full range
-     * @var integer
+     * Start value of the full range.
      */
-    protected $rangeStart;
+    protected int $rangeStart;
 
     /**
-     * End value of the full range
-     * @var integer
+     * End value of the full range.
      */
-    protected $rangeEnd;
+    protected int $rangeEnd;
 
 
     public function __construct()
@@ -38,18 +36,15 @@ abstract class AbstractField implements FieldInterface
     }
 
     /**
-     * Check to see if a field is satisfied by a value
-     *
-     * @param string $dateValue Date value to check
-     * @param string $value     Value to test
-     *
-     * @return bool
+     * Check to see if a field is satisfied by a value.
      */
-    public function isSatisfied($dateValue, $value)
+    public function isSatisfied(string $dateValue, string $value): bool
     {
         if ($this->isIncrementsOfRanges($value)) {
             return $this->isInIncrementsOfRanges($dateValue, $value);
-        } elseif ($this->isRange($value)) {
+        }
+
+        if ($this->isRange($value)) {
             return $this->isInRange($dateValue, $value);
         }
 
@@ -57,38 +52,25 @@ abstract class AbstractField implements FieldInterface
     }
 
     /**
-     * Check if a value is a range
-     *
-     * @param string $value Value to test
-     *
-     * @return bool
+     * Check if a value is a range.
      */
-    public function isRange($value)
+    public function isRange(string $value): bool
     {
-        return strpos($value, '-') !== false;
+        return str_contains($value, '-');
     }
 
     /**
-     * Check if a value is an increments of ranges
-     *
-     * @param string $value Value to test
-     *
-     * @return bool
+     * Check if a value is an increments of ranges.
      */
-    public function isIncrementsOfRanges($value)
+    public function isIncrementsOfRanges(string $value): bool
     {
-        return strpos($value, '/') !== false;
+        return str_contains($value, '/');
     }
 
     /**
-     * Test if a value is within a range
-     *
-     * @param string $dateValue Set date value
-     * @param string $value     Value to test
-     *
-     * @return bool
+     * Test if a value is within a range.
      */
-    public function isInRange($dateValue, $value)
+    public function isInRange(string $dateValue, string $value): bool
     {
         $parts = array_map('trim', explode('-', $value, 2));
 
@@ -96,18 +78,13 @@ abstract class AbstractField implements FieldInterface
     }
 
     /**
-     * Test if a value is within an increments of ranges (offset[-to]/step size)
-     *
-     * @param string $dateValue Set date value
-     * @param string $value     Value to test
-     *
-     * @return bool
+     * Test if a value is within an increments of ranges (offset[-to]/step size).
      */
-    public function isInIncrementsOfRanges($dateValue, $value)
+    public function isInIncrementsOfRanges(string $dateValue, string $value): bool
     {
         $chunks = array_map('trim', explode('/', $value, 2));
         $range = $chunks[0];
-        $step = isset($chunks[1]) ? $chunks[1] : 0;
+        $step = $chunks[1] ?? 0;
 
         // No step or 0 steps aren't cool
         if (is_null($step) || '0' === $step || 0 === $step) {
@@ -116,70 +93,63 @@ abstract class AbstractField implements FieldInterface
 
         // Expand the * to a full range
         if ('*' == $range) {
-            $range = $this->rangeStart . '-' . $this->rangeEnd;
+            $range = $this->rangeStart.'-'.$this->rangeEnd;
         }
 
         // Generate the requested small range
         $rangeChunks = explode('-', $range, 2);
-        $rangeStart = $rangeChunks[0];
-        $rangeEnd = isset($rangeChunks[1]) ? $rangeChunks[1] : $rangeStart;
+        $rangeStart = (int) $rangeChunks[0];
+        $rangeEnd = (int) ($rangeChunks[1] ?? $rangeStart);
 
         if ($rangeStart < $this->rangeStart || $rangeStart > $this->rangeEnd || $rangeStart > $rangeEnd) {
-            throw new \OutOfRangeException('Invalid range start requested');
+            throw new OutOfRangeException('Invalid range start requested');
         }
 
         if ($rangeEnd < $this->rangeStart || $rangeEnd > $this->rangeEnd || $rangeEnd < $rangeStart) {
-            throw new \OutOfRangeException('Invalid range end requested');
+            throw new OutOfRangeException('Invalid range end requested');
         }
 
         if ($step > ($rangeEnd - $rangeStart) + 1) {
-            throw new \OutOfRangeException('Step cannot be greater than total range');
+            throw new OutOfRangeException('Step cannot be greater than total range');
         }
 
-        $thisRange = range($rangeStart, $rangeEnd, $step);
-
-        return in_array($dateValue, $thisRange);
+        return in_array($dateValue, range($rangeStart, $rangeEnd, $step));
     }
 
     /**
-     * Returns a range of values for the given cron expression
+     * Returns a range of values for the given cron expression.
      *
-     * @param string $expression The expression to evaluate
-     * @param int $max           Maximum offset for range
-     *
-     * @return array
+     * @return array<int>
      */
-    public function getRangeForExpression($expression, $max)
+    public function getRangeForExpression(string $expression, int $max): array
     {
-        $values = array();
+        $values = [];
 
         if ($this->isRange($expression) || $this->isIncrementsOfRanges($expression)) {
             if (!$this->isIncrementsOfRanges($expression)) {
-                list ($offset, $to) = explode('-', $expression);
+                list($offset, $to) = explode('-', $expression);
                 $stepSize = 1;
-            }
-            else {
+            } else {
                 $range = array_map('trim', explode('/', $expression, 2));
-                $stepSize = isset($range[1]) ? $range[1] : 0;
+                $stepSize = $range[1] ?? 0;
                 $range = $range[0];
                 $range = explode('-', $range, 2);
                 $offset = $range[0];
-                $to = isset($range[1]) ? $range[1] : $max;
+                $to = $range[1] ?? $max;
             }
             $offset = $offset == '*' ? 0 : $offset;
             for ($i = $offset; $i <= $to; $i += $stepSize) {
                 $values[] = $i;
             }
             sort($values);
-        }
-        else {
-            $values = array($expression);
+        } else {
+            $values = [$expression];
         }
 
         return $values;
     }
 
-    protected function convertLiterals($value)
+    protected function convertLiterals(string $value): string
     {
         if (count($this->literals)) {
             $key = array_search($value, $this->literals);
@@ -192,12 +162,9 @@ abstract class AbstractField implements FieldInterface
     }
 
     /**
-     * Checks to see if a value is valid for the field
-     *
-     * @param string $value
-     * @return bool
+     * Checks to see if a value is valid for the field.
      */
-    public function validate($value)
+    public function validate($value): bool
     {
         $value = $this->convertLiterals($value);
 
@@ -207,16 +174,16 @@ abstract class AbstractField implements FieldInterface
         }
 
         // You cannot have a range and a list at the same time
-        if (strpos($value, ',') !== false && strpos($value, '-') !== false) {
+        if (str_contains($value, ',') && str_contains($value, '-')) {
             return false;
         }
 
-        if (strpos($value, '/') !== false) {
+        if (str_contains($value, '/')) {
             list($range, $step) = explode('/', $value);
             return $this->validate($range) && filter_var($step, FILTER_VALIDATE_INT);
         }
 
-        if (strpos($value, '-') !== false) {
+        if (str_contains($value, '-')) {
             if (substr_count($value, '-') > 1) {
                 return false;
             }
@@ -233,7 +200,7 @@ abstract class AbstractField implements FieldInterface
         }
 
         // Validate each chunk of a list individually
-        if (strpos($value, ',') !== false) {
+        if (str_contains($value, ',')) {
             foreach (explode(',', $value) as $listItem) {
                 if (!$this->validate($listItem)) {
                     return false;

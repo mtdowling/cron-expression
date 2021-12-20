@@ -3,11 +3,11 @@
 namespace Cron;
 
 use DateTime;
+use DateTimeInterface;
 use InvalidArgumentException;
 
-
 /**
- * Day of week field.  Allows: * / , - ? L #
+ * Day of week field.  Allows: * / , - ? L #.
  *
  * Days of the week can be represented as a number 0-7 (0|7 = Sunday)
  * or as a three letter string: SUN, MON, TUE, WED, THU, FRI, SAT.
@@ -21,12 +21,18 @@ use InvalidArgumentException;
  */
 class DayOfWeekField extends AbstractField
 {
-    protected $rangeStart = 0;
-    protected $rangeEnd = 7;
-
-    protected $nthRange;
-
-    protected $literals = [1 => 'MON', 2 => 'TUE', 3 => 'WED', 4 => 'THU', 5 => 'FRI', 6 => 'SAT', 7 => 'SUN'];
+    protected int $rangeStart = 0;
+    protected int $rangeEnd = 7;
+    protected array $nthRange;
+    protected array $literals = [
+        1 => 'MON',
+        2 => 'TUE',
+        3 => 'WED',
+        4 => 'THU',
+        5 => 'FRI',
+        6 => 'SAT',
+        7 => 'SUN',
+    ];
 
     public function __construct()
     {
@@ -34,7 +40,7 @@ class DayOfWeekField extends AbstractField
         parent::__construct();
     }
 
-    public function isSatisfiedBy(DateTime $date, $value)
+    public function isSatisfiedBy(DateTimeInterface $date, string $value): bool
     {
         if ($value == '?') {
             return true;
@@ -127,7 +133,7 @@ class DayOfWeekField extends AbstractField
         return $this->isSatisfied($fieldValue, $value);
     }
 
-    public function increment(DateTime $date, $invert = false)
+    public function increment(DateTime $date, bool $invert = false): self
     {
         if ($invert) {
             $date->modify('-1 day');
@@ -143,7 +149,7 @@ class DayOfWeekField extends AbstractField
     /**
      * @inheritDoc
      */
-    public function validate($value)
+    public function validate($value): bool
     {
         $basicChecks = parent::validate($value);
 

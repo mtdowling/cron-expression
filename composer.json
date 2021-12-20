@@ -10,19 +10,15 @@
         "homepage": "https://github.com/mtdowling"
     }],
     "require": {
-        "php": ">=7.0.0"
+        "php": "^8.0.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.7"
+        "phpunit/phpunit": "^9.5.10",
+        "friendsofphp/php-cs-fixer": "^3.4"
     },
     "autoload": {
         "psr-4": {
-            "Cron\\": "src/Cron/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/Cron/"
+            "Cron\\": "src/"
         }
     },
     "abandoned": "dragonmantank/cron-expression"

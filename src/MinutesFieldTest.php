@@ -1,8 +1,7 @@
 <?php
 
-namespace Cron\Tests;
+namespace Cron;
 
-use Cron\MinutesField;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 

@@ -3,9 +3,10 @@
 namespace Cron;
 
 use DateTime;
+use DateTimeInterface;
 
 /**
- * Day of month field.  Allows: * , / - ? L W
+ * Day of month field.  Allows: * , / - ? L W.
  *
  * 'L' stands for "last" and specifies the last day of the month.
  *
@@ -24,19 +25,19 @@ use DateTime;
  */
 class DayOfMonthField extends AbstractField
 {
-    protected $rangeStart = 1;
-    protected $rangeEnd = 31;
+    protected int $rangeStart = 1;
+    protected int $rangeEnd = 31;
 
     /**
-     * Get the nearest day of the week for a given day in a month
+     * Get the nearest day of the week for a given day in a month.
      *
      * @param int $currentYear  Current year
      * @param int $currentMonth Current month
      * @param int $targetDay    Target day of the month
      *
-     * @return \DateTime Returns the nearest date
+     * @return DateTime Returns the nearest date
      */
-    private static function getNearestWeekday($currentYear, $currentMonth, $targetDay)
+    private static function getNearestWeekday(int $currentYear, int $currentMonth, int $targetDay): DateTime
     {
         $tday = str_pad($targetDay, 2, '0', STR_PAD_LEFT);
         $target = DateTime::createFromFormat('Y-m-d', "$currentYear-$currentMonth-$tday");
@@ -48,7 +49,7 @@ class DayOfMonthField extends AbstractField
 
         $lastDayOfMonth = $target->format('t');
 
-        foreach (array(-1, 1, -2, 2) as $i) {
+        foreach ([-1, 1, -2, 2] as $i) {
             $adjusted = $targetDay + $i;
             if ($adjusted > 0 && $adjusted <= $lastDayOfMonth) {
                 $target->setDate($currentYear, $currentMonth, $adjusted);
@@ -57,9 +58,11 @@ class DayOfMonthField extends AbstractField
                 }
             }
         }
+
+        return $target;
     }
 
-    public function isSatisfiedBy(DateTime $date, $value)
+    public function isSatisfiedBy(DateTimeInterface $date, $value): bool
     {
         // ? states that the field value is to be skipped
         if ($value == '?') {
@@ -88,7 +91,7 @@ class DayOfMonthField extends AbstractField
         return $this->isSatisfied($date->format('d'), $value);
     }
 
-    public function increment(DateTime $date, $invert = false)
+    public function increment(DateTime $date, bool $invert = false): self
     {
         if ($invert) {
             $date->modify('previous day');
@@ -104,17 +107,16 @@ class DayOfMonthField extends AbstractField
     /**
      * @inheritDoc
      */
-    public function validate($value)
+    public function validate($value): bool
     {
         $basicChecks = parent::validate($value);
 
         // Validate that a list don't have W or L
-        if (strpos($value, ',') !== false && (strpos($value, 'W') !== false || strpos($value, 'L') !== false)) {
+        if (str_contains($value, ',') && (str_contains($value, 'W') || str_contains($value, 'L'))) {
             return false;
         }
 
         if (!$basicChecks) {
-
             if ($value === 'L') {
                 return true;
             }

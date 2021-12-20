@@ -1,8 +1,7 @@
 <?php
 
-namespace Cron\Tests;
+namespace Cron;
 
-use Cron\DayOfMonthField;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 
@@ -51,7 +50,7 @@ class DayOfMonthFieldTest extends TestCase
 
     /**
      * Day of the month cannot accept a 0 value, it must be between 1 and 31
-     * See Github issue #120
+     * See Github issue #120.
      *
      * @since 2017-01-22
      */

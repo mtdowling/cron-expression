@@ -1,10 +1,8 @@
 <?php
 
-namespace Cron\Tests;
+namespace Cron;
 
-use Cron\DayOfWeekField;
-use Cron\MinutesField;
-use Cron\MonthField;
+use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -97,7 +95,7 @@ class AbstractFieldTest extends TestCase
 
     public function testStepCannotBeLargerThanRange()
     {
-        $this->expectException(\OutOfRangeException::class);
+        $this->expectException(OutOfRangeException::class);
         $f = new MonthField();
         $f->isInIncrementsOfRanges('2', '3-12/13');
     }

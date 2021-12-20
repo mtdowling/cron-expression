@@ -1,8 +1,7 @@
 <?php
 
-namespace Cron\Tests;
+namespace Cron;
 
-use Cron\HoursField;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 
@@ -20,7 +19,7 @@ class HoursFieldTest extends TestCase
         $this->assertTrue($f->validate('1'));
         $this->assertTrue($f->validate('*'));
         $this->assertFalse($f->validate('*/3,1,1-12'));
-     }
+    }
 
     /**
      * @covers \Cron\HoursField::increment

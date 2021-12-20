@@ -1,8 +1,10 @@
 nbproject
 coverage
-phpunit.xml
+build
 vendor
+.idea
+phpunit.xml
 composer.phar
 composer.lock
-.idea
 .php_cs.cache
+.php-cs-fixer.cache
