@@ -46,7 +46,7 @@ final class CronExpression
     ];
 
     /**
-     * @var array<string> CRON expression parts
+     * @var array<int, int|string> CRON expression parts
      */
     private array $cronParts;
     private int $maxIterationCount = 1000;
@@ -66,7 +66,7 @@ final class CronExpression
      */
     public static function factory(string $expression, FieldFactory $fieldFactory = null): self
     {
-        $mappings = [
+        static $mappings = [
             '@yearly' => '0 0 1 1 *',
             '@annually' => '0 0 1 1 *',
             '@monthly' => '0 0 1 * *',
@@ -115,23 +115,18 @@ final class CronExpression
      * @param string $value CRON expression (e.g. 8 * * * *)
      *
      * @throws InvalidArgumentException if not a valid CRON expression
-     * @return CronExpression
      */
     public function setExpression(string $value): self
     {
         /** @var array $cronParts */
         $cronParts = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
         if (count($cronParts) < 5) {
-            throw new InvalidArgumentException(
-                $value.' is not a valid CRON expression'
-            );
+            throw new InvalidArgumentException($value.' is not a valid CRON expression');
         }
 
         foreach ($cronParts as $position => $part) {
             $this->setPart($position, $part);
         }
-
-        $this->cronParts = $cronParts;
 
         return $this;
     }
@@ -259,7 +254,7 @@ final class CronExpression
         }
 
         if (array_key_exists($part, $this->cronParts)) {
-            return $this->cronParts[$part];
+            return (string) $this->cronParts[$part];
         }
 
         return null;
