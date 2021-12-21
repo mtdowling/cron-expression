@@ -422,26 +422,26 @@ final class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::__construct
      * @covers \Cron\CronExpression::fromString
-     * @covers \Cron\CronExpression::isValidExpression
+     * @covers \Cron\CronExpression::isValid
      * @covers \Cron\CronExpression::setPart
      */
     public function testValidationWorks(): void
     {
         // Invalid. Only four values
-        self::assertFalse(CronExpression::isValidExpression('* * * 1'));
+        self::assertFalse(CronExpression::isValid('* * * 1'));
         // Valid
-        self::assertTrue(CronExpression::isValidExpression('* * * * 1'));
+        self::assertTrue(CronExpression::isValid('* * * * 1'));
 
         // Issue #156, 13 is an invalid month
-        self::assertFalse(CronExpression::isValidExpression('* * * 13 * '));
+        self::assertFalse(CronExpression::isValid('* * * 13 * '));
 
         // Issue #155, 90 is an invalid second
-        self::assertFalse(CronExpression::isValidExpression('90 * * * *'));
+        self::assertFalse(CronExpression::isValid('90 * * * *'));
 
         // Issue #154, 24 is an invalid hour
-        self::assertFalse(CronExpression::isValidExpression('0 24 1 12 0'));
+        self::assertFalse(CronExpression::isValid('0 24 1 12 0'));
 
         // Issue #125, this is just all sorts of wrong
-        self::assertFalse(CronExpression::isValidExpression('990 14 * * mon-fri0345345'));
+        self::assertFalse(CronExpression::isValid('990 14 * * mon-fri0345345'));
     }
 }

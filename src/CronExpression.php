@@ -32,7 +32,6 @@ final class CronExpression implements Stringable
     public const MONTHDAY = 2;
     public const MONTH = 3;
     public const WEEKDAY = 4;
-    public const YEAR = 5;
 
     public const ALLOW_CURRENT_DATE = 1;
     public const DISALLOW_CURRENT_DATE = 0;
@@ -41,7 +40,6 @@ final class CronExpression implements Stringable
      * Order in which to test of cron parts.
      */
     private const TEST_ORDER_CRON_PARTS = [
-        self::YEAR,
         self::MONTH,
         self::MONTHDAY,
         self::WEEKDAY,
@@ -104,7 +102,7 @@ final class CronExpression implements Stringable
      *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
      *      `@hourly` - Run once an hour, first minute - 0 * * * *
      */
-    public static function fromString(string $expression, FieldFactory $fieldFactory = null): self
+    public static function fromString(string $expression): self
     {
         static $mappings = [
             '@yearly' => '0 0 1 1 *',
@@ -116,20 +114,7 @@ final class CronExpression implements Stringable
             '@hourly' => '0 * * * *',
         ];
 
-        return new self($mappings[$expression] ?? $expression, $fieldFactory ?? new FieldFactory());
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release.
-     *
-     * @deprecated since version 3.0.0
-     *
-     * @see CronExpression::fromString
-     * @codeCoverageIgnore
-     */
-    public static function factory(string $expression, FieldFactory $fieldFactory = null): self
-    {
-        return self::fromString($expression, $fieldFactory ?? new FieldFactory());
+        return new self($mappings[$expression] ?? $expression, new FieldFactory());
     }
 
     /**
@@ -177,7 +162,7 @@ final class CronExpression implements Stringable
      *
      * @see CronExpression::fromString
      */
-    public static function isValidExpression(string $expression): bool
+    public static function isValid(string $expression): bool
     {
         try {
             self::fromString($expression);
@@ -275,35 +260,6 @@ final class CronExpression implements Stringable
                 break;
             }
         }
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release.
-     *
-     * @deprecated since version 3.0.0
-     *
-     * @see self::toString
-     * @see self::minute
-     * @see self::hour
-     * @see self::dayOfWeek
-     * @see self::dayOfMonth
-     * @see self::month
-     *
-     * Get all or part of the CRON expression.
-     *
-     * @param string|int|null $part Specify the part to retrieve or NULL to get the full
-     *                              cron schedule string.
-     *
-     * @return string|null Returns the CRON expression, a part of the
-     *                     CRON expression, or NULL if the part was specified but not found
-     */
-    public function getExpression(string|int $part = null): string|null
-    {
-        if (null === $part) {
-            return $this->toString();
-        }
-
-        return $this->part($part);
     }
 
     private function part(string|int $position): string|null
