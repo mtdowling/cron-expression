@@ -10,7 +10,7 @@ use DateTimeInterface;
 /**
  * Minutes field.  Allows: * , / -.
  */
-class MinutesField extends AbstractField
+final class MinutesField extends AbstractField
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 59;

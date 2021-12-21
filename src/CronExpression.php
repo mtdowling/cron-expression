@@ -15,7 +15,7 @@ use RuntimeException;
 /**
  * CRON expression parser that can determine whether or not a CRON expression is
  * due to run, the next run date and previous run date of a CRON expression.
- * The determinations made by this class are accurate if checked run once per
+ * The determinations made by this final classare accurate if checked run once per
  * minute (seconds are dropped from date time comparisons).
  *
  * Schedule parts must map to:
@@ -24,7 +24,7 @@ use RuntimeException;
  *
  * @link http://en.wikipedia.org/wiki/Cron
  */
-class CronExpression
+final class CronExpression
 {
     public const MINUTE = 0;
     public const HOUR = 1;

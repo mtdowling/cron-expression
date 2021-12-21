@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class DayOfWeekFieldTest extends TestCase
+final class DayOfWeekFieldTest extends TestCase
 {
     /**
      * @covers \Cron\DayOfWeekField::validate

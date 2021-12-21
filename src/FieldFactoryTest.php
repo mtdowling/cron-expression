@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class FieldFactoryTest extends TestCase
+final class FieldFactoryTest extends TestCase
 {
     /**
      * @covers \Cron\FieldFactory::getField

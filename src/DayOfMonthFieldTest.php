@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class DayOfMonthFieldTest extends TestCase
+final class DayOfMonthFieldTest extends TestCase
 {
     /**
      * @covers \Cron\DayOfMonthField::validate

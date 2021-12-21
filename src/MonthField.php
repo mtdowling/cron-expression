@@ -10,7 +10,7 @@ use DateTimeInterface;
 /**
  * Month field.  Allows: * , / -.
  */
-class MonthField extends AbstractField
+final class MonthField extends AbstractField
 {
     protected int $rangeStart = 1;
     protected int $rangeEnd = 12;

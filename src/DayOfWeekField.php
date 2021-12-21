@@ -21,7 +21,7 @@ use InvalidArgumentException;
  * number between one and five. It allows you to specify constructs such as
  * "the second Friday" of a given month.
  */
-class DayOfWeekField extends AbstractField
+final class DayOfWeekField extends AbstractField
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 7;

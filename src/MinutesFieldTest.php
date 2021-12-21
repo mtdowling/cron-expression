@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class MinutesFieldTest extends TestCase
+final class MinutesFieldTest extends TestCase
 {
     /**
      * @covers \Cron\MinutesField::validate

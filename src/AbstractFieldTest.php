@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class AbstractFieldTest extends TestCase
+final class AbstractFieldTest extends TestCase
 {
     /**
      * @covers \Cron\AbstractField::isRange

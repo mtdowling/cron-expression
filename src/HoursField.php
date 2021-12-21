@@ -11,7 +11,7 @@ use DateTimeZone;
 /**
  * Hours field.  Allows: * , / -.
  */
-class HoursField extends AbstractField
+final class HoursField extends AbstractField
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 23;

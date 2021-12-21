@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-class CronExpressionTest extends TestCase
+final class CronExpressionTest extends TestCase
 {
     /**
      * @covers \Cron\CronExpression::factory
