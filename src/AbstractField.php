@@ -168,31 +168,31 @@ abstract class AbstractField implements FieldInterface
     /**
      * Checks to see if a value is valid for the field.
      */
-    public function validate(string $value): bool
+    public function validate(string $expression): bool
     {
-        $value = (string) $this->convertLiterals($value);
+        $expression = (string) $this->convertLiterals($expression);
 
         // All fields allow * as a valid value
-        if ('*' === $value) {
+        if ('*' === $expression) {
             return true;
         }
 
         // You cannot have a range and a list at the same time
-        if (str_contains($value, ',') && str_contains($value, '-')) {
+        if (str_contains($expression, ',') && str_contains($expression, '-')) {
             return false;
         }
 
-        if (str_contains($value, '/')) {
-            list($range, $step) = explode('/', $value);
+        if (str_contains($expression, '/')) {
+            list($range, $step) = explode('/', $expression);
             return $this->validate($range) && (bool) filter_var($step, FILTER_VALIDATE_INT);
         }
 
-        if (str_contains($value, '-')) {
-            if (substr_count($value, '-') > 1) {
+        if (str_contains($expression, '-')) {
+            if (substr_count($expression, '-') > 1) {
                 return false;
             }
 
-            [$first, $last] = explode('-', $value);
+            [$first, $last] = explode('-', $expression);
             $first = $this->convertLiterals($first);
             $last = $this->convertLiterals($last);
 
@@ -204,8 +204,8 @@ abstract class AbstractField implements FieldInterface
         }
 
         // Validate each chunk of a list individually
-        if (str_contains($value, ',')) {
-            foreach (explode(',', $value) as $listItem) {
+        if (str_contains($expression, ',')) {
+            foreach (explode(',', $expression) as $listItem) {
                 if (!$this->validate($listItem)) {
                     return false;
                 }
@@ -214,10 +214,10 @@ abstract class AbstractField implements FieldInterface
         }
 
         // We should have a numeric by now, so coerce this into an integer
-        if (filter_var($value, FILTER_VALIDATE_INT) !== false) {
-            $value = (int) $value;
+        if (filter_var($expression, FILTER_VALIDATE_INT) !== false) {
+            $expression = (int) $expression;
         }
 
-        return in_array($value, $this->fullRange, true);
+        return in_array($expression, $this->fullRange, true);
     }
 }

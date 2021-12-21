@@ -29,15 +29,15 @@ final class MonthField extends AbstractField
         12 => 'DEC',
     ];
 
-    public function isSatisfiedBy(DateTimeInterface $date, string $value): bool
+    public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
     {
         return $this->isSatisfied(
             $date->format('m'),
-            (string) $this->convertLiterals($value)
+            (string) $this->convertLiterals($expression)
         );
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): self
+    public function increment(DateTime $date, bool $invert = false, string $parts = null): void
     {
         if ($invert) {
             $date->modify('last day of previous month');
@@ -46,7 +46,5 @@ final class MonthField extends AbstractField
             $date->modify('first day of next month');
             $date->setTime(0, 0);
         }
-
-        return $this;
     }
 }

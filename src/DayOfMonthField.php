@@ -65,35 +65,35 @@ final class DayOfMonthField extends AbstractField
         return $target;
     }
 
-    public function isSatisfiedBy(DateTimeInterface $date, $value): bool
+    public function isSatisfiedBy(DateTimeInterface $date, $expression): bool
     {
         // ? states that the field value is to be skipped
-        if ($value == '?') {
+        if ($expression == '?') {
             return true;
         }
 
         $fieldValue = $date->format('d');
 
         // Check to see if this is the last day of the month
-        if ($value == 'L') {
+        if ($expression == 'L') {
             return $fieldValue == $date->format('t');
         }
 
         // Check to see if this is the nearest weekday to a particular value
-        $pos = strpos($value, 'W');
+        $pos = strpos($expression, 'W');
         if (false !== $pos) {
             // Find out if the current day is the nearest day of the week
             return $date->format('j') == self::getNearestWeekday(
                 (int) $date->format('Y'),
                 (int) $date->format('m'),
-                (int) substr($value, 0, $pos) // Parse the target day
+                (int) substr($expression, 0, $pos) // Parse the target day
             )->format('j');
         }
 
-        return $this->isSatisfied($date->format('d'), $value);
+        return $this->isSatisfied($date->format('d'), $expression);
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): self
+    public function increment(DateTime $date, bool $invert = false, string $parts = null): void
     {
         if ($invert) {
             $date->modify('previous day');
@@ -102,19 +102,17 @@ final class DayOfMonthField extends AbstractField
             $date->modify('next day');
             $date->setTime(0, 0);
         }
-
-        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function validate(string $value): bool
+    public function validate(string $expression): bool
     {
-        $basicChecks = parent::validate($value);
+        $basicChecks = parent::validate($expression);
 
         // Validate that a list don't have W or L
-        if (str_contains($value, ',') && (str_contains($value, 'W') || str_contains($value, 'L'))) {
+        if (str_contains($expression, ',') && (str_contains($expression, 'W') || str_contains($expression, 'L'))) {
             return false;
         }
 
@@ -122,11 +120,11 @@ final class DayOfMonthField extends AbstractField
             return $basicChecks;
         }
 
-        if ($value === 'L') {
+        if ($expression === 'L') {
             return true;
         }
 
-        if (1 === preg_match('/^(.*)W$/', $value, $matches)) {
+        if (1 === preg_match('/^(.*)W$/', $expression, $matches)) {
             return $this->validate($matches[1]);
         }
 

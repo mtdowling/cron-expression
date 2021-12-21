@@ -87,7 +87,6 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::setExpression
      * @covers \Cron\CronExpression::setPart
      */
     public function testInvalidCronsWillFail(): void
@@ -104,8 +103,7 @@ final class CronExpressionTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         // Only four values
-        $cron = CronExpression::factory('* * * * *');
-        $cron->setPart(1, 'abc');
+        CronExpression::factory('* * abc * *');
     }
 
     /**
@@ -422,7 +420,6 @@ final class CronExpressionTest extends TestCase
      * @covers \Cron\CronExpression::__construct
      * @covers \Cron\CronExpression::factory
      * @covers \Cron\CronExpression::isValidExpression
-     * @covers \Cron\CronExpression::setExpression
      * @covers \Cron\CronExpression::setPart
      */
     public function testValidationWorks(): void

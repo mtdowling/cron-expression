@@ -15,12 +15,12 @@ final class MinutesField extends AbstractField
     protected int $rangeStart = 0;
     protected int $rangeEnd = 59;
 
-    public function isSatisfiedBy(DateTimeInterface $date, string $value): bool
+    public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
     {
-        return $this->isSatisfied($date->format('i'), $value);
+        return $this->isSatisfied($date->format('i'), $expression);
     }
 
-    public function increment(DateTime $date, $invert = false, string $parts = null): self
+    public function increment(DateTime $date, $invert = false, string $parts = null): void
     {
         if (is_null($parts)) {
             if ($invert) {
@@ -28,7 +28,7 @@ final class MinutesField extends AbstractField
             } else {
                 $date->modify('+1 minute');
             }
-            return $this;
+            return;
         }
 
         $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
@@ -55,7 +55,5 @@ final class MinutesField extends AbstractField
         } else {
             $date->setTime((int) $date->format('H'), (int) $minutes[$position]);
         }
-
-        return $this;
     }
 }

@@ -16,12 +16,12 @@ final class HoursField extends AbstractField
     protected int $rangeStart = 0;
     protected int $rangeEnd = 23;
 
-    public function isSatisfiedBy(DateTimeInterface $date, string $value): bool
+    public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
     {
-        return $this->isSatisfied($date->format('H'), $value);
+        return $this->isSatisfied($date->format('H'), $expression);
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): self
+    public function increment(DateTime $date, bool $invert = false, string $parts = null): void
     {
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
@@ -35,9 +35,9 @@ final class HoursField extends AbstractField
                 $date->modify('+1 hour');
             }
             $date->setTimezone($timezone);
-
             $date->setTime((int) $date->format('H'), $invert ? 59 : 0);
-            return $this;
+
+            return;
         }
 
         $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
@@ -65,7 +65,5 @@ final class HoursField extends AbstractField
         } else {
             $date->setTime($hour, $invert ? 59 : 0);
         }
-
-        return $this;
     }
 }
