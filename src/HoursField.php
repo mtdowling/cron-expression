@@ -21,7 +21,7 @@ class HoursField extends AbstractField
         return $this->isSatisfied($date->format('H'), $value);
     }
 
-    public function increment(DateTime $date, bool $invert = false, $parts = null): self
+    public function increment(DateTime $date, bool $invert = false, string $parts = null): self
     {
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even

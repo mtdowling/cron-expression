@@ -37,7 +37,7 @@ class MonthField extends AbstractField
         );
     }
 
-    public function increment(DateTime $date, bool $invert = false): self
+    public function increment(DateTime $date, bool $invert = false, string $parts = null): self
     {
         if ($invert) {
             $date->modify('last day of previous month');

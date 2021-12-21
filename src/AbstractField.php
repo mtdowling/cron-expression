@@ -89,7 +89,7 @@ abstract class AbstractField implements FieldInterface
         $step = $chunks[1] ?? 0;
 
         // No step or 0 steps aren't cool
-        if (is_null($step) || '0' === $step || 0 === $step) {
+        if (in_array($step, ['0', 0], true)) {
             return false;
         }
 
@@ -117,7 +117,7 @@ abstract class AbstractField implements FieldInterface
             throw new OutOfRangeException('Step cannot be greater than total range');
         }
 
-        return in_array($dateValue, range($rangeStart, $rangeEnd, $step));
+        return in_array((int) $dateValue, range($rangeStart, $rangeEnd, $step), true);
     }
 
     /**
@@ -131,10 +131,10 @@ abstract class AbstractField implements FieldInterface
 
         if ($this->isRange($expression) || $this->isIncrementsOfRanges($expression)) {
             if (!$this->isIncrementsOfRanges($expression)) {
-                list($offset, $to) = explode('-', $expression);
+                [$offset, $to] = explode('-', $expression);
                 $stepSize = 1;
             } else {
-                $range = array_map(fn ($value): int => (int) trim($value), explode('/', $expression, 2));
+                $range = array_map(fn (string $value): int => (int) trim($value), explode('/', $expression, 2));
                 $stepSize = $range[1] ?? 0;
                 $range = $range[0];
                 $range = explode('-', (string) $range, 2);
@@ -155,8 +155,8 @@ abstract class AbstractField implements FieldInterface
 
     protected function convertLiterals(string $value): int|string
     {
-        if (count($this->literals)) {
-            $key = array_search($value, $this->literals);
+        if ([] !== $this->literals) {
+            $key = array_search($value, $this->literals, true);
             if ($key !== false) {
                 return $key;
             }
@@ -184,7 +184,7 @@ abstract class AbstractField implements FieldInterface
 
         if (str_contains($value, '/')) {
             list($range, $step) = explode('/', $value);
-            return $this->validate($range) && filter_var($step, FILTER_VALIDATE_INT);
+            return $this->validate($range) && (bool) filter_var($step, FILTER_VALIDATE_INT);
         }
 
         if (str_contains($value, '-')) {
@@ -192,15 +192,15 @@ abstract class AbstractField implements FieldInterface
                 return false;
             }
 
-            $chunks = explode('-', $value);
-            $chunks[0] = $this->convertLiterals($chunks[0]);
-            $chunks[1] = $this->convertLiterals($chunks[1]);
+            [$first, $last] = explode('-', $value);
+            $first = $this->convertLiterals($first);
+            $last = $this->convertLiterals($last);
 
-            if ('*' == $chunks[0] || '*' == $chunks[1]) {
+            if (in_array('*', [$first, $last], true)) {
                 return false;
             }
 
-            return $this->validate((string) $chunks[0]) && $this->validate((string) $chunks[1]);
+            return $this->validate((string) $first) && $this->validate((string) $last);
         }
 
         // Validate each chunk of a list individually

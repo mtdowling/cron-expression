@@ -7,6 +7,7 @@ namespace Cron;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
+use Exception;
 use Generator;
 use InvalidArgumentException;
 use RuntimeException;
@@ -78,7 +79,7 @@ class CronExpression
             $expression = $mappings[$expression];
         }
 
-        return new static($expression, $fieldFactory ?? new FieldFactory());
+        return new self($expression, $fieldFactory ?? new FieldFactory());
     }
 
     /**
@@ -118,16 +119,19 @@ class CronExpression
      */
     public function setExpression(string $value): self
     {
-        $this->cronParts = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
-        if (count($this->cronParts) < 5) {
+        /** @var array $cronParts */
+        $cronParts = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
+        if (count($cronParts) < 5) {
             throw new InvalidArgumentException(
                 $value.' is not a valid CRON expression'
             );
         }
 
-        foreach ($this->cronParts as $position => $part) {
+        foreach ($cronParts as $position => $part) {
             $this->setPart($position, $part);
         }
+
+        $this->cronParts = $cronParts;
 
         return $this;
     }
@@ -268,7 +272,7 @@ class CronExpression
      */
     public function __toString(): string
     {
-        return $this->getExpression();
+        return (string) $this->getExpression();
     }
 
     /**
@@ -300,11 +304,11 @@ class CronExpression
             $currentTime = new DateTime($currentTime);
             $currentTime->setTime((int) $currentTime->format('H'), (int) $currentTime->format('i'), 0);
             $currentDate = $currentTime->format('Y-m-d H:i');
-            $currentTime = $currentTime->getTimeStamp();
+            $currentTime = $currentTime->getTimestamp();
         }
 
         try {
-            return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() == $currentTime;
+            return $this->getNextRunDate($currentDate, 0, true)->getTimestamp() === $currentTime;
         } catch (Exception $exception) {
             return false;
         }
@@ -382,7 +386,7 @@ class CronExpression
 
             // Skip this match if needed
             if ((!$allowCurrentDate && $nextRun == $currentDate) || --$nth > -1) {
-                $this->fieldFactory->getField(0)->increment($nextRun, $invert, isset($parts[0]) ? $parts[0] : null);
+                $this->fieldFactory->getField(0)->increment($nextRun, $invert, $parts[0] ?? null);
                 continue;
             }
 
