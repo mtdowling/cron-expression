@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTime;
@@ -240,13 +242,13 @@ class CronExpression
     /**
      * Get all or part of the CRON expression.
      *
-     * @param string|null $part Specify the part to retrieve or NULL to get the full
+     * @param string|int|null $part Specify the part to retrieve or NULL to get the full
      *                          cron schedule string.
      *
      * @return string|null Returns the CRON expression, a part of the
      *                     CRON expression, or NULL if the part was specified but not found
      */
-    public function getExpression(string $part = null): string|null
+    public function getExpression(string|int $part = null): string|null
     {
         if (null === $part) {
             return implode(' ', $this->cronParts);
@@ -296,7 +298,7 @@ class CronExpression
             $currentTime = strtotime($currentDate);
         } else {
             $currentTime = new DateTime($currentTime);
-            $currentTime->setTime($currentTime->format('H'), $currentTime->format('i'), 0);
+            $currentTime->setTime((int) $currentTime->format('H'), (int) $currentTime->format('i'), 0);
             $currentDate = $currentTime->format('Y-m-d H:i');
             $currentTime = $currentTime->getTimeStamp();
         }
@@ -338,7 +340,7 @@ class CronExpression
             $currentDate->setTimezone(new DateTimeZone($timeZone));
         }
 
-        $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
+        $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
         $nextRun = clone $currentDate;
 
         // We don't have to satisfy * or null fields
