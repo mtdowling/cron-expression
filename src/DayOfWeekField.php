@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTime;
@@ -47,11 +49,11 @@ class DayOfWeekField extends AbstractField
         }
 
         // Convert text day of the week values to integers
-        $value = $this->convertLiterals($value);
+        $value = (string) $this->convertLiterals($value);
 
-        $currentYear = $date->format('Y');
-        $currentMonth = $date->format('m');
-        $lastDayOfMonth = $date->format('t');
+        $currentYear = (int) $date->format('Y');
+        $currentMonth = (int) $date->format('m');
+        $lastDayOfMonth = (int) $date->format('t');
 
         // Find out if this is the last specific weekday of the month
         if (strpos($value, 'L')) {
@@ -70,7 +72,7 @@ class DayOfWeekField extends AbstractField
 
         // Handle # hash tokens
         if (strpos($value, '#')) {
-            list($weekday, $nth) = explode('#', $value);
+            [$weekday, $nth] = explode('#', $value);
 
             if (!is_numeric($nth)) {
                 throw new InvalidArgumentException("Hashed weekdays must be numeric, {$nth} given");
@@ -83,7 +85,7 @@ class DayOfWeekField extends AbstractField
                 $weekday = 7;
             }
 
-            $weekday = $this->convertLiterals($weekday);
+            $weekday = $this->convertLiterals((string) $weekday);
 
             // Validate the hash fields
             if ($weekday < 0 || $weekday > 7) {
@@ -159,7 +161,7 @@ class DayOfWeekField extends AbstractField
         // Handle the # value
         if (str_contains($value, '#')) {
             $chunks = explode('#', $value);
-            $chunks[0] = $this->convertLiterals($chunks[0]);
+            $chunks[0] = (string) $this->convertLiterals($chunks[0]);
 
             if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && in_array($chunks[1], $this->nthRange)) {
                 return true;
