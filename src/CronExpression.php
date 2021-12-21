@@ -243,7 +243,7 @@ class CronExpression
      * Get all or part of the CRON expression.
      *
      * @param string|int|null $part Specify the part to retrieve or NULL to get the full
-     *                          cron schedule string.
+     *                              cron schedule string.
      *
      * @return string|null Returns the CRON expression, a part of the
      *                     CRON expression, or NULL if the part was specified but not found
