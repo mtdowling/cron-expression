@@ -130,7 +130,7 @@ abstract class AbstractField implements FieldInterface
                 list($offset, $to) = explode('-', $expression);
                 $stepSize = 1;
             } else {
-                $range = array_map('trim', explode('/', $expression, 2));
+                $range = array_map(fn ($value): int => (int) trim($value), explode('/', $expression, 2));
                 $stepSize = $range[1] ?? 0;
                 $range = $range[0];
                 $range = explode('-', $range, 2);
@@ -143,13 +143,13 @@ abstract class AbstractField implements FieldInterface
             }
             sort($values);
         } else {
-            $values = [$expression];
+            $values = [(int) $expression];
         }
 
         return $values;
     }
 
-    protected function convertLiterals(string $value): string
+    protected function convertLiterals(string $value): int|string
     {
         if (count($this->literals)) {
             $key = array_search($value, $this->literals);
@@ -164,7 +164,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Checks to see if a value is valid for the field.
      */
-    public function validate($value): bool
+    public function validate(string $value): bool
     {
         $value = $this->convertLiterals($value);
 

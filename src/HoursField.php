@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTime;
@@ -34,7 +36,7 @@ class HoursField extends AbstractField
             }
             $date->setTimezone($timezone);
 
-            $date->setTime($date->format('H'), $invert ? 59 : 0);
+            $date->setTime((int) $date->format('H'), $invert ? 59 : 0);
             return $this;
         }
 

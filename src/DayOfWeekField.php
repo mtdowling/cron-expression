@@ -149,28 +149,27 @@ class DayOfWeekField extends AbstractField
     /**
      * @inheritDoc
      */
-    public function validate($value): bool
+    public function validate(string $value): bool
     {
         $basicChecks = parent::validate($value);
-
-        if (!$basicChecks) {
-            // Handle the # value
-            if (strpos($value, '#') !== false) {
-                $chunks = explode('#', $value);
-                $chunks[0] = $this->convertLiterals($chunks[0]);
-
-                if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && in_array($chunks[1], $this->nthRange)) {
-                    return true;
-                }
-            }
-
-            if (preg_match('/^(.*)L$/', $value, $matches)) {
-                return $this->validate($matches[1]);
-            }
-
-            return false;
+        if (true === $basicChecks) {
+            return true;
         }
 
-        return $basicChecks;
+        // Handle the # value
+        if (str_contains($value, '#')) {
+            $chunks = explode('#', $value);
+            $chunks[0] = $this->convertLiterals($chunks[0]);
+
+            if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && in_array($chunks[1], $this->nthRange)) {
+                return true;
+            }
+        }
+
+        if (1 === preg_match('/^(.*)L$/', $value, $matches)) {
+            return $this->validate($matches[1]);
+        }
+
+        return false;
     }
 }

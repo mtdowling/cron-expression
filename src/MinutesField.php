@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTime;
@@ -49,9 +51,9 @@ class MinutesField extends AbstractField
 
         if ((!$invert && $current_minute >= $minutes[$position]) || ($invert && $current_minute <= $minutes[$position])) {
             $date->modify(($invert ? '-' : '+').'1 hour');
-            $date->setTime($date->format('H'), $invert ? 59 : 0);
+            $date->setTime((int) $date->format('H'), $invert ? 59 : 0);
         } else {
-            $date->setTime($date->format('H'), $minutes[$position]);
+            $date->setTime((int) $date->format('H'), (int) $minutes[$position]);
         }
 
         return $this;

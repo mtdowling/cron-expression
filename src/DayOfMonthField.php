@@ -107,7 +107,7 @@ class DayOfMonthField extends AbstractField
     /**
      * @inheritDoc
      */
-    public function validate($value): bool
+    public function validate(string $value): bool
     {
         $basicChecks = parent::validate($value);
 
@@ -116,18 +116,18 @@ class DayOfMonthField extends AbstractField
             return false;
         }
 
-        if (!$basicChecks) {
-            if ($value === 'L') {
-                return true;
-            }
-
-            if (preg_match('/^(.*)W$/', $value, $matches)) {
-                return $this->validate($matches[1]);
-            }
-
-            return false;
+        if (true === $basicChecks) {
+            return $basicChecks;
         }
 
-        return $basicChecks;
+        if ($value === 'L') {
+            return true;
+        }
+
+        if (1 === preg_match('/^(.*)W$/', $value, $matches)) {
+            return $this->validate($matches[1]);
+        }
+
+        return false;
     }
 }
