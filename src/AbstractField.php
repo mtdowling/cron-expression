@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use OutOfRangeException;
@@ -91,6 +93,8 @@ abstract class AbstractField implements FieldInterface
             return false;
         }
 
+        $step = (int) $step;
+
         // Expand the * to a full range
         if ('*' == $range) {
             $range = $this->rangeStart.'-'.$this->rangeEnd;
@@ -133,7 +137,7 @@ abstract class AbstractField implements FieldInterface
                 $range = array_map(fn ($value): int => (int) trim($value), explode('/', $expression, 2));
                 $stepSize = $range[1] ?? 0;
                 $range = $range[0];
-                $range = explode('-', $range, 2);
+                $range = explode('-', (string) $range, 2);
                 $offset = $range[0];
                 $to = $range[1] ?? $max;
             }
@@ -166,7 +170,7 @@ abstract class AbstractField implements FieldInterface
      */
     public function validate(string $value): bool
     {
-        $value = $this->convertLiterals($value);
+        $value = (string) $this->convertLiterals($value);
 
         // All fields allow * as a valid value
         if ('*' === $value) {
@@ -196,7 +200,7 @@ abstract class AbstractField implements FieldInterface
                 return false;
             }
 
-            return $this->validate($chunks[0]) && $this->validate($chunks[1]);
+            return $this->validate((string) $chunks[0]) && $this->validate((string) $chunks[1]);
         }
 
         // Validate each chunk of a list individually
