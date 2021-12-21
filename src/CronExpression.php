@@ -11,6 +11,7 @@ use Exception;
 use Generator;
 use InvalidArgumentException;
 use RuntimeException;
+use Stringable;
 
 /**
  * CRON expression parser that can determine whether or not a CRON expression is
@@ -24,11 +25,11 @@ use RuntimeException;
  *
  * @link http://en.wikipedia.org/wiki/Cron
  */
-final class CronExpression
+final class CronExpression implements Stringable
 {
     public const MINUTE = 0;
     public const HOUR = 1;
-    public const DAY = 2;
+    public const MONTHDAY = 2;
     public const MONTH = 3;
     public const WEEKDAY = 4;
     public const YEAR = 5;
@@ -39,7 +40,7 @@ final class CronExpression
     private const TEST_ORDER_CRON_PARTS = [
         self::YEAR,
         self::MONTH,
-        self::DAY,
+        self::MONTHDAY,
         self::WEEKDAY,
         self::HOUR,
         self::MINUTE,
@@ -50,53 +51,6 @@ final class CronExpression
      */
     private array $cronParts;
     private int $maxIterationCount = 1000;
-
-    /**
-     * Factory method to create a new CronExpression.
-     *
-     * @param string $expression The CRON expression to create.  There are
-     *                           several special predefined values which can be used to substitute the
-     *                           CRON expression:
-     *
-     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
-     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
-     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
-     *      `@daily` - Run once a day, midnight - 0 0 * * *
-     *      `@hourly` - Run once an hour, first minute - 0 * * * *
-     */
-    public static function fromString(string $expression, FieldFactory $fieldFactory = null): self
-    {
-        static $mappings = [
-            '@yearly' => '0 0 1 1 *',
-            '@annually' => '0 0 1 1 *',
-            '@monthly' => '0 0 1 * *',
-            '@weekly' => '0 0 * * 0',
-            '@daily' => '0 0 * * *',
-            '@hourly' => '0 * * * *',
-        ];
-
-        if (isset($mappings[$expression])) {
-            $expression = $mappings[$expression];
-        }
-
-        return new self($expression, $fieldFactory ?? new FieldFactory());
-    }
-
-    /**
-     * Validate a CronExpression.
-     *
-     * @see \Cron\CronExpression::fromString
-     */
-    public static function isValidExpression(string $expression): bool
-    {
-        try {
-            self::fromString($expression);
-        } catch (InvalidArgumentException $exception) {
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * Parse a CRON expression.
@@ -132,6 +86,95 @@ final class CronExpression
         }
 
         $this->cronParts[$position] = $value;
+    }
+
+    /**
+     * Factory method to create a new CronExpression.
+     *
+     * @param string $expression The CRON expression to create.  There are
+     *                           several special predefined values which can be used to substitute the
+     *                           CRON expression:
+     *
+     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
+     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
+     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
+     *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
+     *      `@hourly` - Run once an hour, first minute - 0 * * * *
+     */
+    public static function fromString(string $expression, FieldFactory $fieldFactory = null): self
+    {
+        static $mappings = [
+            '@yearly' => '0 0 1 1 *',
+            '@annually' => '0 0 1 1 *',
+            '@monthly' => '0 0 1 * *',
+            '@weekly' => '0 0 * * 0',
+            '@daily' => '0 0 * * *',
+            '@midnight' => '0 0 * * *',
+            '@hourly' => '0 * * * *',
+        ];
+
+        return new self($mappings[$expression] ?? $expression, $fieldFactory ?? new FieldFactory());
+    }
+
+    /**
+     * @deprecated
+     * @see CronExpression::fromString
+     * Factory method to create a new CronExpression.
+     *
+     * @param string $expression The CRON expression to create.  There are
+     *                           several special predefined values which can be used to substitute the
+     *                           CRON expression:
+     *
+     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
+     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
+     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
+     *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
+     *      `@hourly` - Run once an hour, first minute - 0 * * * *
+     */
+    public static function factory(string $expression, FieldFactory $fieldFactory = null): self
+    {
+        return self::fromString($expression, $fieldFactory ?? new FieldFactory());
+    }
+
+    public static function yearly(FieldFactory $fieldFactory = null): self
+    {
+        return self::fromString('@yearly', $fieldFactory ?? new FieldFactory());
+    }
+
+    public static function monthly(FieldFactory $fieldFactory = null): self
+    {
+        return self::fromString('@monthly', $fieldFactory ?? new FieldFactory());
+    }
+
+    public static function weekly(FieldFactory $fieldFactory = null): self
+    {
+        return self::fromString('@weekly', $fieldFactory ?? new FieldFactory());
+    }
+
+    public static function daily(FieldFactory $fieldFactory = null): self
+    {
+        return self::fromString('@daily', $fieldFactory ?? new FieldFactory());
+    }
+
+    public static function hourly(FieldFactory $fieldFactory = null): self
+    {
+        return self::fromString('@hourly', $fieldFactory ?? new FieldFactory());
+    }
+
+    /**
+     * Validate a CronExpression.
+     *
+     * @see \Cron\CronExpression::fromString
+     */
+    public static function isValidExpression(string $expression): bool
+    {
+        try {
+            self::fromString($expression);
+        } catch (InvalidArgumentException $exception) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -227,6 +270,11 @@ final class CronExpression
     }
 
     /**
+     * @deprecated
+     *
+     * @see self::part
+     * @see self::toString
+     *
      * Get all or part of the CRON expression.
      *
      * @param string|int|null $part Specify the part to retrieve or NULL to get the full
@@ -238,14 +286,49 @@ final class CronExpression
     public function getExpression(string|int $part = null): string|null
     {
         if (null === $part) {
-            return implode(' ', $this->cronParts);
+            return $this->toString();
         }
 
-        if (array_key_exists($part, $this->cronParts)) {
-            return (string) $this->cronParts[$part];
+        return $this->part($part);
+    }
+
+    private function part(string|int $position): string|null
+    {
+        if (array_key_exists($position, $this->cronParts)) {
+            return (string) $this->cronParts[$position];
         }
 
         return null;
+    }
+
+    public function minute(): string|null
+    {
+        return $this->part(self::MINUTE);
+    }
+
+    public function hour(): string|null
+    {
+        return $this->part(self::HOUR);
+    }
+
+    public function dayOfMonth(): string|null
+    {
+        return $this->part(self::MONTHDAY);
+    }
+
+    public function month(): string|null
+    {
+        return $this->part(self::MONTH);
+    }
+
+    public function dayOfWeek(): string|null
+    {
+        return $this->part(self::WEEKDAY);
+    }
+
+    public function toString(): string
+    {
+        return implode(' ', $this->cronParts);
     }
 
     /**
@@ -255,7 +338,7 @@ final class CronExpression
      */
     public function __toString(): string
     {
-        return (string) $this->getExpression();
+        return $this->toString();
     }
 
     /**
@@ -309,7 +392,7 @@ final class CronExpression
         $parts = [];
         $fields = [];
         foreach (self::TEST_ORDER_CRON_PARTS as $position) {
-            $part = $this->getExpression($position);
+            $part = $this->part($position);
             if (null === $part || '*' === $part) {
                 continue;
             }

@@ -15,37 +15,42 @@ use PHPUnit\Framework\TestCase;
 final class CronExpressionTest extends TestCase
 {
     /**
-     * @covers \Cron\CronExpression::fromString
+     * @covers \Cron\CronExpression::yearly
+     * @covers \Cron\CronExpression::monthly
+     * @covers \Cron\CronExpression::weekly
+     * @covers \Cron\CronExpression::daily
+     * @covers \Cron\CronExpression::hourly
      */
     public function testFactoryRecognizesTemplates(): void
     {
-        self::assertSame('0 0 1 1 *', CronExpression::fromString('@annually')->getExpression());
-        self::assertSame('0 0 1 1 *', CronExpression::fromString('@yearly')->getExpression());
-        self::assertSame('0 0 * * 0', CronExpression::fromString('@weekly')->getExpression());
+        self::assertSame('0 0 1 1 *', CronExpression::yearly()->toString());
+        self::assertSame('0 0 1 * *', CronExpression::monthly()->toString());
+        self::assertSame('0 0 * * 0', CronExpression::weekly()->toString());
+        self::assertSame('0 0 * * *', CronExpression::daily()->toString());
+        self::assertSame('0 * * * *', CronExpression::hourly()->toString());
     }
 
     /**
      * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::getExpression
+     * @covers \Cron\CronExpression::part
      * @covers \Cron\CronExpression::__toString
      */
     public function testParsesCronSchedule(): void
     {
         // '2010-09-10 12:00:00'
         $cron = CronExpression::fromString('1 2-4 * 4,5,6 */3');
-        self::assertSame('1', $cron->getExpression(CronExpression::MINUTE));
-        self::assertSame('2-4', $cron->getExpression(CronExpression::HOUR));
-        self::assertSame('*', $cron->getExpression(CronExpression::DAY));
-        self::assertSame('4,5,6', $cron->getExpression(CronExpression::MONTH));
-        self::assertSame('*/3', $cron->getExpression(CronExpression::WEEKDAY));
-        self::assertSame('1 2-4 * 4,5,6 */3', $cron->getExpression());
+        self::assertSame('1', $cron->minute());
+        self::assertSame('2-4', $cron->hour());
+        self::assertSame('*', $cron->dayOfMonth());
+        self::assertSame('4,5,6', $cron->month());
+        self::assertSame('*/3', $cron->dayOfWeek());
+        self::assertSame('1 2-4 * 4,5,6 */3', $cron->toString());
         self::assertSame('1 2-4 * 4,5,6 */3', (string) $cron);
-        self::assertNull($cron->getExpression('foo'));
     }
 
     /**
      * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::getExpression
+     * @covers \Cron\CronExpression::part
      * @covers \Cron\CronExpression::__toString
      */
     public function testParsesCronScheduleThrowsAnException(): void
@@ -58,22 +63,21 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::getExpression
+     * @covers \Cron\CronExpression::part
      * @dataProvider scheduleWithDifferentSeparatorsProvider
      */
     public function testParsesCronScheduleWithAnySpaceCharsAsSeparators(string $schedule, array $expected): void
     {
         $cron = CronExpression::fromString($schedule);
-        self::assertSame($expected[0], $cron->getExpression(CronExpression::MINUTE));
-        self::assertSame($expected[1], $cron->getExpression(CronExpression::HOUR));
-        self::assertSame($expected[2], $cron->getExpression(CronExpression::DAY));
-        self::assertSame($expected[3], $cron->getExpression(CronExpression::MONTH));
-        self::assertSame($expected[4], $cron->getExpression(CronExpression::WEEKDAY));
+        self::assertSame($expected[0], $cron->minute());
+        self::assertSame($expected[1], $cron->hour());
+        self::assertSame($expected[2], $cron->dayOfMonth());
+        self::assertSame($expected[3], $cron->month());
+        self::assertSame($expected[4], $cron->dayOfWeek());
     }
 
     /**
      * Data provider for testParsesCronScheduleWithAnySpaceCharsAsSeparators.
-     *
      */
     public static function scheduleWithDifferentSeparatorsProvider(): array
     {
@@ -323,7 +327,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testCanIterateOverNextRuns(): void
     {
-        $cron = CronExpression::fromString('@weekly');
+        $cron = CronExpression::weekly();
         $nextRun = $cron->getNextRunDate('2008-11-09 08:00:00');
         self::assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
@@ -376,7 +380,7 @@ final class CronExpressionTest extends TestCase
 
     public function testIssue29(): void
     {
-        $cron = CronExpression::fromString('@weekly');
+        $cron = CronExpression::weekly();
         self::assertSame(
             '2013-03-10 00:00:00',
             $cron->getPreviousRunDate('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
