@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTime;
@@ -39,7 +41,7 @@ class DayOfMonthField extends AbstractField
      */
     private static function getNearestWeekday(int $currentYear, int $currentMonth, int $targetDay): DateTime
     {
-        $tday = str_pad($targetDay, 2, '0', STR_PAD_LEFT);
+        $tday = str_pad((string) $targetDay, 2, '0', STR_PAD_LEFT);
         $target = DateTime::createFromFormat('Y-m-d', "$currentYear-$currentMonth-$tday");
         $currentWeekday = (int) $target->format('N');
 
@@ -82,9 +84,9 @@ class DayOfMonthField extends AbstractField
             $targetDay = substr($value, 0, strpos($value, 'W'));
             // Find out if the current day is the nearest day of the week
             return $date->format('j') == self::getNearestWeekday(
-                $date->format('Y'),
-                $date->format('m'),
-                $targetDay
+                    (int) $date->format('Y'),
+                    (int) $date->format('m'),
+                    (int) $targetDay
             )->format('j');
         }
 
