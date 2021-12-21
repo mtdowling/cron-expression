@@ -125,15 +125,13 @@ final class CronExpression
      *
      * @throws InvalidArgumentException if the value is not valid for the part
      */
-    private function setPart(int $position, string $value): CronExpression
+    private function setPart(int $position, string $value): void
     {
         if (!$this->fieldFactory->getField($position)->validate($value)) {
             throw new InvalidArgumentException('Invalid CRON field value '.$value.' at position '.$position);
         }
 
         $this->cronParts[$position] = $value;
-
-        return $this;
     }
 
     /**
