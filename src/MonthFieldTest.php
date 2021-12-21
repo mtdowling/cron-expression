@@ -57,7 +57,6 @@ class MonthFieldTest extends TestCase
         date_default_timezone_set($tz);
     }
 
-
     /**
      * @covers \Cron\MonthField::increment
      */
