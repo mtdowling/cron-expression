@@ -183,7 +183,7 @@ abstract class AbstractField implements FieldInterface
         }
 
         if (str_contains($expression, '/')) {
-            list($range, $step) = explode('/', $expression);
+            [$range, $step] = explode('/', $expression);
             return $this->validate($range) && (bool) filter_var($step, FILTER_VALIDATE_INT);
         }
 

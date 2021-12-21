@@ -16,6 +16,7 @@ return $config
             'import_constants' => true,
             'import_functions' => true,
         ],
+        'list_syntax' => ['syntax' => 'short'],
         'new_with_braces' => true,
         'no_blank_lines_after_phpdoc' => true,
         'no_empty_phpdoc' => true,
