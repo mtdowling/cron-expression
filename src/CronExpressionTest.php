@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTime;
@@ -333,7 +335,7 @@ class CronExpressionTest extends TestCase
         $this->assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
         // true is cast to 1
-        $nextRun = $cron->getNextRunDate('2008-11-09 00:00:00', true, true);
+        $nextRun = $cron->getNextRunDate('2008-11-09 00:00:00', 1, true);
         $this->assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
         // You can iterate over them

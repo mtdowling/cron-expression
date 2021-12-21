@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTime;
@@ -57,6 +59,6 @@ class DayOfMonthFieldTest extends TestCase
     public function testDoesNotAccept0Date()
     {
         $f = new DayOfMonthField();
-        $this->assertFalse($f->validate(0));
+        $this->assertFalse($f->validate('0'));
     }
 }
