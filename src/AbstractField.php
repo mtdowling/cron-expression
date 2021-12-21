@@ -50,7 +50,7 @@ abstract class AbstractField implements FieldInterface
             return $this->isInRange($dateValue, $value);
         }
 
-        return $value == '*' || $dateValue == $value;
+        return $value === '*' || $dateValue == $value;
     }
 
     /**

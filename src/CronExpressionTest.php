@@ -15,13 +15,13 @@ use PHPUnit\Framework\TestCase;
 final class CronExpressionTest extends TestCase
 {
     /**
-     * @covers \Cron\CronExpression::factory
+     * @covers \Cron\CronExpression::fromString
      */
     public function testFactoryRecognizesTemplates(): void
     {
-        self::assertSame('0 0 1 1 *', CronExpression::factory('@annually')->getExpression());
-        self::assertSame('0 0 1 1 *', CronExpression::factory('@yearly')->getExpression());
-        self::assertSame('0 0 * * 0', CronExpression::factory('@weekly')->getExpression());
+        self::assertSame('0 0 1 1 *', CronExpression::fromString('@annually')->getExpression());
+        self::assertSame('0 0 1 1 *', CronExpression::fromString('@yearly')->getExpression());
+        self::assertSame('0 0 * * 0', CronExpression::fromString('@weekly')->getExpression());
     }
 
     /**
@@ -32,7 +32,7 @@ final class CronExpressionTest extends TestCase
     public function testParsesCronSchedule(): void
     {
         // '2010-09-10 12:00:00'
-        $cron = CronExpression::factory('1 2-4 * 4,5,6 */3');
+        $cron = CronExpression::fromString('1 2-4 * 4,5,6 */3');
         self::assertSame('1', $cron->getExpression(CronExpression::MINUTE));
         self::assertSame('2-4', $cron->getExpression(CronExpression::HOUR));
         self::assertSame('*', $cron->getExpression(CronExpression::DAY));
@@ -53,7 +53,7 @@ final class CronExpressionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid CRON field value A at position 0');
 
-        CronExpression::factory('A 1 2 3 4');
+        CronExpression::fromString('A 1 2 3 4');
     }
 
     /**
@@ -63,7 +63,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testParsesCronScheduleWithAnySpaceCharsAsSeparators(string $schedule, array $expected): void
     {
-        $cron = CronExpression::factory($schedule);
+        $cron = CronExpression::fromString($schedule);
         self::assertSame($expected[0], $cron->getExpression(CronExpression::MINUTE));
         self::assertSame($expected[1], $cron->getExpression(CronExpression::HOUR));
         self::assertSame($expected[2], $cron->getExpression(CronExpression::DAY));
@@ -93,7 +93,7 @@ final class CronExpressionTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         // Only four values
-        CronExpression::factory('* * * 1');
+        CronExpression::fromString('* * * 1');
     }
 
     /**
@@ -103,7 +103,7 @@ final class CronExpressionTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         // Only four values
-        CronExpression::factory('* * abc * *');
+        CronExpression::fromString('* * abc * *');
     }
 
     /**
@@ -187,7 +187,7 @@ final class CronExpressionTest extends TestCase
     public function testDeterminesIfCronIsDue(string $schedule, string|int $relativeTime, string $nextRun, bool $isDue): void
     {
         // Test next run date
-        $cron = CronExpression::factory($schedule);
+        $cron = CronExpression::fromString($schedule);
         if (is_string($relativeTime)) {
             $relativeTime = new DateTime($relativeTime);
         } else {
@@ -203,7 +203,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testIsDueHandlesDifferentDates(): void
     {
-        $cron = CronExpression::factory('* * * * *');
+        $cron = CronExpression::fromString('* * * * *');
         self::assertTrue($cron->isDue());
         self::assertTrue($cron->isDue('now'));
         self::assertTrue($cron->isDue(new DateTime('now')));
@@ -215,7 +215,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testIsDueHandlesDifferentTimezones(): void
     {
-        $cron = CronExpression::factory('0 15 * * 3'); //Wednesday at 15:00
+        $cron = CronExpression::fromString('0 15 * * 3'); //Wednesday at 15:00
         $date = '2014-01-01 15:00'; //Wednesday
         $utc = new DateTimeZone('UTC');
         $amsterdam =  new DateTimeZone('Europe/Amsterdam');
@@ -242,7 +242,7 @@ final class CronExpressionTest extends TestCase
       */
     public function testIsDueHandlesDifferentTimezonesAsArgument(): void
     {
-        $cron      = CronExpression::factory('0 15 * * 3'); //Wednesday at 15:00
+        $cron      = CronExpression::fromString('0 15 * * 3'); //Wednesday at 15:00
         $date      = '2014-01-01 15:00'; //Wednesday
         $utc       = new DateTimeZone('UTC');
         $amsterdam = new DateTimeZone('Europe/Amsterdam');
@@ -263,17 +263,17 @@ final class CronExpressionTest extends TestCase
      */
     public function testCanGetPreviousRunDates(): void
     {
-        $cron = CronExpression::factory('* * * * *');
+        $cron = CronExpression::fromString('* * * * *');
         $next = $cron->getNextRunDate('now');
         $two = $cron->getNextRunDate('now', 1);
         self::assertEquals($next, $cron->getPreviousRunDate($two));
 
-        $cron = CronExpression::factory('* */2 * * *');
+        $cron = CronExpression::fromString('* */2 * * *');
         $next = $cron->getNextRunDate('now');
         $two = $cron->getNextRunDate('now', 1);
         self::assertEquals($next, $cron->getPreviousRunDate($two));
 
-        $cron = CronExpression::factory('* * * */2 *');
+        $cron = CronExpression::fromString('* * * */2 *');
         $next = $cron->getNextRunDate('now');
         $two = $cron->getNextRunDate('now', 1);
         self::assertEquals($next, $cron->getPreviousRunDate($two));
@@ -284,7 +284,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testProvidesMultipleRunDates(): void
     {
-        $cron = CronExpression::factory('*/2 * * * *');
+        $cron = CronExpression::fromString('*/2 * * * *');
         $result = $cron->getMultipleRunDates(4, '2008-11-09 00:00:00', false, true);
 
         self::assertEquals([
@@ -302,7 +302,7 @@ final class CronExpressionTest extends TestCase
     public function testProvidesMultipleRunDatesForTheFarFuture(): void
     {
         // Fails with the default 1000 iteration limit
-        $cron = CronExpression::factory('0 0 12 1 *');
+        $cron = CronExpression::fromString('0 0 12 1 *');
         $cron->setMaxIterationCount(2000);
         $result = $cron->getMultipleRunDates(9, '2015-04-28 00:00:00', false, true);
         self::assertEquals([
@@ -323,7 +323,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testCanIterateOverNextRuns(): void
     {
-        $cron = CronExpression::factory('@weekly');
+        $cron = CronExpression::fromString('@weekly');
         $nextRun = $cron->getNextRunDate('2008-11-09 08:00:00');
         self::assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
@@ -347,7 +347,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testSkipsCurrentDateByDefault(): void
     {
-        $cron = CronExpression::factory('* * * * *');
+        $cron = CronExpression::fromString('* * * * *');
         $current = new DateTime('now');
         $next = $cron->getNextRunDate($current);
         $nextPrev = $cron->getPreviousRunDate($next);
@@ -360,7 +360,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testStripsForSeconds(): void
     {
-        $cron = CronExpression::factory('* * * * *');
+        $cron = CronExpression::fromString('* * * * *');
         $current = new DateTime('2011-09-27 10:10:54');
         self::assertSame('2011-09-27 10:11:00', $cron->getNextRunDate($current)->format('Y-m-d H:i:s'));
     }
@@ -370,13 +370,13 @@ final class CronExpressionTest extends TestCase
      */
     public function testFixesPhpBugInDateIntervalMonth(): void
     {
-        $cron = CronExpression::factory('0 0 27 JAN *');
+        $cron = CronExpression::fromString('0 0 27 JAN *');
         self::assertSame('2011-01-27 00:00:00', $cron->getPreviousRunDate('2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
     }
 
     public function testIssue29(): void
     {
-        $cron = CronExpression::factory('@weekly');
+        $cron = CronExpression::fromString('@weekly');
         self::assertSame(
             '2013-03-10 00:00:00',
             $cron->getPreviousRunDate('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
@@ -388,17 +388,17 @@ final class CronExpressionTest extends TestCase
      */
     public function testIssue20(): void
     {
-        $e = CronExpression::factory('* * * * MON#1');
+        $e = CronExpression::fromString('* * * * MON#1');
         self::assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
         self::assertFalse($e->isDue(new DateTime('2014-04-14 00:00:00')));
         self::assertFalse($e->isDue(new DateTime('2014-04-21 00:00:00')));
 
-        $e = CronExpression::factory('* * * * SAT#2');
+        $e = CronExpression::fromString('* * * * SAT#2');
         self::assertFalse($e->isDue(new DateTime('2014-04-05 00:00:00')));
         self::assertTrue($e->isDue(new DateTime('2014-04-12 00:00:00')));
         self::assertFalse($e->isDue(new DateTime('2014-04-19 00:00:00')));
 
-        $e = CronExpression::factory('* * * * SUN#3');
+        $e = CronExpression::fromString('* * * * SUN#3');
         self::assertFalse($e->isDue(new DateTime('2014-04-13 00:00:00')));
         self::assertTrue($e->isDue(new DateTime('2014-04-20 00:00:00')));
         self::assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
@@ -411,14 +411,14 @@ final class CronExpressionTest extends TestCase
     {
         $now = new DateTime();
         $strNow = $now->format(DateTime::ISO8601);
-        $cron = CronExpression::factory('0 0 * * *');
+        $cron = CronExpression::fromString('0 0 * * *');
         $cron->getPreviousRunDate($now);
         self::assertSame($strNow, $now->format(DateTime::ISO8601));
     }
 
     /**
      * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::factory
+     * @covers \Cron\CronExpression::fromString
      * @covers \Cron\CronExpression::isValidExpression
      * @covers \Cron\CronExpression::setPart
      */

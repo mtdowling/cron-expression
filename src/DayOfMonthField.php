@@ -41,22 +41,18 @@ final class DayOfMonthField extends AbstractField
      */
     private static function getNearestWeekday(int $currentYear, int $currentMonth, int $targetDay): DateTime
     {
-        $tday = str_pad((string) $targetDay, 2, '0', STR_PAD_LEFT);
         /** @var DateTime $target */
-        $target = DateTime::createFromFormat('Y-m-d', "$currentYear-$currentMonth-$tday");
-        $currentWeekday = (int) $target->format('N');
-
-        if ($currentWeekday < 6) {
+        $target = DateTime::createFromFormat('Y-n-j', "$currentYear-$currentMonth-$targetDay");
+        if (6 > (int) $target->format('N')) {
             return $target;
         }
 
         $lastDayOfMonth = $target->format('t');
-
         foreach ([-1, 1, -2, 2] as $i) {
             $adjusted = $targetDay + $i;
             if ($adjusted > 0 && $adjusted <= $lastDayOfMonth) {
                 $target->setDate($currentYear, $currentMonth, $adjusted);
-                if ($target->format('N') < 6 && $target->format('m') == $currentMonth) {
+                if (6 > (int) $target->format('N') && $target->format('m') == $currentMonth) {
                     return $target;
                 }
             }
@@ -98,10 +94,11 @@ final class DayOfMonthField extends AbstractField
         if ($invert) {
             $date->modify('previous day');
             $date->setTime(23, 59);
-        } else {
-            $date->modify('next day');
-            $date->setTime(0, 0);
+            return;
         }
+
+        $date->modify('next day');
+        $date->setTime(0, 0);
     }
 
     /**
@@ -109,25 +106,23 @@ final class DayOfMonthField extends AbstractField
      */
     public function validate(string $expression): bool
     {
-        $basicChecks = parent::validate($expression);
-
         // Validate that a list don't have W or L
         if (str_contains($expression, ',') && (str_contains($expression, 'W') || str_contains($expression, 'L'))) {
             return false;
         }
 
-        if (true === $basicChecks) {
-            return $basicChecks;
+        if (true === parent::validate($expression)) {
+            return true;
         }
 
         if ($expression === 'L') {
             return true;
         }
 
-        if (1 === preg_match('/^(.*)W$/', $expression, $matches)) {
-            return $this->validate($matches[1]);
+        if (1 !== preg_match('/^(.*)W$/', $expression, $matches)) {
+            return false;
         }
 
-        return false;
+        return $this->validate($matches[1]);
     }
 }

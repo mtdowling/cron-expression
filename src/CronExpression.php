@@ -64,7 +64,7 @@ final class CronExpression
      *      `@daily` - Run once a day, midnight - 0 0 * * *
      *      `@hourly` - Run once an hour, first minute - 0 * * * *
      */
-    public static function factory(string $expression, FieldFactory $fieldFactory = null): self
+    public static function fromString(string $expression, FieldFactory $fieldFactory = null): self
     {
         static $mappings = [
             '@yearly' => '0 0 1 1 *',
@@ -85,12 +85,12 @@ final class CronExpression
     /**
      * Validate a CronExpression.
      *
-     * @see \Cron\CronExpression::factory
+     * @see \Cron\CronExpression::fromString
      */
     public static function isValidExpression(string $expression): bool
     {
         try {
-            self::factory($expression);
+            self::fromString($expression);
         } catch (InvalidArgumentException $exception) {
             return false;
         }
@@ -161,6 +161,7 @@ final class CronExpression
      *                                                        it matches the cron expression.
      * @param null|string                   $timeZone         Timezone to use instead of the system default
      *
+     * @throws Exception        if the currentTime is invalid
      * @throws RuntimeException on too many iterations
      */
     public function getNextRunDate(
@@ -356,12 +357,9 @@ final class CronExpression
     }
 
     /**
-     *
-     *
-     * @param  ?string   $timeZone
      * @throws Exception
      */
-    private function filterDate(DateTimeInterface|string|null $currentTime, ?string $timeZone): DateTime
+    private function filterDate(DateTimeInterface|string|null $currentTime, string|null $timeZone): DateTime
     {
         if ($currentTime instanceof DateTimeInterface) {
             $currentDate = DateTime::createFromInterface($currentTime);

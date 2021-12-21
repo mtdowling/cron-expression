@@ -138,10 +138,12 @@ final class DayOfWeekField extends AbstractField
         if ($invert) {
             $date->modify('-1 day');
             $date->setTime(23, 59, 0);
-        } else {
-            $date->modify('+1 day');
-            $date->setTime(0, 0, 0);
+
+            return;
         }
+
+        $date->modify('+1 day');
+        $date->setTime(0, 0, 0);
     }
 
     /**
@@ -149,8 +151,7 @@ final class DayOfWeekField extends AbstractField
      */
     public function validate(string $expression): bool
     {
-        $basicChecks = parent::validate($expression);
-        if (true === $basicChecks) {
+        if (true === parent::validate($expression)) {
             return true;
         }
 
@@ -158,16 +159,15 @@ final class DayOfWeekField extends AbstractField
         if (str_contains($expression, '#')) {
             $chunks = explode('#', $expression);
             $chunks[0] = (string) $this->convertLiterals($chunks[0]);
-
             if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && in_array((int) $chunks[1], $this->nthRange, true)) {
                 return true;
             }
         }
 
-        if (1 === preg_match('/^(.*)L$/', $expression, $matches)) {
-            return $this->validate($matches[1]);
+        if (1 !== preg_match('/^(.*)L$/', $expression, $matches)) {
+            return false;
         }
 
-        return false;
+        return $this->validate($matches[1]);
     }
 }
