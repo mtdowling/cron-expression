@@ -15,39 +15,39 @@ class DayOfMonthFieldTest extends TestCase
     /**
      * @covers \Cron\DayOfMonthField::validate
      */
-    public function testValidatesField()
+    public function testValidatesField(): void
     {
         $f = new DayOfMonthField();
-        $this->assertTrue($f->validate('1'));
-        $this->assertTrue($f->validate('*'));
-        $this->assertTrue($f->validate('L'));
-        $this->assertTrue($f->validate('5W'));
-        $this->assertFalse($f->validate('5W,L'));
-        $this->assertFalse($f->validate('1.'));
+        self::assertTrue($f->validate('1'));
+        self::assertTrue($f->validate('*'));
+        self::assertTrue($f->validate('L'));
+        self::assertTrue($f->validate('5W'));
+        self::assertFalse($f->validate('5W,L'));
+        self::assertFalse($f->validate('1.'));
     }
 
     /**
      * @covers \Cron\DayOfMonthField::isSatisfiedBy
      */
-    public function testChecksIfSatisfied()
+    public function testChecksIfSatisfied(): void
     {
         $f = new DayOfMonthField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
+        self::assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
     }
 
     /**
      * @covers \Cron\DayOfMonthField::increment
      */
-    public function testIncrementsDate()
+    public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new DayOfMonthField();
         $f->increment($d);
-        $this->assertSame('2011-03-16 00:00:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-16 00:00:00', $d->format('Y-m-d H:i:s'));
 
         $d = new DateTime('2011-03-15 11:15:00');
         $f->increment($d, true);
-        $this->assertSame('2011-03-14 23:59:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-14 23:59:00', $d->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -56,9 +56,9 @@ class DayOfMonthFieldTest extends TestCase
      *
      * @since 2017-01-22
      */
-    public function testDoesNotAccept0Date()
+    public function testDoesNotAccept0Date(): void
     {
         $f = new DayOfMonthField();
-        $this->assertFalse($f->validate('0'));
+        self::assertFalse($f->validate('0'));
     }
 }

@@ -15,7 +15,7 @@ class FieldFactoryTest extends TestCase
     /**
      * @covers \Cron\FieldFactory::getField
      */
-    public function testRetrievesFieldInstances()
+    public function testRetrievesFieldInstances(): void
     {
         $mappings = [
             0 => 'MinutesField',
@@ -28,14 +28,14 @@ class FieldFactoryTest extends TestCase
         $f = new FieldFactory();
 
         foreach ($mappings as $position => $class) {
-            $this->assertSame('Cron\\'.$class, get_class($f->getField($position)));
+            self::assertSame('Cron\\'.$class, get_class($f->getField($position)));
         }
     }
 
     /**
      * @covers \Cron\FieldFactory::getField
      */
-    public function testValidatesFieldPosition()
+    public function testValidatesFieldPosition(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
