@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTime;
@@ -29,9 +31,10 @@ class MonthField extends AbstractField
 
     public function isSatisfiedBy(DateTimeInterface $date, string $value): bool
     {
-        $value = $this->convertLiterals($value);
-
-        return $this->isSatisfied($date->format('m'), $value);
+        return $this->isSatisfied(
+            $date->format('m'),
+            (string) $this->convertLiterals($value)
+        );
     }
 
     public function increment(DateTime $date, bool $invert = false): self
