@@ -34,6 +34,9 @@ final class CronExpression implements Stringable
     public const WEEKDAY = 4;
     public const YEAR = 5;
 
+    public const ALLOW_CURRENT_DATE = 1;
+    public const DISALLOW_CURRENT_DATE = 0;
+
     /**
      * Order in which to test of cron parts.
      */
@@ -117,54 +120,62 @@ final class CronExpression implements Stringable
     }
 
     /**
-     * @deprecated
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 3.0.0
+     *
      * @see CronExpression::fromString
-     * Factory method to create a new CronExpression.
-     *
-     * @param string $expression The CRON expression to create.  There are
-     *                           several special predefined values which can be used to substitute the
-     *                           CRON expression:
-     *
-     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
-     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
-     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
-     *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
-     *      `@hourly` - Run once an hour, first minute - 0 * * * *
+     * @codeCoverageIgnore
      */
     public static function factory(string $expression, FieldFactory $fieldFactory = null): self
     {
         return self::fromString($expression, $fieldFactory ?? new FieldFactory());
     }
 
-    public static function yearly(FieldFactory $fieldFactory = null): self
+    /**
+     * Returns the Cron expression for running once a year, midnight, Jan. 1 - 0 0 1 1 *.
+     */
+    public static function yearly(): self
     {
-        return self::fromString('@yearly', $fieldFactory ?? new FieldFactory());
+        return self::fromString('@yearly');
     }
 
-    public static function monthly(FieldFactory $fieldFactory = null): self
+    /**
+     * Returns the Cron expression for running once a month, midnight, first of month - 0 0 1 * *.
+     */
+    public static function monthly(): self
     {
-        return self::fromString('@monthly', $fieldFactory ?? new FieldFactory());
+        return self::fromString('@monthly');
     }
 
-    public static function weekly(FieldFactory $fieldFactory = null): self
+    /**
+     * Returns the Cron expression for running once a week, midnight on Sun - 0 0 * * 0.
+     */
+    public static function weekly(): self
     {
-        return self::fromString('@weekly', $fieldFactory ?? new FieldFactory());
+        return self::fromString('@weekly');
     }
 
-    public static function daily(FieldFactory $fieldFactory = null): self
+    /**
+     * Returns the Cron expression for running once a day, midnight - 0 0 * * *.
+     */
+    public static function daily(): self
     {
-        return self::fromString('@daily', $fieldFactory ?? new FieldFactory());
+        return self::fromString('@daily');
     }
 
-    public static function hourly(FieldFactory $fieldFactory = null): self
+    /**
+     * Returns the Cron expression for running once an hour, first minute - 0 * * * *.
+     */
+    public static function hourly(): self
     {
-        return self::fromString('@hourly', $fieldFactory ?? new FieldFactory());
+        return self::fromString('@hourly');
     }
 
     /**
      * Validate a CronExpression.
      *
-     * @see \Cron\CronExpression::fromString
+     * @see CronExpression::fromString
      */
     public static function isValidExpression(string $expression): bool
     {
@@ -179,9 +190,6 @@ final class CronExpression implements Stringable
 
     /**
      * Set max iteration count for searching next run dates.
-     *
-     * @param int $maxIterationCount Max iteration count when searching for next run date
-     *
      */
     public function setMaxIterationCount(int $maxIterationCount): CronExpression
     {
@@ -200,8 +208,8 @@ final class CronExpression implements Stringable
      *                                                        time.  Setting this value to 1 will skip the first match and go to
      *                                                        the second match.  Setting this value to 2 will skip the first 2
      *                                                        matches and so on.
-     * @param bool                          $allowCurrentDate Set to TRUE to return the current date if
-     *                                                        it matches the cron expression.
+     * @param int                           $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     *                                                        the current date if it matches the cron expression
      * @param null|string                   $timeZone         Timezone to use instead of the system default
      *
      * @throws Exception        if the currentTime is invalid
@@ -210,7 +218,7 @@ final class CronExpression implements Stringable
     public function getNextRunDate(
         DateTimeInterface|string|null $currentTime = 'now',
         int $nth = 0,
-        bool $allowCurrentDate = false,
+        int $allowCurrentDate = self::DISALLOW_CURRENT_DATE,
         null|string $timeZone = null
     ): DateTime {
         return $this->getRunDate($this->filterDate($currentTime, $timeZone), $nth, false, $allowCurrentDate);
@@ -221,8 +229,8 @@ final class CronExpression implements Stringable
      *
      * @param DateTimeInterface|string|null $currentTime      Relative calculation date
      * @param int                           $nth              Number of matches to skip before returning
-     * @param bool                          $allowCurrentDate Set to TRUE to return the
-     *                                                        current date if it matches the cron expression
+     * @param int                           $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     *                                                        the current date if it matches the cron expression
      * @param null|string                   $timeZone         Timezone to use instead of the system default
      *
      * @throws Exception        if the currentTime can not be resolved
@@ -233,7 +241,7 @@ final class CronExpression implements Stringable
     public function getPreviousRunDate(
         DateTimeInterface|string|null $currentTime = 'now',
         int $nth = 0,
-        bool $allowCurrentDate = false,
+        int $allowCurrentDate = self::DISALLOW_CURRENT_DATE,
         null|string $timeZone = null
     ): DateTime {
         return $this->getRunDate($this->filterDate($currentTime, $timeZone), $nth, true, $allowCurrentDate);
@@ -245,8 +253,8 @@ final class CronExpression implements Stringable
      * @param int                           $total            Set the total number of dates to calculate
      * @param DateTimeInterface|string|null $currentTime      Relative calculation date
      * @param bool                          $invert           Set to TRUE to retrieve previous dates
-     * @param bool                          $allowCurrentDate Set to TRUE to return the
-     *                                                        current date if it matches the cron expression
+     * @param int                           $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     *                                                        the current date if it matches the cron expression
      * @param null|string                   $timeZone         Timezone to use instead of the system default
      *
      * @throws Exception        if the currentTime can not be resolved
@@ -256,7 +264,7 @@ final class CronExpression implements Stringable
         int $total,
         DateTimeInterface|string|null $currentTime = 'now',
         bool $invert = false,
-        bool $allowCurrentDate = false,
+        int $allowCurrentDate = self::DISALLOW_CURRENT_DATE,
         null|string $timeZone = null
     ): Generator {
         $currentDate = $this->filterDate($currentTime, $timeZone);
@@ -270,10 +278,16 @@ final class CronExpression implements Stringable
     }
 
     /**
-     * @deprecated
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @see self::part
+     * @deprecated since version 3.0.0
+     *
      * @see self::toString
+     * @see self::minute
+     * @see self::hour
+     * @see self::dayOfWeek
+     * @see self::dayOfMonth
+     * @see self::month
      *
      * Get all or part of the CRON expression.
      *
@@ -348,6 +362,9 @@ final class CronExpression implements Stringable
      *
      * @param DateTimeInterface|string $currentTime Relative calculation date
      * @param null|string              $timeZone    Timezone to use instead of the system default
+     *                                              if the calculation date is a DateTimeInterface object
+     *
+     * @throws Exception if the relative calculation date is invalid
      *
      * @return bool Returns TRUE if the cron is due to run or FALSE if not
      */
@@ -363,7 +380,7 @@ final class CronExpression implements Stringable
 
         $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
         try {
-            return $this->getNextRunDate($currentDate, 0, true) == $currentDate;
+            return $this->getNextRunDate($currentDate, 0, self::ALLOW_CURRENT_DATE) == $currentDate;
         } catch (Exception $exception) {
             return false;
         }
@@ -375,58 +392,38 @@ final class CronExpression implements Stringable
      * @param DateTime $currentDate      Relative calculation date
      * @param int      $nth              Number of matches to skip before returning
      * @param bool     $invert           Set to TRUE to go backwards in time
-     * @param bool     $allowCurrentDate Set to TRUE to return the
-     *                                   current date if it matches the cron expression
+     * @param int      $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     *                                   the current date if it matches the cron expression
      *
      * @throws RuntimeException on too many iterations
      */
-    private function getRunDate(
-        DateTime $currentDate,
-        int $nth = 0,
-        bool $invert = false,
-        bool $allowCurrentDate = false
-    ): DateTime {
-        $nextRun = clone $currentDate;
-
+    private function getRunDate(DateTime $currentDate, int $nth, bool $invert, int $allowCurrentDate): DateTime
+    {
         // We don't have to satisfy * or null fields
         $parts = [];
         $fields = [];
         foreach (self::TEST_ORDER_CRON_PARTS as $position) {
             $part = $this->part($position);
-            if (null === $part || '*' === $part) {
-                continue;
+            if (null !== $part && '*' !== $part) {
+                $parts[$position] = $part;
+                $fields[$position] = $this->fieldFactory->getField($position);
             }
-            $parts[$position] = $part;
-            $fields[$position] = $this->fieldFactory->getField($position);
         }
 
         // Set a hard limit to bail on an impossible date
+        $nextRun = clone $currentDate;
         for ($i = 0; $i < $this->maxIterationCount; $i++) {
             foreach ($parts as $position => $part) {
-                $satisfied = false;
-                // Get the field object used to validate this part
                 $field = $fields[$position];
-                // Check if this is singular or a list
-                if (!str_contains($part, ',')) {
-                    $satisfied = $field->isSatisfiedBy($nextRun, $part);
-                } else {
-                    foreach (array_map('trim', explode(',', $part)) as $listPart) {
-                        if ($field->isSatisfiedBy($nextRun, $listPart)) {
-                            $satisfied = true;
-                            break;
-                        }
-                    }
-                }
-
                 // If the field is not satisfied, then start over
-                if (!$satisfied) {
+                if (!$this->isSatisfyingField($field, $part, $nextRun)) {
                     $field->increment($nextRun, $invert, $part);
                     continue 2;
                 }
             }
 
             // Skip this match if needed
-            if ((!$allowCurrentDate && $nextRun == $currentDate) || --$nth > -1) {
+            if (($allowCurrentDate === self::DISALLOW_CURRENT_DATE && $nextRun == $currentDate) || --$nth > -1) {
                 $this->fieldFactory->getField(0)->increment($nextRun, $invert, $parts[0] ?? null);
                 continue;
             }
@@ -455,5 +452,21 @@ final class CronExpression implements Stringable
         $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
 
         return $currentDate;
+    }
+
+    private function isSatisfyingField(FieldInterface $field, string $part, DateTime $nextRun): bool
+    {
+        // Check if this is singular or a list
+        if (!str_contains($part, ',')) {
+            return $field->isSatisfiedBy($nextRun, $part);
+        }
+
+        foreach (array_map('trim', explode(',', $part)) as $listPart) {
+            if ($field->isSatisfiedBy($nextRun, $listPart)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
