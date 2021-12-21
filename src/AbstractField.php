@@ -155,11 +155,13 @@ abstract class AbstractField implements FieldInterface
 
     protected function convertLiterals(string $value): int|string
     {
-        if ([] !== $this->literals) {
-            $key = array_search($value, $this->literals, true);
-            if ($key !== false) {
-                return $key;
-            }
+        if ([] === $this->literals) {
+            return $value;
+        }
+
+        $key = array_search(strtoupper($value), $this->literals, true);
+        if ($key !== false) {
+            return $key;
         }
 
         return $value;
@@ -184,7 +186,7 @@ abstract class AbstractField implements FieldInterface
 
         if (str_contains($expression, '/')) {
             [$range, $step] = explode('/', $expression);
-            return $this->validate($range) && (bool) filter_var($step, FILTER_VALIDATE_INT);
+            return $this->validate($range) && false !== filter_var($step, FILTER_VALIDATE_INT);
         }
 
         if (str_contains($expression, '-')) {
