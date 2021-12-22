@@ -35,7 +35,7 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
     /** @var array<int, int|string> CRON expression parts */
     private array $fields;
     private DateTimeZone $timezone;
-    private int $maxIterationCount = 1000;
+    private int $maxIterationCount;
 
     /**
      * Get an instance of a field object for a cron expression position.
