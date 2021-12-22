@@ -315,14 +315,19 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Cron\CronExpression::nextOccurrences
-     * @covers \Cron\CronExpression::setMaxIterationCount
+     * @covers \Cron\CronExpression::maxIterationCount
+     * @covers \Cron\CronExpression::withMaxIterationCount
      */
     public function testProvidesMultipleRunDatesForTheFarFuture(): void
     {
         // Fails with the default 1000 iteration limit
         $cron = new CronExpression('0 0 12 1 *');
-        $cron->setMaxIterationCount(2000);
-        $result = $cron->nextOccurrences(9, '2015-04-28 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
+        self::assertSame($cron, $cron->withMaxIterationCount($cron->maxIterationCount()));
+
+        $newCron = $cron->withMaxIterationCount(2000);
+        self::assertNotEquals($cron, $newCron);
+
+        $result = $newCron->nextOccurrences(9, '2015-04-28 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
         self::assertEquals([
             new DateTime('2016-01-12 00:00:00'),
             new DateTime('2017-01-12 00:00:00'),
