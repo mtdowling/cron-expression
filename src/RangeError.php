@@ -10,9 +10,4 @@ final class RangeError extends OutOfRangeException implements ExpressionError
     {
         return new self('Invalid range '.$type.' requested');
     }
-
-    public static function dueToInvalidStep(): self
-    {
-        return new self('Step cannot be greater than total range');
-    }
 }

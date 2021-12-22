@@ -54,7 +54,7 @@ abstract class AbstractField implements Field
     /**
      * Check if a value is a range.
      */
-    public function isRange(string $value): bool
+    protected function isRange(string $value): bool
     {
         return str_contains($value, '-');
     }
@@ -62,7 +62,7 @@ abstract class AbstractField implements Field
     /**
      * Check if a value is an increments of ranges.
      */
-    public function isIncrementsOfRanges(string $value): bool
+    protected function isIncrementsOfRanges(string $value): bool
     {
         return str_contains($value, '/');
     }
@@ -70,7 +70,7 @@ abstract class AbstractField implements Field
     /**
      * Test if a value is within a range.
      */
-    public function isInRange(int $dateValue, string $value): bool
+    protected function isInRange(int $dateValue, string $value): bool
     {
         $parts = array_map(fn (string $value): int => (int) $this->convertLiterals(trim($value)), explode('-', $value, 2));
 
@@ -80,7 +80,7 @@ abstract class AbstractField implements Field
     /**
      * Test if a value is within an increments of ranges (offset[-to]/step size).
      */
-    public function isInIncrementsOfRanges(int $dateValue, string $value): bool
+    protected function isInIncrementsOfRanges(int $dateValue, string $value): bool
     {
         $chunks = array_map('trim', explode('/', $value, 2));
         $range = $chunks[0];
@@ -122,7 +122,7 @@ abstract class AbstractField implements Field
      *
      * @return array<int|string>
      */
-    public function getRangeForExpression(string $expression, int $max): array
+    protected function getRangeForExpression(string $expression, int $max): array
     {
         $values = [];
         $expression = (string) $this->convertLiterals($expression);
