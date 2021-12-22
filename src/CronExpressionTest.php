@@ -241,8 +241,8 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-      * @covers Cron\CronExpression::match
-      */
+     * @covers Cron\CronExpression::match
+     */
     public function testIsDueHandlesDifferentTimezonesAsArgument(): void
     {
         $cronUTC      = new CronExpression('0 15 * * 3', 'UTC'); //Wednesday at 15:00

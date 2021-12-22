@@ -11,6 +11,7 @@ return $config
         '@PSR2' => true,
         'array_syntax' => ['syntax' => 'short'],
         'concat_space' => ['spacing' => 'none'],
+        'align_multiline_comment' => true,
         'global_namespace_import' => [
             'import_classes' => true,
             'import_constants' => true,
@@ -27,7 +28,7 @@ return $config
         'no_unused_imports' => true,
         'ordered_imports' => ['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'alpha'],
         'phpdoc_add_missing_param_annotation' => ['only_untyped' => false],
-        'phpdoc_align' => true,
+        'phpdoc_align' => ['align' => 'left'],
         'phpdoc_no_empty_return' => true,
         'phpdoc_order' => true,
         'phpdoc_scalar' => true,

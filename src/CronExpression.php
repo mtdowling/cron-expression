@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Cron;
 
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
@@ -15,9 +16,9 @@ use Stringable;
 use Throwable;
 
 /**
- * CRON expression parser that can determine whether or not a CRON expression is
+ * CRON expression parser that can determine if a CRON expression is
  * due to run, the next run date and previous run date of a CRON expression.
- * The determinations made by this final classare accurate if checked run once per
+ * The determinations made by this final class are accurate if checked run once per
  * minute (seconds are dropped from date time comparisons).
  *
  * Schedule parts must map to:
@@ -49,7 +50,7 @@ final class CronExpression implements JsonSerializable, Stringable
     /**
      * @var array<int, int|string> CRON expression parts
      */
-    private array $parts;
+    private array $fields;
     private DateTimeZone $timezone;
     private int $maxIterationCount = 1000;
 
@@ -122,8 +123,8 @@ final class CronExpression implements JsonSerializable, Stringable
     /**
      * Set part of the CRON expression.
      *
-     * @param int    $position The position of the CRON expression to set
-     * @param string $value    The value to set
+     * @param int $position The position of the CRON expression to set
+     * @param string $value The value to set
      *
      * @throws SyntaxError if the value is not valid for the part
      */
@@ -133,7 +134,7 @@ final class CronExpression implements JsonSerializable, Stringable
             throw SyntaxError::dueToInvalidFieldValue($value, $position);
         }
 
-        $this->parts[$position] = $value;
+        $this->fields[$position] = $value;
     }
 
     /**
@@ -185,7 +186,7 @@ final class CronExpression implements JsonSerializable, Stringable
     {
         try {
             new self($expression);
-        } catch (SyntaxError $exception) {
+        } catch (Throwable) {
             return false;
         }
 
@@ -203,36 +204,36 @@ final class CronExpression implements JsonSerializable, Stringable
     /**
      * Get a next run date relative to the current date or a specific date.
      *
-     * @param DateTimeInterface|string|null $from    Relative calculation date
-     * @param int                           $nth     Number of occurrences to skip before returning a
-     *                                               matching next run date.  0, the default, will return the current
-     *                                               date and time if the next run date falls on the current date and
-     *                                               time.  Setting this value to 1 will skip the first match and go to
-     *                                               the second match.  Setting this value to 2 will skip the first 2
-     *                                               matches and so on.
-     * @param int                           $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
-     *                                               the current date if it matches the cron expression
+     * @param DateTimeInterface|string|null $from Relative calculation date
+     * @param int $nth Number of occurrences to skip before returning a
+     *                 matching next run date.  0, the default, will return the current
+     *                 date and time if the next run date falls on the current date and
+     *                 time.  Setting this value to 1 will skip the first match and go to
+     *                 the second match.  Setting this value to 2 will skip the first 2
+     *                 matches and so on.
+     * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     *                     the current date if it matches the cron expression
      *
-     * @throws Exception        if the currentTime is invalid
+     * @throws Exception if the currentTime is invalid
      * @throws RuntimeException on too many iterations
      */
     public function nextRun(
         DateTimeInterface|string|null $from = 'now',
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
-    ): DateTime {
+    ): DateTimeImmutable {
         return $this->calculateRun($this->filterDate($from), $nth, $options, false);
     }
 
     /**
      * Get a previous run date relative to the current date or a specific date.
      *
-     * @param DateTimeInterface|string|null $from    Relative calculation date
-     * @param int                           $nth     Number of occurrences to skip before returning
-     * @param int                           $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
-     *                                               the current date if it matches the cron expression
+     * @param DateTimeInterface|string|null $from Relative calculation date
+     * @param int $nth Number of occurrences to skip before returning
+     * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     *                     the current date if it matches the cron expression
      *
-     * @throws Exception        if the currentTime can not be resolved
+     * @throws Exception if the currentTime can not be resolved
      * @throws RuntimeException on too many iterations
      *
      * @see self::getNextRunDate
@@ -241,20 +242,22 @@ final class CronExpression implements JsonSerializable, Stringable
         DateTimeInterface|string|null $from = 'now',
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
-    ): DateTime {
+    ): DateTimeImmutable {
         return $this->calculateRun($this->filterDate($from), $nth, $options, true);
     }
 
     /**
      * Get multiple run dates starting at the current date or a specific date.
      *
-     * @param int                           $total   Set the total number of dates to calculate
-     * @param DateTimeInterface|string|null $from    Relative calculation date
-     * @param int                           $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
-     *                                               the current date if it matches the cron expression
+     * @param int $total Set the total number of dates to calculate
+     * @param DateTimeInterface|string|null $from Relative calculation date
+     * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     *                     the current date if it matches the cron expression
      *
-     * @throws Exception        if the currentTime can not be resolved
+     * @throws Exception if the currentTime can not be resolved
      * @throws RuntimeException on too many iterations
+     *
+     * @return Generator<DateTimeImmutable>
      */
     public function nextOccurrences(
         int $total,
@@ -265,7 +268,7 @@ final class CronExpression implements JsonSerializable, Stringable
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
                 yield $this->calculateRun($currentDate, $i, $options, false);
-            } catch (RuntimeException $exception) {
+            } catch (RuntimeException) {
                 break;
             }
         }
@@ -274,13 +277,15 @@ final class CronExpression implements JsonSerializable, Stringable
     /**
      * Get multiple run dates starting at the current date or a specific date.
      *
-     * @param int                           $total   Set the total number of dates to calculate
-     * @param DateTimeInterface|string|null $from    Relative calculation date
-     * @param int                           $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
-     *                                               the current date if it matches the cron expression
+     * @param int $total Set the total number of dates to calculate
+     * @param DateTimeInterface|string|null $from Relative calculation date
+     * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     *                     the current date if it matches the cron expression
      *
-     * @throws Exception        if the currentTime can not be resolved
+     * @throws Exception if the currentTime can not be resolved
      * @throws RuntimeException on too many iterations
+     *
+     * @return Generator<DateTimeImmutable>
      */
     public function previousOccurrences(
         int $total,
@@ -291,7 +296,7 @@ final class CronExpression implements JsonSerializable, Stringable
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
                 yield $this->calculateRun($currentDate, $i, $options, true);
-            } catch (RuntimeException $exception) {
+            } catch (RuntimeException) {
                 break;
             }
         }
@@ -307,64 +312,82 @@ final class CronExpression implements JsonSerializable, Stringable
         return $this->toString();
     }
 
-    public function parts(): array
+    public function fields(): array
     {
-        return $this->parts;
+        return $this->fields;
     }
 
     public function minute(): string
     {
-        return (string) $this->parts[self::MINUTE];
+        return (string) $this->fields[self::MINUTE];
     }
 
     public function hour(): string
     {
-        return (string) $this->parts[self::HOUR];
+        return (string) $this->fields[self::HOUR];
     }
 
     public function dayOfMonth(): string
     {
-        return (string) $this->parts[self::MONTHDAY];
+        return (string) $this->fields[self::MONTHDAY];
     }
 
     public function month(): string
     {
-        return (string) $this->parts[self::MONTH];
+        return (string) $this->fields[self::MONTH];
     }
 
     public function dayOfWeek(): string
     {
-        return (string) $this->parts[self::WEEKDAY];
+        return (string) $this->fields[self::WEEKDAY];
     }
 
     public function toString(): string
     {
-        return implode(' ', $this->parts);
+        return implode(' ', $this->fields);
+    }
+
+    public function timezone(): DateTimeZone
+    {
+        return $this->timezone;
     }
 
     public function withMinute(string $part): self
     {
-        return $this->newInstance([self::MINUTE => $part] + $this->parts);
+        return $this->newInstance([self::MINUTE => $part] + $this->fields);
     }
 
     public function withHour(string $part): self
     {
-        return $this->newInstance([self::HOUR => $part] + $this->parts);
+        return $this->newInstance([self::HOUR => $part] + $this->fields);
     }
 
     public function withDayOfMonth(string $part): self
     {
-        return $this->newInstance([self::MONTHDAY => $part] + $this->parts);
+        return $this->newInstance([self::MONTHDAY => $part] + $this->fields);
     }
 
     public function withMonth(string $part): self
     {
-        return $this->newInstance([self::MONTH => $part] + $this->parts);
+        return $this->newInstance([self::MONTH => $part] + $this->fields);
     }
 
     public function withDayOfWeek(string $part): self
     {
-        return $this->newInstance([self::WEEKDAY => $part] + $this->parts);
+        return $this->newInstance([self::WEEKDAY => $part] + $this->fields);
+    }
+
+    public function withTimezone(DateTimeZone|string $timezone): self
+    {
+        if (!$timezone instanceof DateTimeZone) {
+            $timezone = new DateTimeZone($timezone);
+        }
+
+        if ($timezone == $this->timezone) {
+            return $this;
+        }
+
+        return new self($this->toString(), $timezone);
     }
 
     /**
@@ -388,10 +411,10 @@ final class CronExpression implements JsonSerializable, Stringable
             $currentDate = new DateTime($datetime, $this->timezone);
         }
 
-        $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
+        $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
         try {
             return $this->nextRun($currentDate, 0, self::ALLOW_CURRENT_DATE) == $currentDate;
-        } catch (Throwable $exception) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -399,21 +422,21 @@ final class CronExpression implements JsonSerializable, Stringable
     /**
      * Get the next or previous run date of the expression relative to a date.
      *
-     * @param DateTime $from             Relative calculation date
-     * @param int      $nth              Number of matches to skip before returning
-     * @param int      $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
-     * @param bool     $invert           Set to TRUE to go backwards in time
-     *                                   the current date if it matches the cron expression
+     * @param DateTime $from Relative calculation date
+     * @param int $nth Number of matches to skip before returning
+     * @param int $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     * @param bool $invert Set to TRUE to go backwards in time
+     *                     the current date if it matches the cron expression
      *
      * @throws UnableToProcessRun on too many iterations
      */
-    private function calculateRun(DateTime $from, int $nth, int $allowCurrentDate, bool $invert): DateTime
+    private function calculateRun(DateTime $from, int $nth, int $allowCurrentDate, bool $invert): DateTimeImmutable
     {
         // We don't have to satisfy * or null fields
         $parts = [];
         $fields = [];
         foreach (self::TEST_ORDER_CRON_PARTS as $position) {
-            $part = (string) $this->parts[$position];
+            $part = (string) $this->fields[$position];
             if ('*' !== $part) {
                 $parts[$position] = $part;
                 $fields[$position] = self::field($position);
@@ -438,7 +461,7 @@ final class CronExpression implements JsonSerializable, Stringable
                 continue;
             }
 
-            return $nextRun;
+            return DateTimeImmutable::createFromInterface($nextRun);
         }
 
         // @codeCoverageIgnoreStart
@@ -454,14 +477,14 @@ final class CronExpression implements JsonSerializable, Stringable
         if ($currentTime instanceof DateTimeInterface) {
             $currentDate = DateTime::createFromInterface($currentTime);
             $currentDate->setTimezone($this->timezone);
-            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
+            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         }
 
         try {
             $currentDate = new DateTime($currentTime ?? 'now', $this->timezone);
-            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
+            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         } catch (Throwable $exception) {
@@ -471,11 +494,6 @@ final class CronExpression implements JsonSerializable, Stringable
 
     private function isFieldSatisfiedBy(DateTime $dateTime, FieldInterface $field, string $part): bool
     {
-        // Check if this is singular or a list
-        if (!str_contains($part, ',')) {
-            return $field->isSatisfiedBy($dateTime, $part);
-        }
-
         foreach (array_map('trim', explode(',', $part)) as $listPart) {
             if ($field->isSatisfiedBy($dateTime, $listPart)) {
                 return true;
@@ -487,12 +505,11 @@ final class CronExpression implements JsonSerializable, Stringable
 
     /**
      * @param array<int, string|int> $parts
-     *
      */
     private function newInstance(array $parts): self
     {
         ksort($parts);
-        if ($parts === $this->parts) {
+        if ($parts === $this->fields) {
             return $this;
         }
 
