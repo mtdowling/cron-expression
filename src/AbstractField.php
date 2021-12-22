@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Cron;
 
-use OutOfRangeException;
-
 /**
  * Abstract CRON expression field.
  */
@@ -106,15 +104,15 @@ abstract class AbstractField implements FieldInterface
         $rangeEnd = (int) ($rangeChunks[1] ?? $rangeStart);
 
         if ($rangeStart < $this->rangeStart || $rangeStart > $this->rangeEnd || $rangeStart > $rangeEnd) {
-            throw new OutOfRangeException('Invalid range start requested');
+            throw RangeError::dueToInvalidInput('start');
         }
 
         if ($rangeEnd < $this->rangeStart || $rangeEnd > $this->rangeEnd || $rangeEnd < $rangeStart) {
-            throw new OutOfRangeException('Invalid range end requested');
+            throw RangeError::dueToInvalidInput('end');
         }
 
         if ($step > ($rangeEnd - $rangeStart) + 1) {
-            throw new OutOfRangeException('Step cannot be greater than total range');
+            throw RangeError::dueToInvalidStep();
         }
 
         return in_array((int) $dateValue, range($rangeStart, $rangeEnd, $step), true);

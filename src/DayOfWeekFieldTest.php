@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Cron;
 
 use DateTime;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -55,8 +54,7 @@ final class DayOfWeekFieldTest extends TestCase
      */
     public function testValidatesHashValueWeekday(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Weekday must be a value between 0 and 7. 12 given');
+        $this->expectException(SyntaxError::class);
 
         $f = new DayOfWeekField();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '12#1'));
@@ -67,8 +65,7 @@ final class DayOfWeekFieldTest extends TestCase
      */
     public function testValidatesHashValueNth(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('There are never more than 5 or less than 1 of a given weekday in a month');
+        $this->expectException(SyntaxError::class);
         $f = new DayOfWeekField();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '3#6'));
     }

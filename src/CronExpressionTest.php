@@ -6,7 +6,6 @@ namespace Cron;
 
 use DateTime;
 use DateTimeZone;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -53,8 +52,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testParsesCronScheduleThrowsAnException(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid CRON field value A at position 0');
+        $this->expectException(SyntaxError::class);
 
         CronExpression::fromString('A 1 2 3 4');
     }
@@ -98,7 +96,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testInvalidCronsWillFail(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(SyntaxError::class);
         // Only four values
         CronExpression::fromString('* * * 1');
     }
@@ -108,7 +106,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testInvalidPartsWillFail(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(SyntaxError::class);
         // Only four values
         CronExpression::fromString('* * abc * *');
     }
@@ -246,7 +244,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-      * @covers Cron\CronExpression::isDue
+      * @covers Cron\CronExpression::match
       */
     public function testIsDueHandlesDifferentTimezonesAsArgument(): void
     {

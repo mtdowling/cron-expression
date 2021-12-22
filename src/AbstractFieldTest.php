@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Cron;
 
-use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -97,7 +96,7 @@ final class AbstractFieldTest extends TestCase
 
     public function testStepCannotBeLargerThanRange(): void
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(RangeError::class);
         $f = new MonthField();
         $f->isInIncrementsOfRanges('2', '3-12/13');
     }

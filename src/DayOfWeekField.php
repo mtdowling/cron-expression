@@ -6,7 +6,6 @@ namespace Cron;
 
 use DateTime;
 use DateTimeInterface;
-use InvalidArgumentException;
 
 /**
  * Day of week field.  Allows: * / , - ? L #.
@@ -73,11 +72,10 @@ final class DayOfWeekField extends AbstractField
             [$weekday, $nth] = explode('#', $expression);
 
             if (!is_numeric($nth)) {
-                throw new InvalidArgumentException("Hashed weekdays must be numeric, {$nth} given");
-            } else {
-                $nth = (int) $nth;
+                throw SyntaxError::dueToInvalidWeekday($nth);
             }
 
+            $nth = (int) $nth;
             // 0 and 7 are both Sunday, however 7 matches date('N') format ISO-8601
             if ($weekday === '0') {
                 $weekday = 7;
@@ -87,11 +85,11 @@ final class DayOfWeekField extends AbstractField
 
             // Validate the hash fields
             if ($weekday < 0 || $weekday > 7) {
-                throw new InvalidArgumentException("Weekday must be a value between 0 and 7. {$weekday} given");
+                throw SyntaxError::dueToUnsupportedWeekday($weekday);
             }
 
             if (!in_array($nth, $this->nthRange, true)) {
-                throw new InvalidArgumentException("There are never more than 5 or less than 1 of a given weekday in a month, {$nth} given");
+                throw SyntaxError::dueToOutOfRangeWeekday($nth);
             }
 
             // The current weekday must match the targeted weekday to proceed

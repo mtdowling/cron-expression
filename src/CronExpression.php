@@ -11,6 +11,7 @@ use Exception;
 use Generator;
 use InvalidArgumentException;
 use RuntimeException;
+use Throwable;
 
 /**
  * CRON expression parser that can determine whether or not a CRON expression is
@@ -67,7 +68,7 @@ final class CronExpression
                 self::MONTHDAY => new DayOfMonthField(),
                 self::MONTH => new MonthField(),
                 self::WEEKDAY => new DayOfWeekField(),
-                default => throw new InvalidArgumentException($position.' is not a valid position'),
+                default => throw SyntaxError::dueToInvalidPosition($position),
             };
         }
 
@@ -79,13 +80,15 @@ final class CronExpression
      *
      * @param string       $expression CRON expression (e.g. '8 * * * *')
      * @param DateTimeZone $timezone   CRON timezone
+     *
+     * @throws SyntaxError
      */
     private function __construct(string $expression, private DateTimeZone $timezone)
     {
         /** @var array $cronParts */
         $cronParts = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
         if (count($cronParts) < 5) {
-            throw new InvalidArgumentException($expression.' is not a valid CRON expression');
+            throw SyntaxError::dueToInvalidExpression($expression);
         }
 
         foreach ($cronParts as $position => $part) {
@@ -99,12 +102,12 @@ final class CronExpression
      * @param int    $position The position of the CRON expression to set
      * @param string $value    The value to set
      *
-     * @throws InvalidArgumentException if the value is not valid for the part
+     * @throws SyntaxError if the value is not valid for the part
      */
     private function setPart(int $position, string $value): void
     {
         if (!self::field($position)->validate($value)) {
-            throw new InvalidArgumentException('Invalid CRON field value '.$value.' at position '.$position);
+            throw SyntaxError::dueToInvalidFieldValue($value, $position);
         }
 
         $this->cronParts[$position] = $value;
@@ -192,7 +195,7 @@ final class CronExpression
     {
         try {
             self::fromString($expression);
-        } catch (InvalidArgumentException $exception) {
+        } catch (SyntaxError $exception) {
             return false;
         }
 
@@ -363,7 +366,7 @@ final class CronExpression
         $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
         try {
             return $this->nextRun($currentDate, 0, self::ALLOW_CURRENT_DATE) == $currentDate;
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             return false;
         }
     }
@@ -377,7 +380,7 @@ final class CronExpression
      * @param bool     $invert           Set to TRUE to go backwards in time
      *                                   the current date if it matches the cron expression
      *
-     * @throws RuntimeException on too many iterations
+     * @throws UnableToProcessRun on too many iterations
      */
     private function calculateRun(DateTime $from, int $nth, int $allowCurrentDate, bool $invert): DateTime
     {
@@ -414,12 +417,12 @@ final class CronExpression
         }
 
         // @codeCoverageIgnoreStart
-        throw new RuntimeException('Impossible CRON expression');
+        throw UnableToProcessRun::dueToMaxIterationCountReached($this->maxIterationCount);
         // @codeCoverageIgnoreEnd
     }
 
     /**
-     * @throws Exception
+     * @throws SyntaxError
      */
     private function filterDate(DateTimeInterface|string|null $currentTime): DateTime
     {
@@ -431,10 +434,14 @@ final class CronExpression
             return $currentDate;
         }
 
-        $currentDate = new DateTime($currentTime ?? 'now', $this->timezone);
-        $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
+        try {
+            $currentDate = new DateTime($currentTime ?? 'now', $this->timezone);
+            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
 
-        return $currentDate;
+            return $currentDate;
+        } catch (Throwable $exception) {
+            throw SyntaxError::dueToInvalidDate((string) $currentTime, $exception);
+        }
     }
 
     private function isFieldSatisfiedBy(DateTime $dateTime, FieldInterface $field, string $part): bool
