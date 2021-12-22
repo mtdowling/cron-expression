@@ -33,7 +33,6 @@ final class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::__construct
      * @covers \Cron\CronExpression::part
-     * @covers \Cron\CronExpression::__toString
      * @covers \Cron\CronExpression::toString
      */
     public function testParsesCronSchedule(): void
@@ -46,13 +45,11 @@ final class CronExpressionTest extends TestCase
         self::assertSame('4,5,6', $cron->month());
         self::assertSame('*/3', $cron->dayOfWeek());
         self::assertSame('1 2-4 * 4,5,6 */3', $cron->toString());
-        self::assertSame('1 2-4 * 4,5,6 */3', (string) $cron);
     }
 
     /**
      * @covers \Cron\CronExpression::__construct
      * @covers \Cron\CronExpression::part
-     * @covers \Cron\CronExpression::__toString
      */
     public function testParsesCronScheduleThrowsAnException(): void
     {

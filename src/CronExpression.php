@@ -11,7 +11,6 @@ use Exception;
 use Generator;
 use InvalidArgumentException;
 use RuntimeException;
-use Stringable;
 
 /**
  * CRON expression parser that can determine whether or not a CRON expression is
@@ -25,10 +24,8 @@ use Stringable;
  *
  * @link http://en.wikipedia.org/wiki/Cron
  */
-final class CronExpression implements Stringable
+final class CronExpression
 {
-    public const ALLOW_CURRENT_DATE = 1;
-    public const DISALLOW_CURRENT_DATE = 0;
     private const MINUTE = 0;
     private const HOUR = 1;
     private const MONTHDAY = 2;
@@ -44,6 +41,8 @@ final class CronExpression implements Stringable
         self::HOUR,
         self::MINUTE,
     ];
+    public const ALLOW_CURRENT_DATE = 1;
+    public const DISALLOW_CURRENT_DATE = 0;
 
     /**
      * @var array<int, int|string> CRON expression parts
@@ -347,16 +346,6 @@ final class CronExpression implements Stringable
     }
 
     /**
-     * Helper method to output the full expression.
-     *
-     * @return string Full CRON expression
-     */
-    public function __toString(): string
-    {
-        return $this->toString();
-    }
-
-    /**
      * Determine if the cron is due to run based on the current date or a
      * specific date.  This method assumes that the current number of
      * seconds are irrelevant, and should be called once per minute.
@@ -415,7 +404,7 @@ final class CronExpression implements Stringable
             foreach ($parts as $position => $part) {
                 $field = $fields[$position];
                 // If the field is not satisfied, then start over
-                if (!$this->isSatisfyingField($field, $part, $nextRun)) {
+                if (!$this->isFieldSatisfiedBy($nextRun, $field, $part)) {
                     $field->increment($nextRun, $invert, $part);
                     continue 2;
                 }
@@ -454,7 +443,7 @@ final class CronExpression implements Stringable
         return $currentDate;
     }
 
-    private function isSatisfyingField(FieldInterface $field, string $part, DateTime $nextRun): bool
+    private function isFieldSatisfiedBy(DateTime $nextRun, FieldInterface $field, string $part): bool
     {
         // Check if this is singular or a list
         if (!str_contains($part, ',')) {
