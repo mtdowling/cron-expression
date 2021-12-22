@@ -51,6 +51,7 @@ final class CronExpression implements JsonSerializable, Stringable
      * @var array<int, int|string> CRON expression parts
      */
     private array $parts;
+    private DateTimeZone $timezone;
     private int $maxIterationCount = 1000;
 
     /**
@@ -77,22 +78,44 @@ final class CronExpression implements JsonSerializable, Stringable
     }
 
     /**
-     * Parse a CRON expression.
+     * Factory method to create a new CronExpression.
      *
-     * @param string       $expression CRON expression (e.g. '8 * * * *')
-     * @param DateTimeZone $timezone   CRON timezone
+     * @param string $expression The CRON expression to create.  There are
+     *                           several special predefined values which can be used to substitute the
+     *                           CRON expression:
      *
-     * @throws SyntaxError
+     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
+     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
+     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
+     *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
+     *      `@hourly` - Run once an hour, first minute - 0 * * * *
      */
-    private function __construct(string $expression, private DateTimeZone $timezone)
+    public function __construct(string $expression, DateTimeZone|string|null $timezone = null)
     {
-        /** @var array $cronParts */
-        $cronParts = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
-        if (count($cronParts) < 5) {
+        static $mappings = [
+            '@yearly' => '0 0 1 1 *',
+            '@annually' => '0 0 1 1 *',
+            '@monthly' => '0 0 1 * *',
+            '@weekly' => '0 0 * * 0',
+            '@daily' => '0 0 * * *',
+            '@midnight' => '0 0 * * *',
+            '@hourly' => '0 * * * *',
+        ];
+
+        $timezone ??= date_default_timezone_get();
+        if (!$timezone instanceof DateTimeZone) {
+            $timezone = new DateTimeZone($timezone);
+        }
+        $this->timezone = $timezone;
+
+        $expression = $mappings[$expression] ?? $expression;
+        /** @var array<string> $parts */
+        $parts = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
+        if (count($parts) < 5) {
             throw SyntaxError::dueToInvalidExpression($expression);
         }
 
-        foreach ($cronParts as $position => $part) {
+        foreach ($parts as $position => $part) {
             $this->setPart($position, $part);
         }
     }
@@ -115,44 +138,11 @@ final class CronExpression implements JsonSerializable, Stringable
     }
 
     /**
-     * Factory method to create a new CronExpression.
-     *
-     * @param string $expression The CRON expression to create.  There are
-     *                           several special predefined values which can be used to substitute the
-     *                           CRON expression:
-     *
-     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
-     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
-     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
-     *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
-     *      `@hourly` - Run once an hour, first minute - 0 * * * *
-     */
-    public static function fromString(string $expression, DateTimeZone|string|null $timezone = null): self
-    {
-        static $mappings = [
-            '@yearly' => '0 0 1 1 *',
-            '@annually' => '0 0 1 1 *',
-            '@monthly' => '0 0 1 * *',
-            '@weekly' => '0 0 * * 0',
-            '@daily' => '0 0 * * *',
-            '@midnight' => '0 0 * * *',
-            '@hourly' => '0 * * * *',
-        ];
-
-        $timezone ??= date_default_timezone_get();
-        if (!$timezone instanceof DateTimeZone) {
-            $timezone = new DateTimeZone($timezone);
-        }
-
-        return new self($mappings[$expression] ?? $expression, $timezone);
-    }
-
-    /**
      * Returns the Cron expression for running once a year, midnight, Jan. 1 - 0 0 1 1 *.
      */
     public static function yearly(DateTimeZone|string|null $timezone = null): self
     {
-        return self::fromString('@yearly', $timezone);
+        return new self('@yearly', $timezone);
     }
 
     /**
@@ -160,7 +150,7 @@ final class CronExpression implements JsonSerializable, Stringable
      */
     public static function monthly(DateTimeZone|string|null $timezone = null): self
     {
-        return self::fromString('@monthly', $timezone);
+        return new self('@monthly', $timezone);
     }
 
     /**
@@ -168,7 +158,7 @@ final class CronExpression implements JsonSerializable, Stringable
      */
     public static function weekly(DateTimeZone|string|null $timezone = null): self
     {
-        return self::fromString('@weekly', $timezone);
+        return new self('@weekly', $timezone);
     }
 
     /**
@@ -176,7 +166,7 @@ final class CronExpression implements JsonSerializable, Stringable
      */
     public static function daily(DateTimeZone|string|null $timezone = null): self
     {
-        return self::fromString('@daily', $timezone);
+        return new self('@daily', $timezone);
     }
 
     /**
@@ -184,18 +174,18 @@ final class CronExpression implements JsonSerializable, Stringable
      */
     public static function hourly(DateTimeZone|string|null $timezone = null): self
     {
-        return self::fromString('@hourly', $timezone);
+        return new self('@hourly', $timezone);
     }
 
     /**
      * Validate a CronExpression.
      *
-     * @see CronExpression::fromString
+     * @see CronExpression::__construct
      */
     public static function isValid(string $expression): bool
     {
         try {
-            self::fromString($expression);
+            new self($expression);
         } catch (SyntaxError $exception) {
             return false;
         }
