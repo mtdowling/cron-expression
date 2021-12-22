@@ -35,20 +35,20 @@ require_once '/vendor/autoload.php';
 // Works with predefined scheduling definitions
 $cron = \Cron\CronExpression::fromString('@daily');
 $cron->isDue();
-echo $cron->getNextRunDate()->format('Y-m-d H:i:s');
-echo $cron->getPreviousRunDate()->format('Y-m-d H:i:s');
+echo $cron->nextRun()->format('Y-m-d H:i:s');
+echo $cron->previousRun()->format('Y-m-d H:i:s');
 
 // Works with complex expressions
 $cron = \Cron\CronExpression::fromString('3-59/15 2,6-12 */15 1 2-5');
-echo $cron->getNextRunDate()->format('Y-m-d H:i:s');
+echo $cron->nextRun()->format('Y-m-d H:i:s');
 
 // Calculate a run date two iterations into the future
 $cron = \Cron\CronExpression::fromString('@daily');
-echo $cron->getNextRunDate(null, 2)->format('Y-m-d H:i:s');
+echo $cron->nextRun(null, 2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
 $cron = \Cron\CronExpression::fromString('@monthly');
-echo $cron->getNextRunDate('2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+echo $cron->nextRun('2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 ```
 
 CRON Expressions
