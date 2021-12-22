@@ -9,7 +9,6 @@ use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use Generator;
-use InvalidArgumentException;
 use JsonSerializable;
 use RuntimeException;
 use Stringable;
@@ -59,7 +58,7 @@ final class CronExpression implements JsonSerializable, Stringable
      *
      * @param int $position CRON expression position value to retrieve
      *
-     * @throws InvalidArgumentException if a position is not valid
+     * @throws SyntaxError if a position is not valid
      */
     private static function field(int $position): FieldInterface
     {
@@ -298,11 +297,6 @@ final class CronExpression implements JsonSerializable, Stringable
         }
     }
 
-    private function part(string|int $position): string
-    {
-        return (string) $this->parts[$position];
-    }
-
     public function jsonSerialize(): string
     {
         return $this->toString();
@@ -419,7 +413,7 @@ final class CronExpression implements JsonSerializable, Stringable
         $parts = [];
         $fields = [];
         foreach (self::TEST_ORDER_CRON_PARTS as $position) {
-            $part = $this->part($position);
+            $part = (string) $this->parts[$position];
             if ('*' !== $part) {
                 $parts[$position] = $part;
                 $fields[$position] = self::field($position);

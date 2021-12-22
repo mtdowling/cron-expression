@@ -31,7 +31,6 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::part
      * @covers \Cron\CronExpression::toString
      */
     public function testParsesCronSchedule(): void
@@ -48,7 +47,6 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::part
      */
     public function testParsesCronScheduleThrowsAnException(): void
     {
@@ -59,7 +57,6 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::part
      * @covers \Cron\CronExpression::minute
      * @covers \Cron\CronExpression::hour
      * @covers \Cron\CronExpression::dayOfMonth
