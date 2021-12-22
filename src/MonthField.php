@@ -10,7 +10,7 @@ use DateTimeInterface;
 /**
  * Month field.  Allows: * , / -.
  */
-final class MonthField extends AbstractField
+final class MonthField extends CronField
 {
     protected int $rangeStart = 1;
     protected int $rangeEnd = 12;

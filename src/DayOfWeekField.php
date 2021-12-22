@@ -21,7 +21,7 @@ use DateTimeInterface;
  * number between one and five. It allows you to specify constructs such as
  * "the second Friday" of a given month.
  */
-final class DayOfWeekField extends AbstractField
+final class DayOfWeekField extends CronField
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 7;

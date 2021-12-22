@@ -42,4 +42,9 @@ final class SyntaxError extends InvalidArgumentException implements ExpressionEr
     {
         return new self("There are never more than 5 or less than 1 of a given weekday in a month, {$nth} given");
     }
+
+    public static function dueToInvalidMaxIterationCount(int $count): self
+    {
+        return new self("maxIterationCount must be an integer greater or equal to 0. {$count} given");
+    }
 }

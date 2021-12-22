@@ -7,7 +7,7 @@ namespace Bakame\Cron;
 /**
  * Abstract CRON expression field.
  */
-abstract class AbstractField implements Field
+abstract class CronField implements Field
 {
     /**
      * Full range of values that are allowed for this field type.
@@ -120,7 +120,7 @@ abstract class AbstractField implements Field
     /**
      * Returns a range of values for the given cron expression.
      *
-     * @return array<int|string>
+     * @return array<int, int|string>
      */
     protected function getRangeForExpression(string $expression, int $max): array
     {

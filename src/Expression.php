@@ -9,14 +9,13 @@ use DateTimeInterface;
 use Generator;
 
 /**
- * CRON expression parser that can determine if a CRON expression is
+ * CRON expression object. It can determine if the CRON expression is
  * due to run, the next run date and previous run date of a CRON expression.
  * The determinations made by this final class are accurate if checked run once per
  * minute (seconds are dropped from date time comparisons).
  *
  * Schedule parts must map to:
- * minute [0-59], hour [0-23], day of month, month [1-12|JAN-DEC], day of week
- * [1-7|MON-SUN], and an optional year.
+ * minute [0-59], hour [0-23], day of month, month [1-12|JAN-DEC], day of week [1-7|MON-SUN].
  *
  * @link http://en.wikipedia.org/wiki/Cron
  */
@@ -133,67 +132,4 @@ interface Expression
      * Returns the string representation of the CRON expression.
      */
     public function toString(): string;
-
-    /**
-     * Returns the max iteration count for searching next run dates.
-     */
-    public function maxIterationCount(): int;
-
-    /**
-     * Set the minute field of the CRON expression.
-     *
-     * @param string $field The value to set
-     *
-     * @throws ExpressionError if the value is not valid for the part
-     *
-     */
-    public function withMinute(string $field): self;
-
-    /**
-     * Set the hour field of the CRON expression.
-     *
-     * @param string $field The value to set
-     *
-     * @throws ExpressionError if the value is not valid for the part
-     *
-     */
-    public function withHour(string $field): self;
-
-    /**
-     * Set the day of month field of the CRON expression.
-     *
-     * @param string $field The value to set
-     *
-     * @throws ExpressionError if the value is not valid for the part
-     *
-     */
-    public function withDayOfMonth(string $field): self;
-
-    /**
-     * Set the month field of the CRON expression.
-     *
-     * @param string $field The value to set
-     *
-     * @throws ExpressionError if the value is not valid for the part
-     *
-     */
-    public function withMonth(string $field): self;
-
-    /**
-     * Set the day of the week field of the CRON expression.
-     *
-     * @param string $field The value to set
-     *
-     * @throws ExpressionError if the value is not valid for the part
-     *
-     */
-    public function withDayOfWeek(string $field): self;
-
-    /**
-     * Set max iteration count for searching next run dates.
-     *
-     * @param int $maxIterationCount Max iteration count when searching for next run date
-     *
-     */
-    public function withMaxIterationCount(int $maxIterationCount): self;
 }

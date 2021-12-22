@@ -14,7 +14,7 @@ use RuntimeException;
 use Stringable;
 use Throwable;
 
-final class CronExpression implements TimezonedExpression, JsonSerializable, Stringable
+final class CronExpression implements ConfigurableExpression, JsonSerializable, Stringable
 {
     private const MINUTE = 0;
     private const HOUR = 1;
@@ -44,7 +44,7 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
      *
      * @throws SyntaxError if a position is not valid
      */
-    private static function expressionField(int $position): Field
+    private static function field(int $position): Field
     {
         static $fields = [];
 
@@ -73,7 +73,7 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
      *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
      *      `@hourly` - Run once an hour, first minute - 0 * * * *
      */
-    public function __construct(string $expression, DateTimeZone|string|null $timezone = null)
+    public function __construct(string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000)
     {
         static $mappings = [
             '@yearly' => '0 0 1 1 *',
@@ -92,15 +92,21 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
         $this->timezone = $timezone;
 
         $expression = $mappings[$expression] ?? $expression;
-        /** @var array<string> $parts */
-        $parts = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
-        if (count($parts) < 5) {
+        /** @var array<string> $fields */
+        $fields = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
+        if (count($fields) < 5) {
             throw SyntaxError::dueToInvalidExpression($expression);
         }
 
-        foreach ($parts as $position => $part) {
-            $this->setPart($position, $part);
+        foreach ($fields as $position => $field) {
+            $this->setField($position, $field);
         }
+
+        if ($maxIterationCount < 0) {
+            throw SyntaxError::dueToInvalidMaxIterationCount($maxIterationCount);
+        }
+
+        $this->maxIterationCount = $maxIterationCount;
     }
 
     /**
@@ -111,9 +117,9 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
      *
      * @throws SyntaxError if the value is not valid for the part
      */
-    private function setPart(int $position, string $value): void
+    private function setField(int $position, string $value): void
     {
-        if (!self::expressionField($position)->validate($value)) {
+        if (!self::field($position)->validate($value)) {
             throw SyntaxError::dueToInvalidFieldValue($value, $position);
         }
 
@@ -123,41 +129,41 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
     /**
      * Returns the Cron expression for running once a year, midnight, Jan. 1 - 0 0 1 1 *.
      */
-    public static function yearly(DateTimeZone|string|null $timezone = null): self
+    public static function yearly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self
     {
-        return new self('@yearly', $timezone);
+        return new self('@yearly', $timezone, $maxIterationCount);
     }
 
     /**
      * Returns the Cron expression for running once a month, midnight, first of month - 0 0 1 * *.
      */
-    public static function monthly(DateTimeZone|string|null $timezone = null): self
+    public static function monthly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self
     {
-        return new self('@monthly', $timezone);
+        return new self('@monthly', $timezone, $maxIterationCount);
     }
 
     /**
      * Returns the Cron expression for running once a week, midnight on Sun - 0 0 * * 0.
      */
-    public static function weekly(DateTimeZone|string|null $timezone = null): self
+    public static function weekly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self
     {
-        return new self('@weekly', $timezone);
+        return new self('@weekly', $timezone, $maxIterationCount);
     }
 
     /**
      * Returns the Cron expression for running once a day, midnight - 0 0 * * *.
      */
-    public static function daily(DateTimeZone|string|null $timezone = null): self
+    public static function daily(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self
     {
-        return new self('@daily', $timezone);
+        return new self('@daily', $timezone, $maxIterationCount);
     }
 
     /**
      * Returns the Cron expression for running once an hour, first minute - 0 * * * *.
      */
-    public static function hourly(DateTimeZone|string|null $timezone = null): self
+    public static function hourly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self
     {
-        return new self('@hourly', $timezone);
+        return new self('@hourly', $timezone, $maxIterationCount);
     }
 
     /**
@@ -219,6 +225,24 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
             } catch (RuntimeException) {
                 break;
             }
+        }
+    }
+
+    public function match(DateTimeInterface|string $datetime = 'now'): bool
+    {
+        if ($datetime instanceof DateTimeInterface) {
+            $currentDate = DateTime::createFromInterface($datetime);
+            // Ensure time in 'current' timezone is used
+            $currentDate->setTimezone($this->timezone);
+        } else {
+            $currentDate = new DateTime($datetime, $this->timezone);
+        }
+
+        $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
+        try {
+            return $this->nextRun($currentDate, 0, self::ALLOW_CURRENT_DATE) == $currentDate;
+        } catch (Throwable) {
+            return false;
         }
     }
 
@@ -334,28 +358,14 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
             return $this;
         }
 
+        if ($maxIterationCount < 0) {
+            throw SyntaxError::dueToInvalidMaxIterationCount($maxIterationCount);
+        }
+
         $clone = clone $this;
         $clone->maxIterationCount = $maxIterationCount;
 
         return $clone;
-    }
-
-    public function match(DateTimeInterface|string $datetime = 'now'): bool
-    {
-        if ($datetime instanceof DateTimeInterface) {
-            $currentDate = DateTime::createFromInterface($datetime);
-            // Ensure time in 'current' timezone is used
-            $currentDate->setTimezone($this->timezone);
-        } else {
-            $currentDate = new DateTime($datetime, $this->timezone);
-        }
-
-        $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
-        try {
-            return $this->nextRun($currentDate, 0, self::ALLOW_CURRENT_DATE) == $currentDate;
-        } catch (Throwable) {
-            return false;
-        }
     }
 
     /**
@@ -378,7 +388,7 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
             $part = (string) $this->fields[$position];
             if ('*' !== $part) {
                 $parts[$position] = $part;
-                $fields[$position] = self::expressionField($position);
+                $fields[$position] = self::field($position);
             }
         }
 
@@ -396,7 +406,7 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
 
             // Skip this match if needed
             if (($allowCurrentDate === self::DISALLOW_CURRENT_DATE && $nextRun == $from) || --$nth > -1) {
-                $nextRun = self::expressionField(0)->increment($nextRun, $invert, $parts[0] ?? null);
+                $nextRun = self::field(0)->increment($nextRun, $invert, $parts[0] ?? null);
                 continue;
             }
 

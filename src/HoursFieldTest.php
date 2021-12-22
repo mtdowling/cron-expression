@@ -25,7 +25,7 @@ final class HoursFieldTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\HoursField::increment
-     * @covers \Bakame\Cron\AbstractField::computePosition
+     * @covers \Bakame\Cron\CronField::computePosition
      */
     public function testIncrementsDate(): void
     {
@@ -41,7 +41,7 @@ final class HoursFieldTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\HoursField::increment
-     * @covers \Bakame\Cron\AbstractField::computePosition
+     * @covers \Bakame\Cron\CronField::computePosition
      */
     public function testIncrementsDateWithThirtyMinuteOffsetTimezone(): void
     {
@@ -58,7 +58,7 @@ final class HoursFieldTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\HoursField::increment
-     * @covers \Bakame\Cron\AbstractField::computePosition
+     * @covers \Bakame\Cron\CronField::computePosition
      */
     public function testIncrementDateWithFifteenMinuteOffsetTimezone(): void
     {

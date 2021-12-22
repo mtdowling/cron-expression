@@ -25,7 +25,7 @@ final class MinutesFieldTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\MinutesField::increment
-     * @covers \Bakame\Cron\AbstractField::computePosition
+     * @covers \Bakame\Cron\CronField::computePosition
      */
     public function testIncrementsDate(): void
     {
