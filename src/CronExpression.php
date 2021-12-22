@@ -61,7 +61,7 @@ final class CronExpression implements JsonSerializable, Stringable
      *
      * @throws SyntaxError if a position is not valid
      */
-    private static function field(int $position): FieldInterface
+    private static function expressionField(int $position): FieldInterface
     {
         static $fields = [];
 
@@ -130,7 +130,7 @@ final class CronExpression implements JsonSerializable, Stringable
      */
     private function setPart(int $position, string $value): void
     {
-        if (!self::field($position)->validate($value)) {
+        if (!self::expressionField($position)->validate($value)) {
             throw SyntaxError::dueToInvalidFieldValue($value, $position);
         }
 
@@ -286,6 +286,8 @@ final class CronExpression implements JsonSerializable, Stringable
      * @throws RuntimeException on too many iterations
      *
      * @return Generator<DateTimeImmutable>
+     *
+     * @see CronExpression::nextOccurrences
      */
     public function previousOccurrences(
         int $total,
@@ -300,16 +302,6 @@ final class CronExpression implements JsonSerializable, Stringable
                 break;
             }
         }
-    }
-
-    public function jsonSerialize(): string
-    {
-        return $this->toString();
-    }
-
-    public function __toString(): string
-    {
-        return $this->toString();
     }
 
     public function fields(): array
@@ -345,6 +337,16 @@ final class CronExpression implements JsonSerializable, Stringable
     public function toString(): string
     {
         return implode(' ', $this->fields);
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
+    }
+
+    public function jsonSerialize(): string
+    {
+        return $this->toString();
     }
 
     public function timezone(): DateTimeZone
@@ -439,7 +441,7 @@ final class CronExpression implements JsonSerializable, Stringable
             $part = (string) $this->fields[$position];
             if ('*' !== $part) {
                 $parts[$position] = $part;
-                $fields[$position] = self::field($position);
+                $fields[$position] = self::expressionField($position);
             }
         }
 
@@ -450,14 +452,14 @@ final class CronExpression implements JsonSerializable, Stringable
                 $field = $fields[$position];
                 // If the field is not satisfied, then start over
                 if (!$this->isFieldSatisfiedBy($nextRun, $field, $part)) {
-                    $field->increment($nextRun, $invert, $part);
+                    $nextRun = $field->increment($nextRun, $invert, $part);
                     continue 2;
                 }
             }
 
             // Skip this match if needed
             if (($allowCurrentDate === self::DISALLOW_CURRENT_DATE && $nextRun == $from) || --$nth > -1) {
-                self::field(0)->increment($nextRun, $invert, $parts[0] ?? null);
+                $nextRun = self::expressionField(0)->increment($nextRun, $invert, $parts[0] ?? null);
                 continue;
             }
 
@@ -492,7 +494,7 @@ final class CronExpression implements JsonSerializable, Stringable
         }
     }
 
-    private function isFieldSatisfiedBy(DateTime $dateTime, FieldInterface $field, string $part): bool
+    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, FieldInterface $field, string $part): bool
     {
         foreach (array_map('trim', explode(',', $part)) as $listPart) {
             if ($field->isSatisfiedBy($dateTime, $listPart)) {

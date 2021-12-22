@@ -32,6 +32,10 @@ final class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::__construct
      * @covers \Cron\CronExpression::toString
+     * @covers \Cron\CronExpression::fields
+     * @covers \Cron\CronExpression::timezone
+     * @covers \Cron\CronExpression::jsonSerialize
+     * @covers \Cron\CronExpression::__toString
      */
     public function testParsesCronSchedule(): void
     {
@@ -43,10 +47,15 @@ final class CronExpressionTest extends TestCase
         self::assertSame('4,5,6', $cron->month());
         self::assertSame('*/3', $cron->dayOfWeek());
         self::assertSame('1 2-4 * 4,5,6 */3', $cron->toString());
+        self::assertSame('1 2-4 * 4,5,6 */3', (string) $cron);
+        self::assertSame(['1', '2-4', '*', '4,5,6', '*/3'], $cron->fields());
+        self::assertSame('"1 2-4 * 4,5,6 *\/3"', json_encode($cron));
+        self::assertEquals(new DateTimeZone(date_default_timezone_get()), $cron->timezone());
     }
 
     /**
      * @covers \Cron\CronExpression::__construct
+     * @covers \Cron\SyntaxError
      */
     public function testParsesCronScheduleThrowsAnException(): void
     {
@@ -90,6 +99,7 @@ final class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::__construct
      * @covers \Cron\CronExpression::setPart
+     * @covers \Cron\SyntaxError
      */
     public function testInvalidCronsWillFail(): void
     {
@@ -100,6 +110,7 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Cron\CronExpression::setPart
+     * @covers \Cron\SyntaxError
      */
     public function testInvalidPartsWillFail(): void
     {
@@ -452,7 +463,9 @@ final class CronExpressionTest extends TestCase
      * @covers \Cron\CronExpression::withMinute
      * @covers \Cron\CronExpression::withHour
      * @covers \Cron\CronExpression::withDayOfMonth
+     * @covers \Cron\CronExpression::withMonth
      * @covers \Cron\CronExpression::withDayOfWeek
+     * @covers \Cron\CronExpression::withTimezone
      * @covers \Cron\CronExpression::newInstance
      */
     public function testUpdateCronExpressionPartReturnsTheSameInstance(): void
@@ -461,15 +474,19 @@ final class CronExpressionTest extends TestCase
 
         self::assertSame($cron, $cron->withMinute($cron->minute()));
         self::assertSame($cron, $cron->withHour($cron->hour()));
+        self::assertSame($cron, $cron->withMonth($cron->month()));
         self::assertSame($cron, $cron->withDayOfMonth($cron->dayOfMonth()));
         self::assertSame($cron, $cron->withDayOfWeek($cron->dayOfWeek()));
+        self::assertSame($cron, $cron->withTimezone(date_default_timezone_get()));
     }
 
     /**
      * @covers \Cron\CronExpression::withMinute
      * @covers \Cron\CronExpression::withHour
      * @covers \Cron\CronExpression::withDayOfMonth
+     * @covers \Cron\CronExpression::withMonth
      * @covers \Cron\CronExpression::withDayOfWeek
+     * @covers \Cron\CronExpression::withTimezone
      * @covers \Cron\CronExpression::newInstance
      */
     public function testUpdateCronExpressionPartReturnsADifferentInstance(): void
@@ -479,6 +496,19 @@ final class CronExpressionTest extends TestCase
         self::assertNotEquals($cron, $cron->withMinute('22'));
         self::assertNotEquals($cron, $cron->withHour('12'));
         self::assertNotEquals($cron, $cron->withDayOfMonth('28'));
+        self::assertNotEquals($cron, $cron->withMonth('12'));
         self::assertNotEquals($cron, $cron->withDayOfWeek('Fri'));
+        self::assertNotEquals($cron, $cron->withTimezone('Africa/Kinshasa'));
+    }
+
+    /**
+     * @covers \Cron\CronExpression::filterDate
+     * @covers \Cron\SyntaxError
+     */
+    public function testThrowsIfTheDateCanNotBeInstantiated(): void
+    {
+        $this->expectException(SyntaxError::class);
+        $cron = new CronExpression('23 0-23/2 * * *');
+        $cron->nextRun('foobar');
     }
 }

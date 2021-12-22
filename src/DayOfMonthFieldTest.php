@@ -40,14 +40,24 @@ final class DayOfMonthFieldTest extends TestCase
      */
     public function testIncrementsDate(): void
     {
-        $d = new DateTime('2011-03-15 11:15:00');
         $f = new DayOfMonthField();
-        $f->increment($d);
-        self::assertSame('2011-03-16 00:00:00', $d->format('Y-m-d H:i:s'));
-
-        $d = new DateTime('2011-03-15 11:15:00');
-        $f->increment($d, true);
-        self::assertSame('2011-03-14 23:59:00', $d->format('Y-m-d H:i:s'));
+        $date = '2011-03-15 11:15:00';
+        self::assertSame(
+            '2011-03-16 00:00:00',
+            $f->increment(new DateTime($date))->format('Y-m-d H:i:s')
+        );
+    }
+    /**
+     * @covers \Cron\DayOfMonthField::increment
+     */
+    public function testDecrementsDate(): void
+    {
+        $f = new DayOfMonthField();
+        $date = '2011-03-15 11:15:00';
+        self::assertSame(
+            '2011-03-14 23:59:00',
+            $f->increment(new DateTime($date), true)->format('Y-m-d H:i:s')
+        );
     }
 
     /**

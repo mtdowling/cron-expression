@@ -31,12 +31,10 @@ final class MonthFieldTest extends TestCase
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new MonthField();
-        $f->increment($d);
-        self::assertSame('2011-04-01 00:00:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-04-01 00:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d = new DateTime('2011-03-15 11:15:00');
-        $f->increment($d, true);
-        self::assertSame('2011-02-28 23:59:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-02-28 23:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -48,12 +46,10 @@ final class MonthFieldTest extends TestCase
         date_default_timezone_set('America/St_Johns');
         $d = new DateTime('2011-03-31 11:59:59');
         $f = new MonthField();
-        $f->increment($d);
-        self::assertSame('2011-04-01 00:00:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-04-01 00:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d = new DateTime('2011-03-15 11:15:00');
-        $f->increment($d, true);
-        self::assertSame('2011-02-28 23:59:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-02-28 23:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
         date_default_timezone_set($tz);
     }
 
@@ -64,8 +60,7 @@ final class MonthFieldTest extends TestCase
     {
         $f = new MonthField();
         $d = new DateTime('2011-12-15 00:00:00');
-        $f->increment($d);
-        self::assertSame('2012-01-01 00:00:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2012-01-01 00:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -75,7 +70,6 @@ final class MonthFieldTest extends TestCase
     {
         $f = new MonthField();
         $d = new DateTime('2011-01-15 00:00:00');
-        $f->increment($d, true);
-        self::assertSame('2010-12-31 23:59:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2010-12-31 23:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
     }
 }

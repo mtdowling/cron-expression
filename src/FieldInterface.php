@@ -2,7 +2,6 @@
 
 namespace Cron;
 
-use DateTime;
 use DateTimeInterface;
 
 /**
@@ -24,12 +23,12 @@ interface FieldInterface
      * When a CRON expression is not satisfied, this method is used to increment
      * or decrement a DateTime object by the unit of the cron field.
      *
-     * @param DateTime $date DateTime object to change
+     * @param DateTimeInterface &$date DateTime object to change
      * @param bool $invert (optional) Set to TRUE to decrement
      * @param string|null $parts (optional) Set to TRUE to decrement
      *
      */
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): void;
+    public function increment(DateTimeInterface $date, bool $invert = false, string $parts = null): DateTimeInterface;
 
     /**
      * Validates a CRON expression for a given field.

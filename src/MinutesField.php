@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Cron;
 
-use DateTime;
+use DateInterval;
 use DateTimeInterface;
 
 /**
@@ -17,18 +17,18 @@ final class MinutesField extends AbstractField
 
     public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
     {
-        return $this->isSatisfied($date->format('i'), $expression);
+        return $this->isSatisfied((int) $date->format('i'), $expression);
     }
 
-    public function increment(DateTime $date, $invert = false, string $parts = null): void
+    public function increment(DateTimeInterface $date, $invert = false, string $parts = null): DateTimeInterface
     {
         if (is_null($parts)) {
+            $interval = new DateInterval('PT1M');
             if ($invert) {
-                $date->modify('-1 minute');
-            } else {
-                $date->modify('+1 minute');
+                return $date->sub($interval);
             }
-            return;
+
+            return $date->add($interval);
         }
 
         $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
@@ -41,10 +41,13 @@ final class MinutesField extends AbstractField
         $position = $this->computePosition($currentMinute, $minutes, $invert);
 
         if ((!$invert && $currentMinute >= $minutes[$position]) || ($invert && $currentMinute <= $minutes[$position])) {
-            $date->modify(($invert ? '-' : '+').'1 hour');
-            $date->setTime((int) $date->format('H'), $invert ? 59 : 0);
-        } else {
-            $date->setTime((int) $date->format('H'), (int) $minutes[$position]);
+            $interval = new DateInterval('PT1H');
+            if ($invert) {
+                return $date->sub($interval)->setTime((int) $date->format('H'), 59);
+            }
+            return $date->add($interval)->setTime((int) $date->format('H'), 0);
         }
+
+        return $date->setTime((int) $date->format('H'), (int) $minutes[$position]);
     }
 }

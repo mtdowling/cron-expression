@@ -49,12 +49,10 @@ final class HoursFieldTest extends TestCase
         date_default_timezone_set('America/St_Johns');
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new HoursField();
-        $f->increment($d);
-        self::assertSame('2011-03-15 12:00:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 12:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d->setTime(11, 15, 0);
-        $f->increment($d, true);
-        self::assertSame('2011-03-15 10:59:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 10:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
         date_default_timezone_set($tz);
     }
 
@@ -68,12 +66,10 @@ final class HoursFieldTest extends TestCase
         date_default_timezone_set('Asia/Kathmandu');
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new HoursField();
-        $f->increment($d);
-        self::assertSame('2011-03-15 12:00:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 12:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d->setTime(11, 15, 0);
-        $f->increment($d, true);
-        self::assertSame('2011-03-15 10:59:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 10:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
         date_default_timezone_set($tz);
     }
 }

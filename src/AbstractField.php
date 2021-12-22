@@ -38,7 +38,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Check to see if a field is satisfied by a value.
      */
-    public function isSatisfied(string $dateValue, string $value): bool
+    public function isSatisfied(int $dateValue, string $value): bool
     {
         if ($this->isIncrementsOfRanges($value)) {
             return $this->isInIncrementsOfRanges($dateValue, $value);
@@ -48,7 +48,7 @@ abstract class AbstractField implements FieldInterface
             return $this->isInRange($dateValue, $value);
         }
 
-        return $value === '*' || $dateValue == $value;
+        return $value === '*' || $dateValue == (int) $value;
     }
 
     /**
@@ -70,9 +70,9 @@ abstract class AbstractField implements FieldInterface
     /**
      * Test if a value is within a range.
      */
-    public function isInRange(string $dateValue, string $value): bool
+    public function isInRange(int $dateValue, string $value): bool
     {
-        $parts = array_map('trim', explode('-', $value, 2));
+        $parts = array_map(fn (string $value): int => (int) $this->convertLiterals(trim($value)), explode('-', $value, 2));
 
         return $dateValue >= $parts[0] && $dateValue <= $parts[1];
     }
@@ -80,21 +80,19 @@ abstract class AbstractField implements FieldInterface
     /**
      * Test if a value is within an increments of ranges (offset[-to]/step size).
      */
-    public function isInIncrementsOfRanges(string $dateValue, string $value): bool
+    public function isInIncrementsOfRanges(int $dateValue, string $value): bool
     {
         $chunks = array_map('trim', explode('/', $value, 2));
         $range = $chunks[0];
-        $step = $chunks[1] ?? 0;
+        $step = (int) ($chunks[1] ?? 0);
 
         // No step or 0 steps aren't cool
         if (in_array($step, ['0', 0], true)) {
             return false;
         }
 
-        $step = (int) $step;
-
         // Expand the * to a full range
-        if ('*' == $range) {
+        if ('*' === $range) {
             $range = $this->rangeStart.'-'.$this->rangeEnd;
         }
 
@@ -111,41 +109,57 @@ abstract class AbstractField implements FieldInterface
             throw RangeError::dueToInvalidInput('end');
         }
 
-        if ($step > ($rangeEnd - $rangeStart) + 1) {
-            throw RangeError::dueToInvalidStep();
+        // Steps larger than the range need to wrap around and be handled slightly differently than smaller steps
+        if ($step >= $this->rangeEnd) {
+            return $dateValue === $this->fullRange[$step % count($this->fullRange)];
         }
 
-        return in_array((int) $dateValue, range($rangeStart, $rangeEnd, $step), true);
+        return in_array($dateValue, range($rangeStart, $rangeEnd, $step), true);
     }
 
     /**
      * Returns a range of values for the given cron expression.
      *
-     * @return array<int>
+     * @return array<int|string>
      */
     public function getRangeForExpression(string $expression, int $max): array
     {
         $values = [];
+        $expression = (string) $this->convertLiterals($expression);
+        if (str_contains($expression, ',')) {
+            $ranges = explode(',', $expression);
+            foreach ($ranges as $range) {
+                $values = array_merge($values, $this->getRangeForExpression($range, $this->rangeEnd));
+            }
+
+            return $values;
+        }
 
         if ($this->isRange($expression) || $this->isIncrementsOfRanges($expression)) {
             if (!$this->isIncrementsOfRanges($expression)) {
                 [$offset, $to] = explode('-', $expression);
+                $offset = $this->convertLiterals($offset);
+                $to = $this->convertLiterals($to);
                 $stepSize = 1;
             } else {
-                $range = array_map(fn (string $value): int => (int) trim($value), explode('/', $expression, 2));
+                $range = explode('/', $expression, 2);
                 $stepSize = $range[1] ?? 0;
                 $range = $range[0];
-                $range = explode('-', (string) $range, 2);
+                $range = explode('-', $range, 2);
                 $offset = $range[0];
                 $to = $range[1] ?? $max;
             }
             $offset = $offset == '*' ? 0 : $offset;
-            for ($i = $offset; $i <= $to; $i += $stepSize) {
-                $values[] = $i;
+            if ($stepSize >= $this->rangeEnd) {
+                $values = [(int) $this->fullRange[$stepSize % count($this->fullRange)]];
+            } else {
+                for ($i = $offset; $i <= $to; $i += $stepSize) {
+                    $values[] = (int) $i;
+                }
             }
             sort($values);
         } else {
-            $values = [(int) $expression];
+            $values = [$expression];
         }
 
         return $values;
@@ -177,14 +191,20 @@ abstract class AbstractField implements FieldInterface
             return true;
         }
 
-        // You cannot have a range and a list at the same time
-        if (str_contains($expression, ',') && str_contains($expression, '-')) {
-            return false;
-        }
-
         if (str_contains($expression, '/')) {
             [$range, $step] = explode('/', $expression);
+
             return $this->validate($range) && false !== filter_var($step, FILTER_VALIDATE_INT);
+        }
+
+        // Validate each chunk of a list individually
+        if (str_contains($expression, ',')) {
+            foreach (explode(',', $expression) as $listItem) {
+                if (!$this->validate($listItem)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         if (str_contains($expression, '-')) {
@@ -203,22 +223,15 @@ abstract class AbstractField implements FieldInterface
             return $this->validate((string) $first) && $this->validate((string) $last);
         }
 
-        // Validate each chunk of a list individually
-        if (str_contains($expression, ',')) {
-            foreach (explode(',', $expression) as $listItem) {
-                if (!$this->validate($listItem)) {
-                    return false;
-                }
-            }
-            return true;
+        if (!is_numeric($expression)) {
+            return false;
         }
 
-        // We should have a numeric by now, so coerce this into an integer
-        if (filter_var($expression, FILTER_VALIDATE_INT) !== false) {
-            $expression = (int) $expression;
+        if (str_contains($expression, '.')) {
+            return false;
         }
 
-        return in_array($expression, $this->fullRange, true);
+        return in_array((int) $expression, $this->fullRange, true);
     }
 
     protected function computePosition(int $currentValue, array $references, bool $invert): int

@@ -39,18 +39,15 @@ final class DayOfWeekFieldTest extends TestCase
      */
     public function testIncrementsDate(): void
     {
-        $d = new DateTime('2011-03-15 11:15:00');
         $f = new DayOfWeekField();
-        $f->increment($d);
-        self::assertSame('2011-03-16 00:00:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-16 00:00:00', $f->increment(new DateTime('2011-03-15 11:15:00'))->format('Y-m-d H:i:s'));
 
-        $d = new DateTime('2011-03-15 11:15:00');
-        $f->increment($d, true);
-        self::assertSame('2011-03-14 23:59:00', $d->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-14 23:59:00', $f->increment(new DateTime('2011-03-15 11:15:00'), true)->format('Y-m-d H:i:s'));
     }
 
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Cron\SyntaxError
      */
     public function testValidatesHashValueWeekday(): void
     {
@@ -62,6 +59,7 @@ final class DayOfWeekFieldTest extends TestCase
 
     /**
      * @covers \Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Cron\SyntaxError
      */
     public function testValidatesHashValueNth(): void
     {

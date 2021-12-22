@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Cron;
 
+use DateInterval;
 use DateTime;
 use DateTimeInterface;
 
@@ -126,22 +127,17 @@ final class DayOfWeekField extends AbstractField
 
         // Test to see which Sunday to use -- 0 == 7 == Sunday
         $format = in_array('7', str_split($expression), true) ? 'N' : 'w';
-        $fieldValue = $date->format($format);
 
-        return $this->isSatisfied($fieldValue, $expression);
+        return $this->isSatisfied((int) $date->format($format), $expression);
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): void
+    public function increment(DateTimeInterface $date, bool $invert = false, string $parts = null): DateTimeInterface
     {
         if ($invert) {
-            $date->modify('-1 day');
-            $date->setTime(23, 59, 0);
-
-            return;
+            return $date->sub(new DateInterval('P1D'))->setTime(23, 59, 0);
         }
 
-        $date->modify('+1 day');
-        $date->setTime(0, 0, 0);
+        return $date->add(new DateInterval('P1D'))->setTime(0, 0, 0);
     }
 
     /**

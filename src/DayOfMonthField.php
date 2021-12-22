@@ -86,19 +86,20 @@ final class DayOfMonthField extends AbstractField
             )->format('j');
         }
 
-        return $this->isSatisfied($date->format('d'), $expression);
+        return $this->isSatisfied((int) $date->format('d'), $expression);
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): void
+    public function increment(DateTimeInterface $date, bool $invert = false, string $parts = null): DateTimeInterface
     {
         if ($invert) {
-            $date->modify('previous day');
-            $date->setTime(23, 59);
-            return;
+            return $date
+                ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') - 1)
+                ->setTime(23, 59);
         }
 
-        $date->modify('next day');
-        $date->setTime(0, 0);
+        return $date
+            ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') + 1)
+            ->setTime(0, 0);
     }
 
     /**

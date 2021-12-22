@@ -31,10 +31,9 @@ final class MinutesFieldTest extends TestCase
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new MinutesField();
-        $f->increment($d);
-        self::assertSame('2011-03-15 11:16:00', $d->format('Y-m-d H:i:s'));
-        $f->increment($d, true);
-        self::assertSame('2011-03-15 11:15:00', $d->format('Y-m-d H:i:s'));
+
+        self::assertSame('2011-03-15 11:16:00', $f->increment($d)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 11:15:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
     }
 
     /**

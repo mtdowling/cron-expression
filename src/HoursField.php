@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Cron;
 
-use DateTime;
+use DateInterval;
 use DateTimeInterface;
 use DateTimeZone;
 
@@ -18,26 +18,23 @@ final class HoursField extends AbstractField
 
     public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
     {
-        return $this->isSatisfied($date->format('H'), $expression);
+        return $this->isSatisfied((int) $date->format('H'), $expression);
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): void
+    public function increment(DateTimeInterface $date, bool $invert = false, string $parts = null): DateTimeInterface
     {
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
         if (is_null($parts) || $parts == '*') {
             $timezone = $date->getTimezone();
-            $date->setTimezone(new DateTimeZone('UTC'));
+            $date = $date->setTimezone(new DateTimeZone('UTC'));
+            $interval = new DateInterval('PT1H');
             if ($invert) {
-                $date->modify('-1 hour');
-            } else {
-                $date->modify('+1 hour');
+                return $date->sub($interval)->setTimezone($timezone)->setTime((int) $date->format('H'), 59);
             }
-            $date->setTimezone($timezone);
-            $date->setTime((int) $date->format('H'), $invert ? 59 : 0);
 
-            return;
+            return $date->add($interval)->setTimezone($timezone)->setTime((int) $date->format('H'), 0);
         }
 
         $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
@@ -51,10 +48,17 @@ final class HoursField extends AbstractField
 
         $hour = $hours[$position];
         if ((!$invert && $date->format('H') >= $hour) || ($invert && $date->format('H') <= $hour)) {
-            $date->modify(($invert ? '-' : '+').'1 day');
-            $date->setTime($invert ? 23 : 0, $invert ? 59 : 0);
-        } else {
-            $date->setTime((int) $hour, $invert ? 59 : 0);
+            if ($invert) {
+                return $date->sub(new DateInterval('P1D'))->setTime(23, 59);
+            }
+
+            return $date->add(new DateInterval('P1D'))->setTime(0, 0);
         }
+
+        if ($invert) {
+            return $date->setTime((int) $hour, 59);
+        }
+
+        return $date->setTime((int) $hour, 0);
     }
 }

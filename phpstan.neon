@@ -8,7 +8,8 @@ parameters:
     checkMissingIterableValueType: false
     reportUnmatchedIgnoredErrors: true
     ignoreErrors:
-        - message: "#Casting to int something that's already int.#"
-          path: src/MinutesField.php
-        - message: "#Casting to int something that's already int.#"
-          path: src/HoursField.php
+        - '#Call to an undefined method DateTimeInterface::setDate\(\)#'
+        - '#Call to an undefined method DateTimeInterface::setTime\(\)#'
+        - '#Call to an undefined method DateTimeInterface::setTimezone\(\)#'
+        - '#Call to an undefined method DateTimeInterface::add\(\)#'
+        - '#Call to an undefined method DateTimeInterface::sub\(\)#'
