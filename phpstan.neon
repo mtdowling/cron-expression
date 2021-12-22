@@ -1,0 +1,15 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+parameters:
+    checkGenericClassInNonGenericObjectType: false
+    checkMissingIterableValueType: false
+    reportUnmatchedIgnoredErrors: true
+    ignoreErrors:
+        - '#Call to an undefined method DateTimeInterface::setDate\(\)#'
+        - '#Call to an undefined method DateTimeInterface::setTime\(\)#'
+        - '#Call to an undefined method DateTimeInterface::setTimezone\(\)#'
+        - '#Call to an undefined method DateTimeInterface::add\(\)#'
+        - '#Call to an undefined method DateTimeInterface::sub\(\)#'
