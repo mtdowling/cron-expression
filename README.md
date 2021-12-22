@@ -33,7 +33,7 @@ use Bakame\Cron\CronExpression;
 require_once '/vendor/autoload.php';
 
 // Works with predefined scheduling definitions
-$cron = new CronExpression('@daily');
+$cron = CronExpression::daily();
 $cron->match();
 echo $cron->nextRun()->format('Y-m-d H:i:s');
 echo $cron->previousRun()->format('Y-m-d H:i:s');
@@ -47,7 +47,7 @@ $cron = new CronExpression('@daily');
 echo $cron->nextRun(null, 2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
-$cron = new CronExpression('@monthly');
+$cron = new CronExpression::monthly();
 echo $cron->nextRun('2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 
 // Works with complex expressions and timezone
@@ -65,38 +65,37 @@ namespace Bakame\Cron;
 
 final class CronExpression implements ConfigurableExpression, JsonSerializable, Stringable
 {
+    /* Constructors */
     public function __construct(string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000);
-    
-    /* Named constructors */
     public static function yearly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
     public static function monthly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
     public static function weekly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
     public static function daily(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
     public static function hourly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
-    public static function isValid(string $expression): bool;
-    
+
     /** CRON Expression API */
+    public static function isValid(string $expression): bool; 
     public function nextRun(
-        DateTimeInterface|string|null $from = 'now',
+        DateTimeInterface|string|null $from = null,
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable;
     public function previousRun(
-        DateTimeInterface|string|null $from = 'now',
+        DateTimeInterface|string|null $from = null,
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable;
     public function nextOccurrences(
         int $total,
-        DateTimeInterface|string|null $from = 'now',
+        DateTimeInterface|string|null $from = null,
         int $options = self::DISALLOW_CURRENT_DATE
     ): Generator;
     public function previousOccurrences(
         int $total,
-        DateTimeInterface|string|null $from = 'now',
+        DateTimeInterface|string|null $from = null,
         int $options = self::DISALLOW_CURRENT_DATE
     ): Generator;
-   public function match(DateTimeInterface|string $datetime = 'now'): bool;
+   public function match(DateTimeInterface|string|null $datetime = null): bool;
 
     /** CRON Expression getters */
     public function fields(): array;

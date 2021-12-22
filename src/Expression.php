@@ -27,7 +27,7 @@ interface Expression
     /**
      * Get a next run date relative to the current date or a specific date.
      *
-     * @param DateTimeInterface|string|null $from Relative calculation date
+     * @param DateTimeInterface|null $from Relative calculation date
      * @param int $nth Number of occurrences to skip before returning a
      *                 matching next run date.  0, the default, will return the current
      *                 date and time if the next run date falls on the current date and
@@ -39,12 +39,12 @@ interface Expression
      *
      * @throws ExpressionError
      */
-    public function nextRun(DateTimeInterface|string|null $from = 'now', int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function nextRun(DateTimeInterface|null $from = null, int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
 
     /**
      * Get a previous run date relative to the current date or a specific date.
      *
-     * @param DateTimeInterface|string|null $from Relative calculation date
+     * @param DateTimeInterface|null $from Relative calculation date
      * @param int $nth Number of occurrences to skip before returning
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      *                     the current date if it matches the cron expression
@@ -53,13 +53,13 @@ interface Expression
      *
      * @see self::getNextRunDate
      */
-    public function previousRun(DateTimeInterface|string|null $from = 'now', int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function previousRun(DateTimeInterface|null $from = null, int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
 
     /**
      * Get multiple run dates starting at the current date or a specific date.
      *
      * @param int $total Set the total number of dates to calculate
-     * @param DateTimeInterface|string|null $from Relative calculation date
+     * @param DateTimeInterface|null $from Relative calculation date
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      *                     the current date if it matches the cron expression
      *
@@ -67,13 +67,13 @@ interface Expression
      *
      * @return Generator<DateTimeImmutable>
      */
-    public function nextOccurrences(int $total, DateTimeInterface|string|null $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function nextOccurrences(int $total, DateTimeInterface|null $from = null, int $options = self::DISALLOW_CURRENT_DATE): Generator;
 
     /**
      * Get multiple run dates starting at the current date or a specific date.
      *
      * @param int $total Set the total number of dates to calculate
-     * @param DateTimeInterface|string|null $from Relative calculation date
+     * @param DateTimeInterface|null $from Relative calculation date
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      *                     the current date if it matches the cron expression
      *
@@ -83,18 +83,18 @@ interface Expression
      *
      * @see CronExpression::nextOccurrences
      */
-    public function previousOccurrences(int $total, DateTimeInterface|string|null $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function previousOccurrences(int $total, DateTimeInterface|null $from = null, int $options = self::DISALLOW_CURRENT_DATE): Generator;
 
     /**
      * Determine if the cron is due to run based on the current date or a
      * specific date.  This method assumes that the current number of
      * seconds are irrelevant, and should be called once per minute.
      *
-     * @param DateTimeInterface|string $datetime Relative calculation date
+     * @param DateTimeInterface|null $datetime Relative calculation date
      *
      * @throws ExpressionError
      */
-    public function match(DateTimeInterface|string $datetime = 'now'): bool;
+    public function match(DateTimeInterface|null $datetime = null): bool;
 
     /**
      * Returns the CRON expression fields as array.

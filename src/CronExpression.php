@@ -183,7 +183,7 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
     }
 
     public function nextRun(
-        DateTimeInterface|string|null $from = 'now',
+        DateTimeInterface|string|null $from = null,
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
@@ -191,7 +191,7 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
     }
 
     public function previousRun(
-        DateTimeInterface|string|null $from = 'now',
+        DateTimeInterface|string|null $from = null,
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
@@ -200,7 +200,7 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
 
     public function nextOccurrences(
         int $total,
-        DateTimeInterface|string|null $from = 'now',
+        DateTimeInterface|string|null $from = null,
         int $options = self::DISALLOW_CURRENT_DATE
     ): Generator {
         $currentDate = $this->filterDate($from);
@@ -215,7 +215,7 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
 
     public function previousOccurrences(
         int $total,
-        DateTimeInterface|string|null $from = 'now',
+        DateTimeInterface|string|null $from = null,
         int $options = self::DISALLOW_CURRENT_DATE
     ): Generator {
         $currentDate = $this->filterDate($from);
@@ -228,17 +228,9 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
         }
     }
 
-    public function match(DateTimeInterface|string $datetime = 'now'): bool
+    public function match(DateTimeInterface|string|null $datetime = null): bool
     {
-        if ($datetime instanceof DateTimeInterface) {
-            $currentDate = DateTime::createFromInterface($datetime);
-            // Ensure time in 'current' timezone is used
-            $currentDate->setTimezone($this->timezone);
-        } else {
-            $currentDate = new DateTime($datetime, $this->timezone);
-        }
-
-        $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
+        $currentDate = $this->filterDate($datetime);
         try {
             return $this->nextRun($currentDate, 0, self::ALLOW_CURRENT_DATE) == $currentDate;
         } catch (Throwable) {
