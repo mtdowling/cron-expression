@@ -14,7 +14,7 @@ use RuntimeException;
 use Stringable;
 use Throwable;
 
-final class CronExpression implements Expression, JsonSerializable, Stringable
+final class CronExpression implements TimezonedExpression, JsonSerializable, Stringable
 {
     private const MINUTE = 0;
     private const HOUR = 1;
