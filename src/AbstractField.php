@@ -7,7 +7,7 @@ namespace Cron;
 /**
  * Abstract CRON expression field.
  */
-abstract class AbstractField implements FieldInterface
+abstract class AbstractField implements Field
 {
     /**
      * Full range of values that are allowed for this field type.

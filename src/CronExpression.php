@@ -44,7 +44,7 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
      *
      * @throws SyntaxError if a position is not valid
      */
-    private static function expressionField(int $position): FieldInterface
+    private static function expressionField(int $position): Field
     {
         static $fields = [];
 
@@ -431,7 +431,7 @@ final class CronExpression implements TimezonedExpression, JsonSerializable, Str
         }
     }
 
-    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, FieldInterface $field, string $part): bool
+    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, Field $field, string $part): bool
     {
         foreach (array_map('trim', explode(',', $part)) as $listPart) {
             if ($field->isSatisfiedBy($dateTime, $listPart)) {
