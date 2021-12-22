@@ -10,7 +10,9 @@ use DateTimeZone;
 use Exception;
 use Generator;
 use InvalidArgumentException;
+use JsonSerializable;
 use RuntimeException;
+use Stringable;
 use Throwable;
 
 /**
@@ -25,7 +27,7 @@ use Throwable;
  *
  * @link http://en.wikipedia.org/wiki/Cron
  */
-final class CronExpression
+final class CronExpression implements JsonSerializable, Stringable
 {
     private const MINUTE = 0;
     private const HOUR = 1;
@@ -48,7 +50,7 @@ final class CronExpression
     /**
      * @var array<int, int|string> CRON expression parts
      */
-    private array $cronParts;
+    private array $parts;
     private int $maxIterationCount = 1000;
 
     /**
@@ -61,16 +63,15 @@ final class CronExpression
     private static function field(int $position): FieldInterface
     {
         static $fields = [];
-        if (!isset($fields[$position])) {
-            $fields[$position] = match ($position) {
-                self::MINUTE => new MinutesField(),
-                self::HOUR => new HoursField(),
-                self::MONTHDAY => new DayOfMonthField(),
-                self::MONTH => new MonthField(),
-                self::WEEKDAY => new DayOfWeekField(),
-                default => throw SyntaxError::dueToInvalidPosition($position),
-            };
-        }
+
+        $fields[$position] ??= match ($position) {
+            self::MINUTE => new MinutesField(),
+            self::HOUR => new HoursField(),
+            self::MONTHDAY => new DayOfMonthField(),
+            self::MONTH => new MonthField(),
+            self::WEEKDAY => new DayOfWeekField(),
+            default => throw SyntaxError::dueToInvalidPosition($position),
+        };
 
         return $fields[$position];
     }
@@ -110,7 +111,7 @@ final class CronExpression
             throw SyntaxError::dueToInvalidFieldValue($value, $position);
         }
 
-        $this->cronParts[$position] = $value;
+        $this->parts[$position] = $value;
     }
 
     /**
@@ -309,37 +310,77 @@ final class CronExpression
 
     private function part(string|int $position): string
     {
-        return (string) $this->cronParts[$position];
+        return (string) $this->parts[$position];
+    }
+
+    public function jsonSerialize(): string
+    {
+        return $this->toString();
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
+    }
+
+    public function parts(): array
+    {
+        return $this->parts;
     }
 
     public function minute(): string
     {
-        return (string) $this->cronParts[self::MINUTE];
+        return (string) $this->parts[self::MINUTE];
     }
 
     public function hour(): string
     {
-        return (string) $this->cronParts[self::HOUR];
+        return (string) $this->parts[self::HOUR];
     }
 
     public function dayOfMonth(): string
     {
-        return (string) $this->cronParts[self::MONTHDAY];
+        return (string) $this->parts[self::MONTHDAY];
     }
 
     public function month(): string
     {
-        return (string) $this->cronParts[self::MONTH];
+        return (string) $this->parts[self::MONTH];
     }
 
     public function dayOfWeek(): string
     {
-        return (string) $this->cronParts[self::WEEKDAY];
+        return (string) $this->parts[self::WEEKDAY];
     }
 
     public function toString(): string
     {
-        return implode(' ', $this->cronParts);
+        return implode(' ', $this->parts);
+    }
+
+    public function withMinute(string $part): self
+    {
+        return $this->newInstance([self::MINUTE => $part] + $this->parts);
+    }
+
+    public function withHour(string $part): self
+    {
+        return $this->newInstance([self::HOUR => $part] + $this->parts);
+    }
+
+    public function withDayOfMonth(string $part): self
+    {
+        return $this->newInstance([self::MONTHDAY => $part] + $this->parts);
+    }
+
+    public function withMonth(string $part): self
+    {
+        return $this->newInstance([self::MONTH => $part] + $this->parts);
+    }
+
+    public function withDayOfWeek(string $part): self
+    {
+        return $this->newInstance([self::WEEKDAY => $part] + $this->parts);
     }
 
     /**
@@ -458,5 +499,19 @@ final class CronExpression
         }
 
         return false;
+    }
+
+    /**
+     * @param array<int, string|int> $parts
+     *
+     */
+    private function newInstance(array $parts): self
+    {
+        ksort($parts);
+        if ($parts === $this->parts) {
+            return $this;
+        }
+
+        return new self(implode(' ', $parts), $this->timezone);
     }
 }

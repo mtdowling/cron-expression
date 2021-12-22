@@ -451,4 +451,38 @@ final class CronExpressionTest extends TestCase
         // Issue #125, this is just all sorts of wrong
         self::assertFalse(CronExpression::isValid('990 14 * * mon-fri0345345'));
     }
+
+    /**
+     * @covers \Cron\CronExpression::withMinute
+     * @covers \Cron\CronExpression::withHour
+     * @covers \Cron\CronExpression::withDayOfMonth
+     * @covers \Cron\CronExpression::withDayOfWeek
+     * @covers \Cron\CronExpression::newInstance
+     */
+    public function testUpdateCronExpressionPartReturnsTheSameInstance(): void
+    {
+        $cron = CronExpression::fromString('23 0-23/2 * * *');
+
+        self::assertSame($cron, $cron->withMinute($cron->minute()));
+        self::assertSame($cron, $cron->withHour($cron->hour()));
+        self::assertSame($cron, $cron->withDayOfMonth($cron->dayOfMonth()));
+        self::assertSame($cron, $cron->withDayOfWeek($cron->dayOfWeek()));
+    }
+
+    /**
+     * @covers \Cron\CronExpression::withMinute
+     * @covers \Cron\CronExpression::withHour
+     * @covers \Cron\CronExpression::withDayOfMonth
+     * @covers \Cron\CronExpression::withDayOfWeek
+     * @covers \Cron\CronExpression::newInstance
+     */
+    public function testUpdateCronExpressionPartReturnsADifferentInstance(): void
+    {
+        $cron = CronExpression::fromString('23 0-23/2 * * *');
+
+        self::assertNotEquals($cron, $cron->withMinute('22'));
+        self::assertNotEquals($cron, $cron->withHour('12'));
+        self::assertNotEquals($cron, $cron->withDayOfMonth('28'));
+        self::assertNotEquals($cron, $cron->withDayOfWeek('Fri'));
+    }
 }

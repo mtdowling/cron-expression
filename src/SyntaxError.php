@@ -10,7 +10,7 @@ final class SyntaxError extends InvalidArgumentException implements ExpressionEr
 {
     public static function dueToInvalidPosition(int $position): self
     {
-        return new self('`'.$position.'` is not a valid CRON expression position.');
+        return new self('`'.($position + 1).'` is not a valid CRON expression position.');
     }
 
     public static function dueToInvalidExpression(string $expression): self
