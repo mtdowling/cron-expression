@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cron;
+namespace Bakame\Cron;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 final class MonthFieldTest extends TestCase
 {
     /**
-     * @covers \Cron\MonthField::validate
+     * @covers \Bakame\Cron\MonthField::validate
      */
     public function testValidatesField(): void
     {
@@ -25,7 +25,7 @@ final class MonthFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\MonthField::increment
+     * @covers \Bakame\Cron\MonthField::increment
      */
     public function testIncrementsDate(): void
     {
@@ -38,7 +38,7 @@ final class MonthFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\MonthField::increment
+     * @covers \Bakame\Cron\MonthField::increment
      */
     public function testIncrementsDateWithThirtyMinuteTimezone(): void
     {
@@ -54,7 +54,7 @@ final class MonthFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\MonthField::increment
+     * @covers \Bakame\Cron\MonthField::increment
      */
     public function testIncrementsYearAsNeeded(): void
     {
@@ -64,7 +64,7 @@ final class MonthFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\MonthField::increment
+     * @covers \Bakame\Cron\MonthField::increment
      */
     public function testDecrementsYearAsNeeded(): void
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cron;
+namespace Bakame\Cron;
 
 use PHPUnit\Framework\TestCase;
 
@@ -12,11 +12,11 @@ use PHPUnit\Framework\TestCase;
 final class AbstractFieldTest extends TestCase
 {
     /**
-     * @covers \Cron\AbstractField::isSatisfied
-     * @covers \Cron\AbstractField::isIncrementsOfRanges
-     * @covers \Cron\AbstractField::isInIncrementsOfRanges
-     * @covers \Cron\AbstractField::isInRange
-     * @covers \Cron\AbstractField::isRange
+     * @covers \Bakame\Cron\AbstractField::isSatisfied
+     * @covers \Bakame\Cron\AbstractField::isIncrementsOfRanges
+     * @covers \Bakame\Cron\AbstractField::isInIncrementsOfRanges
+     * @covers \Bakame\Cron\AbstractField::isInRange
+     * @covers \Bakame\Cron\AbstractField::isRange
      */
     public function testTestsIfSatisfied(): void
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cron;
+namespace Bakame\Cron;
 
 use OutOfRangeException;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cron;
+namespace Bakame\Cron;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 final class MinutesFieldTest extends TestCase
 {
     /**
-     * @covers \Cron\MinutesField::validate
+     * @covers \Bakame\Cron\MinutesField::validate
      */
     public function testValidatesField(): void
     {
@@ -24,8 +24,8 @@ final class MinutesFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\MinutesField::increment
-     * @covers \Cron\AbstractField::computePosition
+     * @covers \Bakame\Cron\MinutesField::increment
+     * @covers \Bakame\Cron\AbstractField::computePosition
      */
     public function testIncrementsDate(): void
     {

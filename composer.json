@@ -35,7 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Cron\\": "src/"
+            "Bakame\\Cron\\": "src/"
         }
     },
     "scripts": {

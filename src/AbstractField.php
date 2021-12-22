@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cron;
+namespace Bakame\Cron;
 
 /**
  * Abstract CRON expression field.

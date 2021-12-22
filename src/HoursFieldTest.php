@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cron;
+namespace Bakame\Cron;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 final class HoursFieldTest extends TestCase
 {
     /**
-     * @covers \Cron\HoursField::validate
+     * @covers \Bakame\Cron\HoursField::validate
      */
     public function testValidatesField(): void
     {
@@ -24,8 +24,8 @@ final class HoursFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\HoursField::increment
-     * @covers \Cron\AbstractField::computePosition
+     * @covers \Bakame\Cron\HoursField::increment
+     * @covers \Bakame\Cron\AbstractField::computePosition
      */
     public function testIncrementsDate(): void
     {
@@ -40,8 +40,8 @@ final class HoursFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\HoursField::increment
-     * @covers \Cron\AbstractField::computePosition
+     * @covers \Bakame\Cron\HoursField::increment
+     * @covers \Bakame\Cron\AbstractField::computePosition
      */
     public function testIncrementsDateWithThirtyMinuteOffsetTimezone(): void
     {
@@ -57,8 +57,8 @@ final class HoursFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\HoursField::increment
-     * @covers \Cron\AbstractField::computePosition
+     * @covers \Bakame\Cron\HoursField::increment
+     * @covers \Bakame\Cron\AbstractField::computePosition
      */
     public function testIncrementDateWithFifteenMinuteOffsetTimezone(): void
     {

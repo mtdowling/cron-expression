@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cron;
+namespace Bakame\Cron;
 
 use DateTime;
 use DateTimeZone;
@@ -14,11 +14,11 @@ use PHPUnit\Framework\TestCase;
 final class CronExpressionTest extends TestCase
 {
     /**
-     * @covers \Cron\CronExpression::yearly
-     * @covers \Cron\CronExpression::monthly
-     * @covers \Cron\CronExpression::weekly
-     * @covers \Cron\CronExpression::daily
-     * @covers \Cron\CronExpression::hourly
+     * @covers \Bakame\Cron\CronExpression::yearly
+     * @covers \Bakame\Cron\CronExpression::monthly
+     * @covers \Bakame\Cron\CronExpression::weekly
+     * @covers \Bakame\Cron\CronExpression::daily
+     * @covers \Bakame\Cron\CronExpression::hourly
      */
     public function testFactoryRecognizesTemplates(): void
     {
@@ -30,12 +30,12 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::toString
-     * @covers \Cron\CronExpression::fields
-     * @covers \Cron\CronExpression::timezone
-     * @covers \Cron\CronExpression::jsonSerialize
-     * @covers \Cron\CronExpression::__toString
+     * @covers \Bakame\Cron\CronExpression::__construct
+     * @covers \Bakame\Cron\CronExpression::toString
+     * @covers \Bakame\Cron\CronExpression::fields
+     * @covers \Bakame\Cron\CronExpression::timezone
+     * @covers \Bakame\Cron\CronExpression::jsonSerialize
+     * @covers \Bakame\Cron\CronExpression::__toString
      */
     public function testParsesCronSchedule(): void
     {
@@ -54,8 +54,8 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\SyntaxError
+     * @covers \Bakame\Cron\CronExpression::__construct
+     * @covers \Bakame\Cron\SyntaxError
      */
     public function testParsesCronScheduleThrowsAnException(): void
     {
@@ -65,12 +65,12 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::minute
-     * @covers \Cron\CronExpression::hour
-     * @covers \Cron\CronExpression::dayOfMonth
-     * @covers \Cron\CronExpression::month
-     * @covers \Cron\CronExpression::dayOfWeek
+     * @covers \Bakame\Cron\CronExpression::__construct
+     * @covers \Bakame\Cron\CronExpression::minute
+     * @covers \Bakame\Cron\CronExpression::hour
+     * @covers \Bakame\Cron\CronExpression::dayOfMonth
+     * @covers \Bakame\Cron\CronExpression::month
+     * @covers \Bakame\Cron\CronExpression::dayOfWeek
      * @dataProvider scheduleWithDifferentSeparatorsProvider
      */
     public function testParsesCronScheduleWithAnySpaceCharsAsSeparators(string $schedule, array $expected): void
@@ -97,9 +97,9 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::setPart
-     * @covers \Cron\SyntaxError
+     * @covers \Bakame\Cron\CronExpression::__construct
+     * @covers \Bakame\Cron\CronExpression::setPart
+     * @covers \Bakame\Cron\SyntaxError
      */
     public function testInvalidCronsWillFail(): void
     {
@@ -109,8 +109,8 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::setPart
-     * @covers \Cron\SyntaxError
+     * @covers \Bakame\Cron\CronExpression::setPart
+     * @covers \Bakame\Cron\SyntaxError
      */
     public function testInvalidPartsWillFail(): void
     {
@@ -187,14 +187,14 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::match
-     * @covers \Cron\CronExpression::nextRun
-     * @covers \Cron\DayOfMonthField
-     * @covers \Cron\DayOfWeekField
-     * @covers \Cron\MinutesField
-     * @covers \Cron\HoursField
-     * @covers \Cron\MonthField
-     * @covers \Cron\CronExpression::calculateRun
+     * @covers \Bakame\Cron\CronExpression::match
+     * @covers \Bakame\Cron\CronExpression::nextRun
+     * @covers \Bakame\Cron\DayOfMonthField
+     * @covers \Bakame\Cron\DayOfWeekField
+     * @covers \Bakame\Cron\MinutesField
+     * @covers \Bakame\Cron\HoursField
+     * @covers \Bakame\Cron\MonthField
+     * @covers \Bakame\Cron\CronExpression::calculateRun
      * @dataProvider scheduleProvider
      */
     public function testDeterminesIfCronIsDue(string $schedule, string|int $relativeTime, string $nextRun, bool $isDue): void
@@ -211,7 +211,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::match
+     * @covers \Bakame\Cron\CronExpression::match
      */
     public function testIsDueHandlesDifferentDates(): void
     {
@@ -223,7 +223,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::match
+     * @covers \Bakame\Cron\CronExpression::match
      */
     public function testIsDueHandlesDifferentTimezones(): void
     {
@@ -277,7 +277,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::previousRun
+     * @covers \Bakame\Cron\CronExpression::previousRun
      */
     public function testCanGetPreviousRunDates(): void
     {
@@ -298,7 +298,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::nextOccurrences
+     * @covers \Bakame\Cron\CronExpression::nextOccurrences
      */
     public function testProvidesMultipleRunDates(): void
     {
@@ -314,9 +314,9 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::nextOccurrences
-     * @covers \Cron\CronExpression::maxIterationCount
-     * @covers \Cron\CronExpression::withMaxIterationCount
+     * @covers \Bakame\Cron\CronExpression::nextOccurrences
+     * @covers \Bakame\Cron\CronExpression::maxIterationCount
+     * @covers \Bakame\Cron\CronExpression::withMaxIterationCount
      */
     public function testProvidesMultipleRunDatesForTheFarFuture(): void
     {
@@ -342,7 +342,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression
+     * @covers \Bakame\Cron\CronExpression
      */
     public function testCanIterateOverNextRuns(): void
     {
@@ -366,7 +366,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::calculateRun
+     * @covers \Bakame\Cron\CronExpression::calculateRun
      */
     public function testSkipsCurrentDateByDefault(): void
     {
@@ -378,7 +378,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::calculateRun
+     * @covers \Bakame\Cron\CronExpression::calculateRun
      * @ticket 7
      */
     public function testStripsForSeconds(): void
@@ -389,7 +389,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::calculateRun
+     * @covers \Bakame\Cron\CronExpression::calculateRun
      */
     public function testFixesPhpBugInDateIntervalMonth(): void
     {
@@ -428,7 +428,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::calculateRun
+     * @covers \Bakame\Cron\CronExpression::calculateRun
      */
     public function testKeepOriginalTime(): void
     {
@@ -440,9 +440,9 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::__construct
-     * @covers \Cron\CronExpression::isValid
-     * @covers \Cron\CronExpression::setPart
+     * @covers \Bakame\Cron\CronExpression::__construct
+     * @covers \Bakame\Cron\CronExpression::isValid
+     * @covers \Bakame\Cron\CronExpression::setPart
      */
     public function testValidationWorks(): void
     {
@@ -465,13 +465,13 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::withMinute
-     * @covers \Cron\CronExpression::withHour
-     * @covers \Cron\CronExpression::withDayOfMonth
-     * @covers \Cron\CronExpression::withMonth
-     * @covers \Cron\CronExpression::withDayOfWeek
-     * @covers \Cron\CronExpression::withTimezone
-     * @covers \Cron\CronExpression::newInstance
+     * @covers \Bakame\Cron\CronExpression::withMinute
+     * @covers \Bakame\Cron\CronExpression::withHour
+     * @covers \Bakame\Cron\CronExpression::withDayOfMonth
+     * @covers \Bakame\Cron\CronExpression::withMonth
+     * @covers \Bakame\Cron\CronExpression::withDayOfWeek
+     * @covers \Bakame\Cron\CronExpression::withTimezone
+     * @covers \Bakame\Cron\CronExpression::newInstance
      */
     public function testUpdateCronExpressionPartReturnsTheSameInstance(): void
     {
@@ -486,13 +486,13 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::withMinute
-     * @covers \Cron\CronExpression::withHour
-     * @covers \Cron\CronExpression::withDayOfMonth
-     * @covers \Cron\CronExpression::withMonth
-     * @covers \Cron\CronExpression::withDayOfWeek
-     * @covers \Cron\CronExpression::withTimezone
-     * @covers \Cron\CronExpression::newInstance
+     * @covers \Bakame\Cron\CronExpression::withMinute
+     * @covers \Bakame\Cron\CronExpression::withHour
+     * @covers \Bakame\Cron\CronExpression::withDayOfMonth
+     * @covers \Bakame\Cron\CronExpression::withMonth
+     * @covers \Bakame\Cron\CronExpression::withDayOfWeek
+     * @covers \Bakame\Cron\CronExpression::withTimezone
+     * @covers \Bakame\Cron\CronExpression::newInstance
      */
     public function testUpdateCronExpressionPartReturnsADifferentInstance(): void
     {
@@ -507,8 +507,8 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::filterDate
-     * @covers \Cron\SyntaxError
+     * @covers \Bakame\Cron\CronExpression::filterDate
+     * @covers \Bakame\Cron\SyntaxError
      */
     public function testThrowsIfTheDateCanNotBeInstantiated(): void
     {

@@ -30,7 +30,7 @@ Usage
 ```php
 <?php
 
-use Cron\CronExpression;
+use Bakame\Cron\CronExpression;
 
 require_once '/vendor/autoload.php';
 

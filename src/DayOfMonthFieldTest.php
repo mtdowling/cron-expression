@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cron;
+namespace Bakame\Cron;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 final class DayOfMonthFieldTest extends TestCase
 {
     /**
-     * @covers \Cron\DayOfMonthField::validate
+     * @covers \Bakame\Cron\DayOfMonthField::validate
      */
     public function testValidatesField(): void
     {
@@ -27,7 +27,7 @@ final class DayOfMonthFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\DayOfMonthField::isSatisfiedBy
+     * @covers \Bakame\Cron\DayOfMonthField::isSatisfiedBy
      */
     public function testChecksIfSatisfied(): void
     {
@@ -36,7 +36,7 @@ final class DayOfMonthFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\DayOfMonthField::increment
+     * @covers \Bakame\Cron\DayOfMonthField::increment
      */
     public function testIncrementsDate(): void
     {
@@ -48,7 +48,7 @@ final class DayOfMonthFieldTest extends TestCase
         );
     }
     /**
-     * @covers \Cron\DayOfMonthField::increment
+     * @covers \Bakame\Cron\DayOfMonthField::increment
      */
     public function testDecrementsDate(): void
     {

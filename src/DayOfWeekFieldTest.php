@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cron;
+namespace Bakame\Cron;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 final class DayOfWeekFieldTest extends TestCase
 {
     /**
-     * @covers \Cron\DayOfWeekField::validate
+     * @covers \Bakame\Cron\DayOfWeekField::validate
      */
     public function testValidatesField(): void
     {
@@ -26,7 +26,7 @@ final class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Bakame\Cron\DayOfWeekField::isSatisfiedBy
      */
     public function testChecksIfSatisfied(): void
     {
@@ -35,7 +35,7 @@ final class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\DayOfWeekField::increment
+     * @covers \Bakame\Cron\DayOfWeekField::increment
      */
     public function testIncrementsDate(): void
     {
@@ -46,8 +46,8 @@ final class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\DayOfWeekField::isSatisfiedBy
-     * @covers \Cron\SyntaxError
+     * @covers \Bakame\Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Bakame\Cron\SyntaxError
      */
     public function testValidatesHashValueWeekday(): void
     {
@@ -58,8 +58,8 @@ final class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\DayOfWeekField::isSatisfiedBy
-     * @covers \Cron\SyntaxError
+     * @covers \Bakame\Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Bakame\Cron\SyntaxError
      */
     public function testValidatesHashValueNth(): void
     {
@@ -69,7 +69,7 @@ final class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\DayOfWeekField::validate
+     * @covers \Bakame\Cron\DayOfWeekField::validate
      */
     public function testValidateWeekendHash(): void
     {
@@ -85,7 +85,7 @@ final class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers \Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Bakame\Cron\DayOfWeekField::isSatisfiedBy
      */
     public function testHandlesZeroAndSevenDayOfTheWeekValues(): void
     {
