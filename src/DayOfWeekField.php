@@ -38,8 +38,8 @@ final class DayOfWeekField extends AbstractField
 
     public function __construct()
     {
-        $this->nthRange = range(1, 5);
         parent::__construct();
+        $this->nthRange = range(1, 5);
     }
 
     public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
