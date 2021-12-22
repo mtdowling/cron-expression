@@ -3,25 +3,25 @@ PHP Cron Expression Parser
 
 [![Latest Stable Version](https://poser.pugx.org/mtdowling/cron-expression/v/stable.png)](https://packagist.org/packages/mtdowling/cron-expression) [![Total Downloads](https://poser.pugx.org/mtdowling/cron-expression/downloads.png)](https://packagist.org/packages/mtdowling/cron-expression) [![Build Status](https://secure.travis-ci.org/mtdowling/cron-expression.png)](http://travis-ci.org/mtdowling/cron-expression)
 
-**NOTE** This fork has been deprecated and development moved to [https://github.com/dragonmantank/cron-expression](https://github.com/dragonmantank/cron-expression). More information can be found in the blog post [here](http://ctankersley.com/2017/10/12/cron-expression-update/). tl;dr - v2.0.0 is a major breaking change, and @dragonmantank can better take care of the project in a separate fork. 
+**NOTE** This is a fork of [https://github.com/dragonmantank/cron-expression](https://github.com/dragonmantank/cron-expression).  
 
-The PHP cron expression parser can parse a CRON expression, determine if it is
-due to run, calculate the next run date of the expression, and calculate the previous
-run date of the expression.  You can calculate dates far into the future or past by
-skipping n number of matching dates.
+The main difference is to be found in the exposed public API.
 
-The parser can handle increments of ranges (e.g. */12, 2-59/3), intervals (e.g. 0-9),
-lists (e.g. 1,2,3), W to find the nearest weekday for a given day of the month, L to
-find the last day of the month, L to find the last given weekday of a month, and hash
-(#) to find the nth weekday of a given month.
+The main class `CronExpression` is made an Immutable Value Object and the public API is made
+easier to reason with.
 
-Installing
-==========
+To know more about cron expression your can look at the [Unix documentation](https://www.unix.com/man-page/linux/5/crontab/)
+
+## System Requirements
+
+You need **PHP >= 8.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
+
+## Installing
 
 Add the dependency to your project:
 
 ```bash
-composer require mtdowling/cron-expression
+composer require bakame-php/cron-expression
 ```
 
 Usage
@@ -51,26 +51,9 @@ echo $cron->nextRun(null, 2)->format('Y-m-d H:i:s');
 // Calculate a run date relative to a specific time
 $cron = new CronExpression('@monthly');
 echo $cron->nextRun('2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+
+// Works with complex expressions and timezone
+$cron = new CronExpression('45 9 * * *', 'Africa/Kinshasa');
+$date = new DateTime('2014-05-18 08:45', new DateTimeZone('Europe/London'));
+echo $cron->match($date); // return true
 ```
-
-CRON Expressions
-================
-
-A CRON expression is a string representing the schedule for a particular command to execute.  The parts of a CRON schedule are as follows:
-
-    *    *    *    *    *
-    -    -    -    -    -
-    |    |    |    |    |
-    |    |    |    |    |
-    |    |    |    |    +----- day of week (0 - 7) (Sunday=0 or 7)
-    |    |    |    +---------- month (1 - 12)
-    |    |    +--------------- day of month (1 - 31)
-    |    +-------------------- hour (0 - 23)
-    +------------------------- min (0 - 59)
-
-Requirements
-============
-
-- PHP 8.0+
-- PHPUnit is required to run the unit tests
-- Composer is required to run the unit tests

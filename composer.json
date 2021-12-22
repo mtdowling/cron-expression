@@ -1,14 +1,27 @@
 {
-    "name": "mtdowling/cron-expression",
+    "name": "bakame/cron-expression",
     "type": "library",
     "description": "CRON for PHP: Calculate the next or previous run date and determine if a CRON expression is due",
     "keywords": ["cron", "schedule"],
     "license": "MIT",
-    "authors": [{
-        "name": "Michael Dowling",
-        "email": "mtdowling@gmail.com",
-        "homepage": "https://github.com/mtdowling"
-    }],
+    "authors": [
+        {
+            "name": "Michael Dowling",
+            "email": "mtdowling@gmail.com",
+            "homepage": "https://github.com/mtdowling"
+        },
+        {
+            "name": "Chris Tankersley",
+            "email": "chris@ctankersley.com",
+            "homepage": "https://github.com/dragonmantank"
+        },
+        {
+            "name" : "Ignace Nyamagana Butera",
+            "email" : "nyamsprod@gmail.com",
+            "homepage" : "https://github.com/nyamsprod/",
+            "role" : "Developer"
+        }
+    ],
     "require": {
         "php": "^8.0.0"
     },
@@ -41,6 +54,5 @@
         "phpstan": "Runs complete codebase static analysis",
         "phpunit": "Runs unit and functional testing",
         "test": "Runs full test suite"
-    },
-    "abandoned": "dragonmantank/cron-expression"
+    }
 }
