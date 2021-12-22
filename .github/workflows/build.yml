@@ -1,0 +1,43 @@
+---
+name: build
+on:
+    push: ~
+    pull_request: ~
+
+jobs:
+    linux_tests:
+        name: PHP on ${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.composer-flags }}
+        runs-on: ubuntu-20.04
+        strategy:
+            matrix:
+                php: ['8.0', '8.1']
+                stability: [prefer-lowest, prefer-stable]
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: xdebug
+                  tools: composer:v2
+
+            - name: Install dependencies
+              run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
+
+            - name: Run Unit tests with coverage
+              run: composer phpunit
+              if: ${{ matrix.php != '8.1' }}
+
+            - name: Run Unit tests without coverage
+              run: vendor/bin/phpunit --no-coverage -vvv
+              if: ${{ matrix.php == '8.1' }}
+
+            - name: Run static analysis
+              run: composer phpstan
+              if: ${{ matrix.php == '8.0' }}
+
+            - name: Run Coding style rules
+              run: composer phpcs
+              if: ${{ matrix.php == '8.0' && matrix.prefer-stable}}
