@@ -25,6 +25,7 @@ final class MinutesFieldTest extends TestCase
 
     /**
      * @covers \Cron\MinutesField::increment
+     * @covers \Cron\AbstractField::computePosition
      */
     public function testIncrementsDate(): void
     {

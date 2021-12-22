@@ -25,6 +25,7 @@ final class HoursFieldTest extends TestCase
 
     /**
      * @covers \Cron\HoursField::increment
+     * @covers \Cron\AbstractField::computePosition
      */
     public function testIncrementsDate(): void
     {
@@ -40,6 +41,7 @@ final class HoursFieldTest extends TestCase
 
     /**
      * @covers \Cron\HoursField::increment
+     * @covers \Cron\AbstractField::computePosition
      */
     public function testIncrementsDateWithThirtyMinuteOffsetTimezone(): void
     {
@@ -58,6 +60,7 @@ final class HoursFieldTest extends TestCase
 
     /**
      * @covers \Cron\HoursField::increment
+     * @covers \Cron\AbstractField::computePosition
      */
     public function testIncrementDateWithFifteenMinuteOffsetTimezone(): void
     {

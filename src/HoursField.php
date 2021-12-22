@@ -46,24 +46,15 @@ final class HoursField extends AbstractField
             $hours = array_merge($hours, $this->getRangeForExpression($part, 23));
         }
 
-        $current_hour = $date->format('H');
-        $position = $invert ? count($hours) - 1 : 0;
-        if (count($hours) > 1) {
-            for ($i = 0; $i < count($hours) - 1; $i++) {
-                if ((!$invert && $current_hour >= $hours[$i] && $current_hour < $hours[$i + 1]) ||
-                    ($invert && $current_hour > $hours[$i] && $current_hour <= $hours[$i + 1])) {
-                    $position = $invert ? $i : $i + 1;
-                    break;
-                }
-            }
-        }
+        $currentHour = (int) $date->format('H');
+        $position = $this->computePosition($currentHour, $hours, $invert);
 
         $hour = $hours[$position];
         if ((!$invert && $date->format('H') >= $hour) || ($invert && $date->format('H') <= $hour)) {
             $date->modify(($invert ? '-' : '+').'1 day');
             $date->setTime($invert ? 23 : 0, $invert ? 59 : 0);
         } else {
-            $date->setTime($hour, $invert ? 59 : 0);
+            $date->setTime((int) $hour, $invert ? 59 : 0);
         }
     }
 }

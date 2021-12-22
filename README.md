@@ -34,7 +34,7 @@ require_once '/vendor/autoload.php';
 
 // Works with predefined scheduling definitions
 $cron = \Cron\CronExpression::fromString('@daily');
-$cron->isDue();
+$cron->match();
 echo $cron->nextRun()->format('Y-m-d H:i:s');
 echo $cron->previousRun()->format('Y-m-d H:i:s');
 

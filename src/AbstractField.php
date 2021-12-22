@@ -222,4 +222,22 @@ abstract class AbstractField implements FieldInterface
 
         return in_array($expression, $this->fullRange, true);
     }
+
+    protected function computePosition(int $currentValue, array $references, bool $invert): int
+    {
+        $nbField = count($references);
+        $position = $invert ? $nbField - 1 : 0;
+        if ($nbField <= 1) {
+            return $position;
+        }
+
+        for ($i = 0; $i < $nbField - 1; $i++) {
+            if ((!$invert && $currentValue >= $references[$i] && $currentValue < $references[$i + 1]) ||
+                ($invert && $currentValue > $references[$i] && $currentValue <= $references[$i + 1])) {
+                return $invert ? $i : $i + 1;
+            }
+        }
+
+        return $position;
+    }
 }

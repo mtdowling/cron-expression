@@ -10,3 +10,5 @@ parameters:
     ignoreErrors:
         - message: "#Casting to int something that's already int.#"
           path: src/MinutesField.php
+        - message: "#Casting to int something that's already int.#"
+          path: src/HoursField.php

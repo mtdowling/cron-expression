@@ -202,11 +202,9 @@ final class CronExpression
     /**
      * Set max iteration count for searching next run dates.
      */
-    public function setMaxIterationCount(int $maxIterationCount): CronExpression
+    public function setMaxIterationCount(int $maxIterationCount): void
     {
         $this->maxIterationCount = $maxIterationCount;
-
-        return $this;
     }
 
     /**
@@ -230,7 +228,7 @@ final class CronExpression
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTime {
-        return $this->calculateRun($this->filterDate($from), $nth, false, $options);
+        return $this->calculateRun($this->filterDate($from), $nth, $options, false);
     }
 
     /**
@@ -251,7 +249,7 @@ final class CronExpression
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTime {
-        return $this->calculateRun($this->filterDate($from), $nth, true, $options);
+        return $this->calculateRun($this->filterDate($from), $nth, $options, true);
     }
 
     /**
@@ -273,7 +271,7 @@ final class CronExpression
         $currentDate = $this->filterDate($from);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                yield $this->calculateRun($currentDate, $i, false, $options);
+                yield $this->calculateRun($currentDate, $i, $options, false);
             } catch (RuntimeException $exception) {
                 break;
             }
@@ -299,45 +297,41 @@ final class CronExpression
         $currentDate = $this->filterDate($from);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                yield $this->calculateRun($currentDate, $i, true, $options);
+                yield $this->calculateRun($currentDate, $i, $options, true);
             } catch (RuntimeException $exception) {
                 break;
             }
         }
     }
 
-    private function part(string|int $position): string|null
+    private function part(string|int $position): string
     {
-        if (array_key_exists($position, $this->cronParts)) {
-            return (string) $this->cronParts[$position];
-        }
-
-        return null;
+        return (string) $this->cronParts[$position];
     }
 
-    public function minute(): string|null
+    public function minute(): string
     {
-        return $this->part(self::MINUTE);
+        return (string) $this->cronParts[self::MINUTE];
     }
 
-    public function hour(): string|null
+    public function hour(): string
     {
-        return $this->part(self::HOUR);
+        return (string) $this->cronParts[self::HOUR];
     }
 
-    public function dayOfMonth(): string|null
+    public function dayOfMonth(): string
     {
-        return $this->part(self::MONTHDAY);
+        return (string) $this->cronParts[self::MONTHDAY];
     }
 
-    public function month(): string|null
+    public function month(): string
     {
-        return $this->part(self::MONTH);
+        return (string) $this->cronParts[self::MONTH];
     }
 
-    public function dayOfWeek(): string|null
+    public function dayOfWeek(): string
     {
-        return $this->part(self::WEEKDAY);
+        return (string) $this->cronParts[self::WEEKDAY];
     }
 
     public function toString(): string
@@ -356,7 +350,7 @@ final class CronExpression
      *
      * @return bool Returns TRUE if the cron is due to run or FALSE if not
      */
-    public function isDue(DateTimeInterface|string $datetime = 'now'): bool
+    public function match(DateTimeInterface|string $datetime = 'now'): bool
     {
         if ($datetime instanceof DateTimeInterface) {
             $currentDate = DateTime::createFromInterface($datetime);
@@ -379,20 +373,20 @@ final class CronExpression
      *
      * @param DateTime $from             Relative calculation date
      * @param int      $nth              Number of matches to skip before returning
-     * @param bool     $invert           Set to TRUE to go backwards in time
      * @param int      $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     * @param bool     $invert           Set to TRUE to go backwards in time
      *                                   the current date if it matches the cron expression
      *
      * @throws RuntimeException on too many iterations
      */
-    private function calculateRun(DateTime $from, int $nth, bool $invert, int $allowCurrentDate): DateTime
+    private function calculateRun(DateTime $from, int $nth, int $allowCurrentDate, bool $invert): DateTime
     {
         // We don't have to satisfy * or null fields
         $parts = [];
         $fields = [];
         foreach (self::TEST_ORDER_CRON_PARTS as $position) {
             $part = $this->part($position);
-            if (null !== $part && '*' !== $part) {
+            if ('*' !== $part) {
                 $parts[$position] = $part;
                 $fields[$position] = self::field($position);
             }
@@ -443,15 +437,15 @@ final class CronExpression
         return $currentDate;
     }
 
-    private function isFieldSatisfiedBy(DateTime $nextRun, FieldInterface $field, string $part): bool
+    private function isFieldSatisfiedBy(DateTime $dateTime, FieldInterface $field, string $part): bool
     {
         // Check if this is singular or a list
         if (!str_contains($part, ',')) {
-            return $field->isSatisfiedBy($nextRun, $part);
+            return $field->isSatisfiedBy($dateTime, $part);
         }
 
         foreach (array_map('trim', explode(',', $part)) as $listPart) {
-            if ($field->isSatisfiedBy($nextRun, $listPart)) {
+            if ($field->isSatisfiedBy($dateTime, $listPart)) {
                 return true;
             }
         }

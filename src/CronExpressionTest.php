@@ -181,7 +181,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Cron\CronExpression::isDue
+     * @covers \Cron\CronExpression::match
      * @covers \Cron\CronExpression::nextRun
      * @covers \Cron\DayOfMonthField
      * @covers \Cron\DayOfWeekField
@@ -200,24 +200,24 @@ final class CronExpressionTest extends TestCase
         } else {
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
-        self::assertSame($isDue, $cron->isDue($relativeTime));
+        self::assertSame($isDue, $cron->match($relativeTime));
         self::assertEquals(new DateTime($nextRun), $cron->nextRun($relativeTime, 0, CronExpression::ALLOW_CURRENT_DATE));
     }
 
     /**
-     * @covers \Cron\CronExpression::isDue
+     * @covers \Cron\CronExpression::match
      */
     public function testIsDueHandlesDifferentDates(): void
     {
         $cron = CronExpression::fromString('* * * * *');
-        self::assertTrue($cron->isDue());
-        self::assertTrue($cron->isDue('now'));
-        self::assertTrue($cron->isDue(new DateTime('now')));
-        self::assertTrue($cron->isDue(date('Y-m-d H:i')));
+        self::assertTrue($cron->match());
+        self::assertTrue($cron->match('now'));
+        self::assertTrue($cron->match(new DateTime('now')));
+        self::assertTrue($cron->match(date('Y-m-d H:i')));
     }
 
     /**
-     * @covers \Cron\CronExpression::isDue
+     * @covers \Cron\CronExpression::match
      */
     public function testIsDueHandlesDifferentTimezones(): void
     {
@@ -230,19 +230,19 @@ final class CronExpressionTest extends TestCase
         $tokyo = new DateTimeZone('Asia/Tokyo');
 
         date_default_timezone_set('UTC');
-        self::assertTrue($cronUTC->isDue(new DateTime($date, $utc)));
-        self::assertFalse($cronUTC->isDue(new DateTime($date, $amsterdam)));
-        self::assertFalse($cronUTC->isDue(new DateTime($date, $tokyo)));
+        self::assertTrue($cronUTC->match(new DateTime($date, $utc)));
+        self::assertFalse($cronUTC->match(new DateTime($date, $amsterdam)));
+        self::assertFalse($cronUTC->match(new DateTime($date, $tokyo)));
 
         date_default_timezone_set('Europe/Amsterdam');
-        self::assertFalse($cronAms->isDue(new DateTime($date, $utc)));
-        self::assertTrue($cronAms->isDue(new DateTime($date, $amsterdam)));
-        self::assertFalse($cronAms->isDue(new DateTime($date, $tokyo)));
+        self::assertFalse($cronAms->match(new DateTime($date, $utc)));
+        self::assertTrue($cronAms->match(new DateTime($date, $amsterdam)));
+        self::assertFalse($cronAms->match(new DateTime($date, $tokyo)));
 
         date_default_timezone_set('Asia/Tokyo');
-        self::assertFalse($cronTok->isDue(new DateTime($date, $utc)));
-        self::assertFalse($cronTok->isDue(new DateTime($date, $amsterdam)));
-        self::assertTrue($cronTok->isDue(new DateTime($date, $tokyo)));
+        self::assertFalse($cronTok->match(new DateTime($date, $utc)));
+        self::assertFalse($cronTok->match(new DateTime($date, $amsterdam)));
+        self::assertTrue($cronTok->match(new DateTime($date, $tokyo)));
     }
 
     /**
@@ -257,17 +257,17 @@ final class CronExpressionTest extends TestCase
         $utc       = new DateTimeZone('UTC');
         $amsterdam = new DateTimeZone('Europe/Amsterdam');
         $tokyo     = new DateTimeZone('Asia/Tokyo');
-        self::assertTrue($cronUTC->isDue(new DateTime($date, $utc)));
-        self::assertFalse($cronUTC->isDue(new DateTime($date, $amsterdam)));
-        self::assertFalse($cronUTC->isDue(new DateTime($date, $tokyo)));
+        self::assertTrue($cronUTC->match(new DateTime($date, $utc)));
+        self::assertFalse($cronUTC->match(new DateTime($date, $amsterdam)));
+        self::assertFalse($cronUTC->match(new DateTime($date, $tokyo)));
 
-        self::assertFalse($cronAms->isDue(new DateTime($date, $utc)));
-        self::assertTrue($cronAms->isDue(new DateTime($date, $amsterdam)));
-        self::assertFalse($cronAms->isDue(new DateTime($date, $tokyo)));
+        self::assertFalse($cronAms->match(new DateTime($date, $utc)));
+        self::assertTrue($cronAms->match(new DateTime($date, $amsterdam)));
+        self::assertFalse($cronAms->match(new DateTime($date, $tokyo)));
 
-        self::assertFalse($cronTok->isDue(new DateTime($date, $utc)));
-        self::assertFalse($cronTok->isDue(new DateTime($date, $amsterdam)));
-        self::assertTrue($cronTok->isDue(new DateTime($date, $tokyo)));
+        self::assertFalse($cronTok->match(new DateTime($date, $utc)));
+        self::assertFalse($cronTok->match(new DateTime($date, $amsterdam)));
+        self::assertTrue($cronTok->match(new DateTime($date, $tokyo)));
     }
 
     /**
@@ -401,19 +401,19 @@ final class CronExpressionTest extends TestCase
     public function testIssue20(): void
     {
         $e = CronExpression::fromString('* * * * MON#1');
-        self::assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
-        self::assertFalse($e->isDue(new DateTime('2014-04-14 00:00:00')));
-        self::assertFalse($e->isDue(new DateTime('2014-04-21 00:00:00')));
+        self::assertTrue($e->match(new DateTime('2014-04-07 00:00:00')));
+        self::assertFalse($e->match(new DateTime('2014-04-14 00:00:00')));
+        self::assertFalse($e->match(new DateTime('2014-04-21 00:00:00')));
 
         $e = CronExpression::fromString('* * * * SAT#2');
-        self::assertFalse($e->isDue(new DateTime('2014-04-05 00:00:00')));
-        self::assertTrue($e->isDue(new DateTime('2014-04-12 00:00:00')));
-        self::assertFalse($e->isDue(new DateTime('2014-04-19 00:00:00')));
+        self::assertFalse($e->match(new DateTime('2014-04-05 00:00:00')));
+        self::assertTrue($e->match(new DateTime('2014-04-12 00:00:00')));
+        self::assertFalse($e->match(new DateTime('2014-04-19 00:00:00')));
 
         $e = CronExpression::fromString('* * * * SUN#3');
-        self::assertFalse($e->isDue(new DateTime('2014-04-13 00:00:00')));
-        self::assertTrue($e->isDue(new DateTime('2014-04-20 00:00:00')));
-        self::assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
+        self::assertFalse($e->match(new DateTime('2014-04-13 00:00:00')));
+        self::assertTrue($e->match(new DateTime('2014-04-20 00:00:00')));
+        self::assertFalse($e->match(new DateTime('2014-04-27 00:00:00')));
     }
 
     /**
