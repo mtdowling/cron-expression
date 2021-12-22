@@ -30,24 +30,26 @@ Usage
 ```php
 <?php
 
+use Cron\CronExpression;
+
 require_once '/vendor/autoload.php';
 
 // Works with predefined scheduling definitions
-$cron = \Cron\CronExpression::fromString('@daily');
+$cron = new CronExpression('@daily');
 $cron->match();
 echo $cron->nextRun()->format('Y-m-d H:i:s');
 echo $cron->previousRun()->format('Y-m-d H:i:s');
 
 // Works with complex expressions
-$cron = \Cron\CronExpression::fromString('3-59/15 2,6-12 */15 1 2-5');
+$cron = new CronExpression('3-59/15 2,6-12 */15 1 2-5');
 echo $cron->nextRun()->format('Y-m-d H:i:s');
 
 // Calculate a run date two iterations into the future
-$cron = \Cron\CronExpression::fromString('@daily');
+$cron = new CronExpression('@daily');
 echo $cron->nextRun(null, 2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
-$cron = \Cron\CronExpression::fromString('@monthly');
+$cron = new CronExpression('@monthly');
 echo $cron->nextRun('2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 ```
 
@@ -69,6 +71,6 @@ A CRON expression is a string representing the schedule for a particular command
 Requirements
 ============
 
-- PHP 7.0+
+- PHP 8.0+
 - PHPUnit is required to run the unit tests
 - Composer is required to run the unit tests
