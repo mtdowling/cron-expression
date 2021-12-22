@@ -14,7 +14,7 @@ To know more about cron expression your can look at the [Unix documentation](htt
 
 ## System Requirements
 
-You need **PHP >= 8.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
+You need **PHP >= 8.0** but the latest stable version of PHP is recommended.
 
 ## Installing
 
