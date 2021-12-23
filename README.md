@@ -44,7 +44,7 @@ echo $cron->nextRun()->format('Y-m-d H:i:s');
 
 // Calculate a run date two iterations into the future
 $cron = new CronExpression('@daily');
-echo $cron->nextRun(null, 2)->format('Y-m-d H:i:s');
+echo $cron->nextRun('now', 2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
 $cron = new CronExpression::monthly();
@@ -76,26 +76,26 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     /** CRON Expression API */
     public static function isValid(string $expression): bool; 
     public function nextRun(
-        DateTimeInterface|string|null $from = null,
+        DateTimeInterface|string $from = 'now',
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable;
     public function previousRun(
-        DateTimeInterface|string|null $from = null,
+        DateTimeInterface|string $from = 'now',
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable;
     public function nextOccurrences(
         int $total,
-        DateTimeInterface|string|null $from = null,
+        DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): Generator;
     public function previousOccurrences(
         int $total,
-        DateTimeInterface|string|null $from = null,
+        DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): Generator;
-   public function match(DateTimeInterface|string|null $datetime = null): bool;
+   public function match(DateTimeInterface|string $datetime = 'now',): bool;
 
     /** CRON Expression getters */
     public function fields(): array;

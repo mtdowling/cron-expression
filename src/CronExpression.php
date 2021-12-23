@@ -194,7 +194,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     }
 
     public function nextRun(
-        DateTimeInterface|string|null $from = null,
+        DateTimeInterface|string $from = 'now',
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
@@ -202,7 +202,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     }
 
     public function previousRun(
-        DateTimeInterface|string|null $from = null,
+        DateTimeInterface|string $from = 'now',
         int $nth = 0,
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
@@ -211,7 +211,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
     public function nextOccurrences(
         int $total,
-        DateTimeInterface|string|null $from = null,
+        DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): Generator {
         $currentDate = $this->filterDate($from);
@@ -226,7 +226,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
     public function previousOccurrences(
         int $total,
-        DateTimeInterface|string|null $from = null,
+        DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): Generator {
         $currentDate = $this->filterDate($from);
@@ -239,7 +239,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
     }
 
-    public function match(DateTimeInterface|string|null $datetime = null): bool
+    public function match(DateTimeInterface|string $datetime = 'now'): bool
     {
         $currentDate = $this->filterDate($datetime);
         try {
@@ -417,7 +417,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     /**
      * @throws SyntaxError
      */
-    private function filterDate(DateTimeInterface|string|null $currentTime): DateTime
+    private function filterDate(DateTimeInterface|string $currentTime): DateTime
     {
         if ($currentTime instanceof DateTimeInterface) {
             $currentDate = DateTime::createFromInterface($currentTime);
@@ -428,12 +428,12 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
 
         try {
-            $currentDate = new DateTime($currentTime ?? 'now', $this->timezone);
+            $currentDate = new DateTime($currentTime, $this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         } catch (Throwable $exception) {
-            throw SyntaxError::dueToInvalidDate((string) $currentTime, $exception);
+            throw SyntaxError::dueToInvalidDate($currentTime, $exception);
         }
     }
 
