@@ -73,31 +73,14 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     public static function daily(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
     public static function hourly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
 
-    /** CRON Expression API */
-    public static function isValid(string $expression): bool; 
-    public function nextRun(
-        DateTimeInterface|string $from = 'now',
-        int $nth = 0,
-        int $options = self::DISALLOW_CURRENT_DATE
-    ): DateTimeImmutable;
-    public function previousRun(
-        DateTimeInterface|string $from = 'now',
-        int $nth = 0,
-        int $options = self::DISALLOW_CURRENT_DATE
-    ): DateTimeImmutable;
-    public function nextOccurrences(
-        int $total,
-        DateTimeInterface|string $from = 'now',
-        int $options = self::DISALLOW_CURRENT_DATE
-    ): Generator;
-    public function previousOccurrences(
-        int $total,
-        DateTimeInterface|string $from = 'now',
-        int $options = self::DISALLOW_CURRENT_DATE
-    ): Generator;
-   public function match(DateTimeInterface|string $datetime = 'now',): bool;
+    /* CRON Expression API */
+    public function nextRun(DateTimeInterface|string $from = 'now', int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function previousRun(DateTimeInterface|string $from = 'now', int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function nextOccurrences(int $total, DateTimeInterface|string $from = 'now',  int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function previousOccurrences(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function match(DateTimeInterface|string $datetime = 'now',): bool;
 
-    /** CRON Expression getters */
+    /* CRON Expression getters */
     public function fields(): array;
     public function minute(): string;
     public function hour(): string;
@@ -108,7 +91,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     public function __toString(): string;
     public function jsonSerialize(): string;
     
-    /** CRON Expression configuration methods */
+    /* CRON Expression configuration methods */
     public function maxIterationCount(): int;
     public function timezone(): DateTimeZone;
     public function withMinute(string $field): self;
@@ -119,4 +102,23 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     public function withMaxIterationCount(int $maxIterationCount): self;
     public function withTimezone(DateTimeZone|string $timezone): self;
  }
+```
+
+## ExpressionParser Public API
+
+```php
+<?php
+
+final class ExpressionParser
+{
+    public const MINUTE = 0;
+    public const HOUR = 1;
+    public const MONTHDAY = 2;
+    public const MONTH = 3;
+    public const WEEKDAY = 4;
+
+    public static function fieldValidator(int $fieldOffset): FieldValidator;
+    public static function parse(string $expression): array;
+    public static function isValid(string $expression): bool;
+}
 ```
