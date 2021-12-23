@@ -44,8 +44,21 @@ final class ExpressionParser
     /**
      * Parse a CRON expression string into its components.
      *
-     * This method parses a CRON expression strin and returns an associative array containing
+     * This method parses a CRON expression string and returns an associative array containing
      * all the CRON expression field.
+     *
+     * <code>
+     * $fields = ExpressionParser::parse('http://foo@test.example.com:42?query#');
+     * var_export($fields);
+     * //will display
+     * array (
+     *   0 => "3-59/15", // CRON expression minute field
+     *   1 => "2,6-12",  // CRON expression hour field
+     *   2 => "*\/15",   // CRON expression day of month field
+     *   3 => "1",       // CRON expression month field
+     *   4 => "2-5",     // CRON expression day of week field
+     * )
+     * </code>
      *
      * There are several special predefined values which can be used to substitute the CRON expression:
      *
