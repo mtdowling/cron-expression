@@ -265,62 +265,20 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     /**
      * Get the next or previous run date of the expression relative to a date.
      *
-     * @param DateTimeInterface $from Relative calculation date
+     * @param DateTime $from Relative calculation date
      * @param int $nth Number of matches to skip before returning
-     * @param int $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
+     * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      * @param bool $invert Set to TRUE to go backwards in time
      *                     the current date if it matches the cron expression
      *
-     * @throws UnableToProcessRun on too many iterations
+     * @throws ExpressionError on too many iterations
      */
-    private function calculateRun(DateTimeInterface $from, int $nth, int $allowCurrentDate, bool $invert): DateTimeImmutable
+    private function calculateRun(DateTime $from, int $nth, int $options, bool $invert): DateTimeImmutable
     {
-        // Order in which to test of cron parts.
-        static $testOrderCronFields = [
-            ExpressionParser::MONTH,
-            ExpressionParser::MONTHDAY,
-            ExpressionParser::WEEKDAY,
-            ExpressionParser::HOUR,
-            ExpressionParser::MINUTE,
-        ];
-
-        // We don't have to satisfy * or null fields
-        $fields = [];
-        foreach ($testOrderCronFields as $position) {
-            $part = $this->fields[$position];
-            if ('*' !== $part) {
-                $fields[] = [$part, ExpressionParser::fieldValidator($position)];
-            }
-        }
+        $fields = $this->getOrderedFields();
 
         if (isset($fields[ExpressionParser::MONTHDAY], $fields[ExpressionParser::WEEKDAY])) {
-            $domExpression = new self(sprintf(
-                '%s %s %s %s *',
-                $this->fields[ExpressionParser::MINUTE],
-                $this->fields[ExpressionParser::HOUR],
-                $this->fields[ExpressionParser::MONTHDAY],
-                $this->fields[ExpressionParser::MONTH]
-            ), $this->timezone);
-
-            $dowExpression = new self(sprintf(
-                '%s %s * %s %s',
-                $this->fields[ExpressionParser::MINUTE],
-                $this->fields[ExpressionParser::HOUR],
-                $this->fields[ExpressionParser::MONTH],
-                $this->fields[ExpressionParser::WEEKDAY]
-            ), $this->timezone);
-
-            if ($invert) {
-                $combined = array_merge(
-                    iterator_to_array($domExpression->previousOccurrences($nth + 1, $from, $allowCurrentDate), false),
-                    iterator_to_array($dowExpression->previousOccurrences($nth + 1, $from, $allowCurrentDate), false),
-                );
-            } else {
-                $combined = array_merge(
-                    iterator_to_array($domExpression->nextOccurrences($nth + 1, $from, $allowCurrentDate), false),
-                    iterator_to_array($dowExpression->nextOccurrences($nth + 1, $from, $allowCurrentDate), false),
-                );
-            }
+            $combined = $this->getCombinedRuns($from, $nth, $options, $invert);
 
             usort($combined, fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
 
@@ -334,13 +292,15 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
                 // If the field is not satisfied, then start over
                 if (!$this->isFieldSatisfiedBy($nextRun, $validator, $part)) {
                     $nextRun = $validator->increment($nextRun, $invert, $part);
+
                     continue 2;
                 }
             }
 
             // Skip this match if needed
-            if (($allowCurrentDate === self::DISALLOW_CURRENT_DATE && $nextRun == $from) || --$nth > -1) {
+            if (($options === self::DISALLOW_CURRENT_DATE && $nextRun == $from) || --$nth > -1) {
                 $nextRun = ExpressionParser::fieldValidator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
+
                 continue;
             }
 
@@ -357,8 +317,16 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
      */
     private function filterDate(DateTimeInterface|string $currentTime): DateTime
     {
-        if ($currentTime instanceof DateTimeInterface) {
+        if ($currentTime instanceof DateTimeImmutable) {
             $currentDate = DateTime::createFromInterface($currentTime);
+            $currentDate->setTimezone($this->timezone);
+            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
+
+            return $currentDate;
+        }
+
+        if ($currentTime instanceof DateTime) {
+            $currentDate = clone $currentTime;
             $currentDate->setTimezone($this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
@@ -384,5 +352,62 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
 
         return false;
+    }
+
+    /**
+     * @throws ExpressionError
+     * @return array<DateTimeInterface>
+     */
+    private function getCombinedRuns(DateTime $from, int $nth, int $options, bool $invert): array
+    {
+        $domExpression = new self(sprintf(
+            '%s %s %s %s *',
+            $this->fields[ExpressionParser::MINUTE],
+            $this->fields[ExpressionParser::HOUR],
+            $this->fields[ExpressionParser::MONTHDAY],
+            $this->fields[ExpressionParser::MONTH]
+        ), $this->timezone);
+
+        $dowExpression = new self(sprintf(
+            '%s %s * %s %s',
+            $this->fields[ExpressionParser::MINUTE],
+            $this->fields[ExpressionParser::HOUR],
+            $this->fields[ExpressionParser::MONTH],
+            $this->fields[ExpressionParser::WEEKDAY]
+        ), $this->timezone);
+
+        if ($invert) {
+            return array_merge(
+                iterator_to_array($domExpression->previousOccurrences($nth + 1, $from, $options), false),
+                iterator_to_array($dowExpression->previousOccurrences($nth + 1, $from, $options), false),
+            );
+        }
+
+        return array_merge(
+            iterator_to_array($domExpression->nextOccurrences($nth + 1, $from, $options), false),
+            iterator_to_array($dowExpression->nextOccurrences($nth + 1, $from, $options), false),
+        );
+    }
+
+    private function getOrderedFields(): array
+    {
+        // Order in which to test of cron parts.
+        static $testOrderCronFields = [
+            ExpressionParser::MONTH,
+            ExpressionParser::MONTHDAY,
+            ExpressionParser::WEEKDAY,
+            ExpressionParser::HOUR,
+            ExpressionParser::MINUTE,
+        ];
+
+        // We don't have to satisfy * or null fields
+        $fields = [];
+        foreach ($testOrderCronFields as $position) {
+            $part = $this->fields[$position];
+            if ('*' !== $part) {
+                $fields[] = [$part, ExpressionParser::fieldValidator($position)];
+            }
+        }
+        return $fields;
     }
 }
