@@ -370,7 +370,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     /**
      * Get the next or previous run date of the expression relative to a date.
      *
-     * @param DateTime $from Relative calculation date
+     * @param DateTimeInterface $from Relative calculation date
      * @param int $nth Number of matches to skip before returning
      * @param int $allowCurrentDate Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      * @param bool $invert Set to TRUE to go backwards in time
@@ -378,7 +378,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
      *
      * @throws UnableToProcessRun on too many iterations
      */
-    private function calculateRun(DateTime $from, int $nth, int $allowCurrentDate, bool $invert): DateTimeImmutable
+    private function calculateRun(DateTimeInterface $from, int $nth, int $allowCurrentDate, bool $invert): DateTimeImmutable
     {
         // We don't have to satisfy * or null fields
         $fields = [];
