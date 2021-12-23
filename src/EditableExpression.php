@@ -4,8 +4,18 @@ namespace Bakame\Cron;
 
 use DateTimeZone;
 
-interface ConfigurableExpression extends Expression
+interface EditableExpression extends Expression
 {
+    /**
+     * Returns the max iteration count for searching next run dates.
+     */
+    public function maxIterationCount(): int;
+
+    /**
+     * Returns the timezone attached to the CRON expression.
+     */
+    public function timezone(): DateTimeZone;
+
     /**
      * Set the minute field of the CRON expression.
      *
@@ -57,19 +67,9 @@ interface ConfigurableExpression extends Expression
     public function withDayOfWeek(string $field): self;
 
     /**
-     * Returns the max iteration count for searching next run dates.
-     */
-    public function maxIterationCount(): int;
-
-    /**
      * Set max iteration count when searching for next run dates.
      */
     public function withMaxIterationCount(int $maxIterationCount): self;
-
-    /**
-     * Returns the timezone attached to the CRON expression.
-     */
-    public function timezone(): DateTimeZone;
 
     /**
      * Sets the timezone attached to the CRON expression.

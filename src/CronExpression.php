@@ -20,7 +20,7 @@ use RuntimeException;
 use Stringable;
 use Throwable;
 
-final class CronExpression implements ConfigurableExpression, JsonSerializable, Stringable
+final class CronExpression implements EditableExpression, JsonSerializable, Stringable
 {
     private const MINUTE = 0;
     private const HOUR = 1;

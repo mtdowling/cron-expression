@@ -63,7 +63,7 @@ echo $cron->match($date); // return true
 
 namespace Bakame\Cron;
 
-final class CronExpression implements ConfigurableExpression, JsonSerializable, Stringable
+final class CronExpression implements EditableExpression, JsonSerializable, Stringable
 {
     /* Constructors */
     public function __construct(string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000);
