@@ -98,7 +98,7 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\CronExpression::__construct
-     * @covers \Bakame\Cron\CronExpression::setFields
+     * @covers \Bakame\Cron\CronExpression::filterFields
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testInvalidCronsWillFail(): void
@@ -109,7 +109,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::setFields
+     * @covers \Bakame\Cron\CronExpression::filterFields
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testInvalidPartsWillFail(): void

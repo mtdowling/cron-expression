@@ -81,9 +81,60 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
      */
     public function __construct(string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000)
     {
-        $this->setFields($expression);
+        static $mappings = [
+            '@yearly' => '0 0 1 1 *',
+            '@annually' => '0 0 1 1 *',
+            '@monthly' => '0 0 1 * *',
+            '@weekly' => '0 0 * * 0',
+            '@daily' => '0 0 * * *',
+            '@midnight' => '0 0 * * *',
+            '@hourly' => '0 * * * *',
+        ];
+
+        $expression = $mappings[$expression] ?? $expression;
+
+        $this->fields = self::filterFields($expression);
         $this->timezone = $this->filterTimezone($timezone);
         $this->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function filterFields(string $expression): array
+    {
+        /** @var array<int, string> $fields */
+        $fields = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
+        if (count($fields) < 5) {
+            throw SyntaxError::dueToInvalidExpression($expression);
+        }
+
+        foreach ($fields as $position => $field) {
+            if (!self::validator($position)->validate($field)) {
+                throw SyntaxError::dueToInvalidFieldValue($field, $position);
+            }
+        }
+
+        return $fields;
+    }
+
+    private function filterTimezone(DateTimeZone|string|null $timezone): DateTimeZone
+    {
+        $timezone ??= date_default_timezone_get();
+        if (!$timezone instanceof DateTimeZone) {
+            return new DateTimeZone($timezone);
+        }
+
+        return $timezone;
+    }
+
+    private function filterMaxIterationCount(int $maxIterationCount): int
+    {
+        if ($maxIterationCount < 0) {
+            throw SyntaxError::dueToInvalidMaxIterationCount($maxIterationCount);
+        }
+
+        return $maxIterationCount;
     }
 
     /**
@@ -129,12 +180,12 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     /**
      * Validate a CronExpression.
      *
-     * @see CronExpression::__construct
+     * @see CronExpression::filterFields
      */
     public static function isValid(string $expression): bool
     {
         try {
-            new self($expression);
+            self::filterFields($expression);
         } catch (Throwable) {
             return false;
         }
@@ -268,7 +319,10 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
             return $this;
         }
 
-        return new self(implode(' ', $parts), $this->timezone);
+        $clone = clone $this;
+        $clone->fields = self::filterFields(implode(' ', $parts));
+
+        return $clone;
     }
 
     public function withHour(string $field): self
@@ -392,52 +446,5 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
 
         return false;
-    }
-
-    private function filterTimezone(DateTimeZone|string|null $timezone): DateTimeZone
-    {
-        $timezone ??= date_default_timezone_get();
-        if (!$timezone instanceof DateTimeZone) {
-            return new DateTimeZone($timezone);
-        }
-
-        return $timezone;
-    }
-
-    private function filterMaxIterationCount(int $maxIterationCount): int
-    {
-        if ($maxIterationCount < 0) {
-            throw SyntaxError::dueToInvalidMaxIterationCount($maxIterationCount);
-        }
-
-        return $maxIterationCount;
-    }
-
-    private function setFields(string $expression): void
-    {
-        static $mappings = [
-            '@yearly' => '0 0 1 1 *',
-            '@annually' => '0 0 1 1 *',
-            '@monthly' => '0 0 1 * *',
-            '@weekly' => '0 0 * * 0',
-            '@daily' => '0 0 * * *',
-            '@midnight' => '0 0 * * *',
-            '@hourly' => '0 * * * *',
-        ];
-
-        $expression = $mappings[$expression] ?? $expression;
-        /** @var array<int, string> $fields */
-        $fields = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
-        if (count($fields) < 5) {
-            throw SyntaxError::dueToInvalidExpression($expression);
-        }
-
-        foreach ($fields as $position => $field) {
-            if (!self::validator($position)->validate($field)) {
-                throw SyntaxError::dueToInvalidFieldValue($field, $position);
-            }
-
-            $this->fields[$position] = $field;
-        }
     }
 }
