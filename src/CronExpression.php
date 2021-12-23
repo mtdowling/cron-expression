@@ -327,7 +327,6 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     private function calculateRun(DateTime $from, int $nth, int $allowCurrentDate, bool $invert): DateTimeImmutable
     {
         // We don't have to satisfy * or null fields
-        /** @var array<array{0:string, 1:Field}> $fields */
         $fields = [];
         foreach (self::TEST_ORDER_CRON_PARTS as $position) {
             $part = (string) $this->fields[$position];
