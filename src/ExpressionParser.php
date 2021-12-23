@@ -25,7 +25,7 @@ final class ExpressionParser
      *
      * @throws SyntaxError if a position is not valid
      */
-    public static function validator(int $fieldOffset): FieldValidator
+    public static function fieldValidator(int $fieldOffset): FieldValidator
     {
         static $validators = [];
 
@@ -42,6 +42,23 @@ final class ExpressionParser
     }
 
     /**
+     * Parse a CRON expression string into its components.
+     *
+     * This method parses a CRON expression strin and returns an associative array containing
+     * all the CRON expression field.
+     *
+     * There are several special predefined values which can be used to substitute the CRON expression:
+     *
+     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
+     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
+     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
+     *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
+     *      `@hourly` - Run once an hour, first minute - 0 * * * *
+     *
+     * @param string $expression The CRON expression to create.
+     *
+     * @throws SyntaxError If the string is invalid or unsupported
+     *
      * @return array<int, string>
      */
     public static function parse(string $expression): array
@@ -65,7 +82,7 @@ final class ExpressionParser
         }
 
         foreach ($fields as $position => $field) {
-            if (!self::validator($position)->validate($field)) {
+            if (!self::fieldValidator($position)->validate($field)) {
                 throw SyntaxError::dueToInvalidFieldValue($field, $position);
             }
         }
@@ -76,7 +93,7 @@ final class ExpressionParser
     /**
      * Validate a CronExpression.
      *
-     * @see CronExpression::filterFields
+     * @see ExpressionParser::parse
      */
     public static function isValid(string $expression): bool
     {

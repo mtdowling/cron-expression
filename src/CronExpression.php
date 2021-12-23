@@ -17,24 +17,11 @@ use Throwable;
 
 final class CronExpression implements EditableExpression, JsonSerializable, Stringable
 {
-    /** @var array<int, int|string> CRON expression parts */
+    /** @var array<int, string> CRON expression fields */
     private array $fields;
     private DateTimeZone $timezone;
     private int $maxIterationCount;
 
-    /**
-     * Factory method to create a new CronExpression.
-     *
-     * @param string $expression The CRON expression to create.  There are
-     *                           several special predefined values which can be used to substitute the
-     *                           CRON expression:
-     *
-     *      `@yearly`, `@annually` - Run once a year, midnight, Jan. 1 - 0 0 1 1 *
-     *      `@monthly` - Run once a month, midnight, first of month - 0 0 1 * *
-     *      `@weekly` - Run once a week, midnight on Sun - 0 0 * * 0
-     *      `@daily`, `@midnight` - Run once a day, midnight - 0 0 * * *
-     *      `@hourly` - Run once an hour, first minute - 0 * * * *
-     */
     public function __construct(string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000)
     {
         $this->fields = ExpressionParser::parse($expression);
@@ -164,27 +151,27 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
     public function minute(): string
     {
-        return (string) $this->fields[ExpressionParser::MINUTE];
+        return $this->fields[ExpressionParser::MINUTE];
     }
 
     public function hour(): string
     {
-        return (string) $this->fields[ExpressionParser::HOUR];
+        return $this->fields[ExpressionParser::HOUR];
     }
 
     public function dayOfMonth(): string
     {
-        return (string) $this->fields[ExpressionParser::MONTHDAY];
+        return $this->fields[ExpressionParser::MONTHDAY];
     }
 
     public function month(): string
     {
-        return (string) $this->fields[ExpressionParser::MONTH];
+        return $this->fields[ExpressionParser::MONTH];
     }
 
     public function dayOfWeek(): string
     {
-        return (string) $this->fields[ExpressionParser::WEEKDAY];
+        return $this->fields[ExpressionParser::WEEKDAY];
     }
 
     public function toString(): string
@@ -300,9 +287,9 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         // We don't have to satisfy * or null fields
         $fields = [];
         foreach ($testOrderCronFields as $position) {
-            $part = (string) $this->fields[$position];
+            $part = $this->fields[$position];
             if ('*' !== $part) {
-                $fields[] = [$part, ExpressionParser::validator($position)];
+                $fields[] = [$part, ExpressionParser::fieldValidator($position)];
             }
         }
 
@@ -319,7 +306,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
             // Skip this match if needed
             if (($allowCurrentDate === self::DISALLOW_CURRENT_DATE && $nextRun == $from) || --$nth > -1) {
-                $nextRun = ExpressionParser::validator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
+                $nextRun = ExpressionParser::fieldValidator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
                 continue;
             }
 
