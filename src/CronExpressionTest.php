@@ -97,29 +97,6 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::__construct
-     * @covers \Bakame\Cron\CronExpression::filterFields
-     * @covers \Bakame\Cron\SyntaxError
-     */
-    public function testInvalidCronsWillFail(): void
-    {
-        $this->expectException(SyntaxError::class);
-        // Only four values
-        new CronExpression('* * * 1');
-    }
-
-    /**
-     * @covers \Bakame\Cron\CronExpression::filterFields
-     * @covers \Bakame\Cron\SyntaxError
-     */
-    public function testInvalidPartsWillFail(): void
-    {
-        $this->expectException(SyntaxError::class);
-        // Only four values
-        new CronExpression('* * abc * *');
-    }
-
-    /**
      * Data provider for cron schedule.
      *
      */
@@ -217,8 +194,8 @@ final class CronExpressionTest extends TestCase
     {
         $cron = new CronExpression('* * * * *');
         self::assertTrue($cron->match());
-        self::assertTrue($cron->match('now'));
-        self::assertTrue($cron->match(new DateTime('now')));
+        self::assertTrue($cron->match('NOW'));
+        self::assertTrue($cron->match(new DateTime('NOW')));
         self::assertTrue($cron->match(date('Y-m-d H:i')));
     }
 
@@ -437,30 +414,6 @@ final class CronExpressionTest extends TestCase
         $cron = new CronExpression('0 0 * * *');
         $cron->previousRun($now);
         self::assertSame($strNow, $now->format(DateTime::ISO8601));
-    }
-
-    /**
-     * @covers \Bakame\Cron\CronExpression::__construct
-     * @covers \Bakame\Cron\CronExpression::isValid
-     */
-    public function testValidationWorks(): void
-    {
-        // Invalid. Only four values
-        self::assertFalse(CronExpression::isValid('* * * 1'));
-        // Valid
-        self::assertTrue(CronExpression::isValid('* * * * 1'));
-
-        // Issue #156, 13 is an invalid month
-        self::assertFalse(CronExpression::isValid('* * * 13 * '));
-
-        // Issue #155, 90 is an invalid second
-        self::assertFalse(CronExpression::isValid('90 * * * *'));
-
-        // Issue #154, 24 is an invalid hour
-        self::assertFalse(CronExpression::isValid('0 24 1 12 0'));
-
-        // Issue #125, this is just all sorts of wrong
-        self::assertFalse(CronExpression::isValid('990 14 * * mon-fri0345345'));
     }
 
     /**

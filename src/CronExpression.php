@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace Bakame\Cron;
 
-use Bakame\Cron\Validator\DayOfMonth;
-use Bakame\Cron\Validator\DayOfWeek;
 use Bakame\Cron\Validator\FieldValidator;
-use Bakame\Cron\Validator\Hours;
-use Bakame\Cron\Validator\Minutes;
-use Bakame\Cron\Validator\Month;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -22,49 +17,10 @@ use Throwable;
 
 final class CronExpression implements EditableExpression, JsonSerializable, Stringable
 {
-    private const MINUTE = 0;
-    private const HOUR = 1;
-    private const MONTHDAY = 2;
-    private const MONTH = 3;
-    private const WEEKDAY = 4;
-    /**
-     * Order in which to test of cron parts.
-     */
-    private const TEST_ORDER_CRON_PARTS = [
-        self::MONTH,
-        self::MONTHDAY,
-        self::WEEKDAY,
-        self::HOUR,
-        self::MINUTE,
-    ];
-
     /** @var array<int, int|string> CRON expression parts */
     private array $fields;
     private DateTimeZone $timezone;
     private int $maxIterationCount;
-
-    /**
-     * Get an instance of a field validator object for a cron expression position.
-     *
-     * @param int $fieldOffset CRON expression position value to retrieve
-     *
-     * @throws SyntaxError if a position is not valid
-     */
-    private static function validator(int $fieldOffset): FieldValidator
-    {
-        static $validators = [];
-
-        $validators[$fieldOffset] ??= match ($fieldOffset) {
-            self::MINUTE => new Minutes(),
-            self::HOUR => new Hours(),
-            self::MONTHDAY => new DayOfMonth(),
-            self::MONTH => new Month(),
-            self::WEEKDAY => new DayOfWeek(),
-            default => throw SyntaxError::dueToInvalidPosition($fieldOffset),
-        };
-
-        return $validators[$fieldOffset];
-    }
 
     /**
      * Factory method to create a new CronExpression.
@@ -81,41 +37,9 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
      */
     public function __construct(string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000)
     {
-        static $mappings = [
-            '@yearly' => '0 0 1 1 *',
-            '@annually' => '0 0 1 1 *',
-            '@monthly' => '0 0 1 * *',
-            '@weekly' => '0 0 * * 0',
-            '@daily' => '0 0 * * *',
-            '@midnight' => '0 0 * * *',
-            '@hourly' => '0 * * * *',
-        ];
-
-        $expression = $mappings[$expression] ?? $expression;
-
-        $this->fields = self::filterFields($expression);
+        $this->fields = ExpressionParser::parse($expression);
         $this->timezone = $this->filterTimezone($timezone);
         $this->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private static function filterFields(string $expression): array
-    {
-        /** @var array<int, string> $fields */
-        $fields = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
-        if (count($fields) < 5) {
-            throw SyntaxError::dueToInvalidExpression($expression);
-        }
-
-        foreach ($fields as $position => $field) {
-            if (!self::validator($position)->validate($field)) {
-                throw SyntaxError::dueToInvalidFieldValue($field, $position);
-            }
-        }
-
-        return $fields;
     }
 
     private function filterTimezone(DateTimeZone|string|null $timezone): DateTimeZone
@@ -175,22 +99,6 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     public static function hourly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self
     {
         return new self('@hourly', $timezone, $maxIterationCount);
-    }
-
-    /**
-     * Validate a CronExpression.
-     *
-     * @see CronExpression::filterFields
-     */
-    public static function isValid(string $expression): bool
-    {
-        try {
-            self::filterFields($expression);
-        } catch (Throwable) {
-            return false;
-        }
-
-        return true;
     }
 
     public function nextRun(
@@ -256,27 +164,27 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
     public function minute(): string
     {
-        return (string) $this->fields[self::MINUTE];
+        return (string) $this->fields[ExpressionParser::MINUTE];
     }
 
     public function hour(): string
     {
-        return (string) $this->fields[self::HOUR];
+        return (string) $this->fields[ExpressionParser::HOUR];
     }
 
     public function dayOfMonth(): string
     {
-        return (string) $this->fields[self::MONTHDAY];
+        return (string) $this->fields[ExpressionParser::MONTHDAY];
     }
 
     public function month(): string
     {
-        return (string) $this->fields[self::MONTH];
+        return (string) $this->fields[ExpressionParser::MONTH];
     }
 
     public function dayOfWeek(): string
     {
-        return (string) $this->fields[self::WEEKDAY];
+        return (string) $this->fields[ExpressionParser::WEEKDAY];
     }
 
     public function toString(): string
@@ -306,7 +214,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
     public function withMinute(string $field): self
     {
-        return $this->newInstance([self::MINUTE => $field] + $this->fields);
+        return $this->newInstance([ExpressionParser::MINUTE => $field] + $this->fields);
     }
 
     /**
@@ -320,29 +228,29 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
 
         $clone = clone $this;
-        $clone->fields = self::filterFields(implode(' ', $parts));
+        $clone->fields = ExpressionParser::parse(implode(' ', $parts));
 
         return $clone;
     }
 
     public function withHour(string $field): self
     {
-        return $this->newInstance([self::HOUR => $field] + $this->fields);
+        return $this->newInstance([ExpressionParser::HOUR => $field] + $this->fields);
     }
 
     public function withDayOfMonth(string $field): self
     {
-        return $this->newInstance([self::MONTHDAY => $field] + $this->fields);
+        return $this->newInstance([ExpressionParser::MONTHDAY => $field] + $this->fields);
     }
 
     public function withMonth(string $field): self
     {
-        return $this->newInstance([self::MONTH => $field] + $this->fields);
+        return $this->newInstance([ExpressionParser::MONTH => $field] + $this->fields);
     }
 
     public function withDayOfWeek(string $field): self
     {
-        return $this->newInstance([self::WEEKDAY => $field] + $this->fields);
+        return $this->newInstance([ExpressionParser::WEEKDAY => $field] + $this->fields);
     }
 
     public function withTimezone(DateTimeZone|string $timezone): self
@@ -380,12 +288,21 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
      */
     private function calculateRun(DateTimeInterface $from, int $nth, int $allowCurrentDate, bool $invert): DateTimeImmutable
     {
+        // Order in which to test of cron parts.
+        static $testOrderCronFields = [
+            ExpressionParser::MONTH,
+            ExpressionParser::MONTHDAY,
+            ExpressionParser::WEEKDAY,
+            ExpressionParser::HOUR,
+            ExpressionParser::MINUTE,
+        ];
+
         // We don't have to satisfy * or null fields
         $fields = [];
-        foreach (self::TEST_ORDER_CRON_PARTS as $position) {
+        foreach ($testOrderCronFields as $position) {
             $part = (string) $this->fields[$position];
             if ('*' !== $part) {
-                $fields[] = [$part, self::validator($position)];
+                $fields[] = [$part, ExpressionParser::validator($position)];
             }
         }
 
@@ -402,7 +319,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
             // Skip this match if needed
             if (($allowCurrentDate === self::DISALLOW_CURRENT_DATE && $nextRun == $from) || --$nth > -1) {
-                $nextRun = self::validator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
+                $nextRun = ExpressionParser::validator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
                 continue;
             }
 
