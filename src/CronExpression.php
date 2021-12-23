@@ -293,6 +293,40 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
             }
         }
 
+        if (isset($fields[ExpressionParser::MONTHDAY], $fields[ExpressionParser::WEEKDAY])) {
+            $domExpression = new self(sprintf(
+                '%s %s %s %s *',
+                $this->fields[ExpressionParser::MINUTE],
+                $this->fields[ExpressionParser::HOUR],
+                $this->fields[ExpressionParser::MONTHDAY],
+                $this->fields[ExpressionParser::MONTH]
+            ), $this->timezone);
+
+            $dowExpression = new self(sprintf(
+                '%s %s * %s %s',
+                $this->fields[ExpressionParser::MINUTE],
+                $this->fields[ExpressionParser::HOUR],
+                $this->fields[ExpressionParser::MONTH],
+                $this->fields[ExpressionParser::WEEKDAY]
+            ), $this->timezone);
+
+            if ($invert) {
+                $combined = array_merge(
+                    iterator_to_array($domExpression->previousOccurrences($nth + 1, $from, $allowCurrentDate), false),
+                    iterator_to_array($dowExpression->previousOccurrences($nth + 1, $from, $allowCurrentDate), false),
+                );
+            } else {
+                $combined = array_merge(
+                    iterator_to_array($domExpression->nextOccurrences($nth + 1, $from, $allowCurrentDate), false),
+                    iterator_to_array($dowExpression->nextOccurrences($nth + 1, $from, $allowCurrentDate), false),
+                );
+            }
+
+            usort($combined, fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
+
+            return DateTimeImmutable::createFromInterface($combined[$nth]);
+        }
+
         // Set a hard limit to bail on an impossible date
         $nextRun = clone $from;
         for ($i = 0; $i < $this->maxIterationCount; $i++) {

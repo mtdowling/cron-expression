@@ -201,12 +201,13 @@ final class CronExpressionTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\CronExpression::match
+     * @covers \Bakame\Cron\CronExpression::filterTimezone
      */
     public function testIsDueHandlesDifferentTimezones(): void
     {
         $cronUTC = new CronExpression('0 15 * * 3', 'UTC'); //Wednesday at 15:00
         $cronAms = new CronExpression('0 15 * * 3', 'Europe/Amsterdam'); //Wednesday at 15:00
-        $cronTok = new CronExpression('0 15 * * 3', 'Asia/Tokyo'); //Wednesday at 15:00
+        $cronTok = new CronExpression('0 15 * * 3', new DateTimeZone('Asia/Tokyo')); //Wednesday at 15:00
         $date = '2014-01-01 15:00'; //Wednesday
         $utc = new DateTimeZone('UTC');
         $amsterdam =  new DateTimeZone('Europe/Amsterdam');
@@ -467,5 +468,16 @@ final class CronExpressionTest extends TestCase
         $this->expectException(SyntaxError::class);
         $cron = new CronExpression('23 0-23/2 * * *');
         $cron->nextRun('foobar');
+    }
+
+    /**
+     * @covers \Bakame\Cron\CronExpression::filterMaxIterationCount
+     * @covers \Bakame\Cron\SyntaxError
+     */
+    public function testThrowsIfMaxIterationCountIsNegative(): void
+    {
+        $this->expectException(SyntaxError::class);
+
+        new CronExpression('* * * * *', 'Africa/Nairobi', -1);
     }
 }
