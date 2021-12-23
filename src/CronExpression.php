@@ -6,7 +6,7 @@ namespace Bakame\Cron;
 
 use Bakame\Cron\Validator\DayOfMonth;
 use Bakame\Cron\Validator\DayOfWeek;
-use Bakame\Cron\Validator\Field;
+use Bakame\Cron\Validator\FieldValidator;
 use Bakame\Cron\Validator\Hours;
 use Bakame\Cron\Validator\Minutes;
 use Bakame\Cron\Validator\Month;
@@ -46,24 +46,24 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
     /**
      * Get an instance of a field validator object for a cron expression position.
      *
-     * @param int $fieldPosition CRON expression position value to retrieve
+     * @param int $fieldOffset CRON expression position value to retrieve
      *
      * @throws SyntaxError if a position is not valid
      */
-    private static function validator(int $fieldPosition): Field
+    private static function validator(int $fieldOffset): FieldValidator
     {
         static $validators = [];
 
-        $validators[$fieldPosition] ??= match ($fieldPosition) {
+        $validators[$fieldOffset] ??= match ($fieldOffset) {
             self::MINUTE => new Minutes(),
             self::HOUR => new Hours(),
             self::MONTHDAY => new DayOfMonth(),
             self::MONTH => new Month(),
             self::WEEKDAY => new DayOfWeek(),
-            default => throw SyntaxError::dueToInvalidPosition($fieldPosition),
+            default => throw SyntaxError::dueToInvalidPosition($fieldOffset),
         };
 
-        return $validators[$fieldPosition];
+        return $validators[$fieldOffset];
     }
 
     /**
@@ -384,7 +384,7 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
         }
     }
 
-    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, Field $field, string $part): bool
+    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, FieldValidator $field, string $part): bool
     {
         foreach (array_map('trim', explode(',', $part)) as $listPart) {
             if ($field->isSatisfiedBy($dateTime, $listPart)) {

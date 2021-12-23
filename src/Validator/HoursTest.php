@@ -25,7 +25,7 @@ final class HoursTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\Validator\Hours::increment
-     * @covers \Bakame\Cron\Validator\CronField::computePosition
+     * @covers \Bakame\Cron\Validator\Field::computePosition
      */
     public function testIncrementsDate(): void
     {
@@ -41,7 +41,7 @@ final class HoursTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\Validator\Hours::increment
-     * @covers \Bakame\Cron\Validator\CronField::computePosition
+     * @covers \Bakame\Cron\Validator\Field::computePosition
      */
     public function testIncrementsDateWithThirtyMinuteOffsetTimezone(): void
     {
@@ -58,7 +58,7 @@ final class HoursTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\Validator\Hours::increment
-     * @covers \Bakame\Cron\Validator\CronField::computePosition
+     * @covers \Bakame\Cron\Validator\Field::computePosition
      */
     public function testIncrementDateWithFifteenMinuteOffsetTimezone(): void
     {

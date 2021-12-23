@@ -11,7 +11,7 @@ use DateTimeZone;
 /**
  * Hours field.  Allows: * , / -.
  */
-final class Hours extends CronField
+final class Hours extends Field
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 23;

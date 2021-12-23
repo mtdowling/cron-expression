@@ -25,7 +25,7 @@ use DateTimeInterface;
  *
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-final class DayOfMonth extends CronField
+final class DayOfMonth extends Field
 {
     protected int $rangeStart = 1;
     protected int $rangeEnd = 31;

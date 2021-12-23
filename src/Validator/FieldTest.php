@@ -9,14 +9,14 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-final class CronFieldTest extends TestCase
+final class FieldTest extends TestCase
 {
     /**
-     * @covers \Bakame\Cron\Validator\CronField::isSatisfied
-     * @covers \Bakame\Cron\Validator\CronField::isIncrementsOfRanges
-     * @covers \Bakame\Cron\Validator\CronField::isInIncrementsOfRanges
-     * @covers \Bakame\Cron\Validator\CronField::isInRange
-     * @covers \Bakame\Cron\Validator\CronField::isRange
+     * @covers \Bakame\Cron\Validator\Field::isSatisfied
+     * @covers \Bakame\Cron\Validator\Field::isIncrementsOfRanges
+     * @covers \Bakame\Cron\Validator\Field::isInIncrementsOfRanges
+     * @covers \Bakame\Cron\Validator\Field::isInRange
+     * @covers \Bakame\Cron\Validator\Field::isRange
      */
     public function testTestsIfSatisfied(): void
     {

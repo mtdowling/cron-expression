@@ -25,7 +25,7 @@ final class MinutesTest extends TestCase
 
     /**
      * @covers \Bakame\Cron\Validator\Minutes::increment
-     * @covers \Bakame\Cron\Validator\CronField::computePosition
+     * @covers \Bakame\Cron\Validator\Field::computePosition
      */
     public function testIncrementsDate(): void
     {

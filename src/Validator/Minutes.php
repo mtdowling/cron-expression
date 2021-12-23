@@ -10,7 +10,7 @@ use DateTimeInterface;
 /**
  * Minutes field.  Allows: * , / -.
  */
-final class Minutes extends CronField
+final class Minutes extends Field
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 59;
