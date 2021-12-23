@@ -189,11 +189,11 @@ final class CronExpressionTest extends TestCase
     /**
      * @covers \Bakame\Cron\CronExpression::match
      * @covers \Bakame\Cron\CronExpression::nextRun
-     * @covers \Bakame\Cron\DayOfMonthField
-     * @covers \Bakame\Cron\DayOfWeekField
-     * @covers \Bakame\Cron\MinutesField
-     * @covers \Bakame\Cron\HoursField
-     * @covers \Bakame\Cron\MonthField
+     * @covers \Bakame\Cron\Validator\DayOfMonth
+     * @covers \Bakame\Cron\Validator\DayOfWeek
+     * @covers \Bakame\Cron\Validator\Minutes
+     * @covers \Bakame\Cron\Validator\Hours
+     * @covers \Bakame\Cron\Validator\Month
      * @covers \Bakame\Cron\CronExpression::calculateRun
      * @dataProvider scheduleProvider
      */

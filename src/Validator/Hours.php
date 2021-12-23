@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
 use DateInterval;
 use DateTimeInterface;
@@ -11,7 +11,7 @@ use DateTimeZone;
 /**
  * Hours field.  Allows: * , / -.
  */
-final class HoursField extends CronField
+final class Hours extends CronField
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 23;

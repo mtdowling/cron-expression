@@ -1,6 +1,6 @@
 <?php
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
 use DateTimeInterface;
 

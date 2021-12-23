@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
 use DateInterval;
 use DateTimeInterface;
@@ -10,7 +10,7 @@ use DateTimeInterface;
 /**
  * Month field.  Allows: * , / -.
  */
-final class MonthField extends CronField
+final class Month extends CronField
 {
     protected int $rangeStart = 1;
     protected int $rangeEnd = 12;

@@ -2,22 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
+use Bakame\Cron\SyntaxError;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-final class DayOfWeekFieldTest extends TestCase
+final class DayOfWeekTest extends TestCase
 {
     /**
-     * @covers \Bakame\Cron\DayOfWeekField::validate
+     * @covers \Bakame\Cron\Validator\DayOfWeek::validate
      */
     public function testValidatesField(): void
     {
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertTrue($f->validate('1'));
         self::assertTrue($f->validate('*'));
         self::assertFalse($f->validate('*/3,1,1-12'));
@@ -26,54 +27,54 @@ final class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Bakame\Cron\Validator\DayOfWeek::isSatisfiedBy
      */
     public function testChecksIfSatisfied(): void
     {
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
     }
 
     /**
-     * @covers \Bakame\Cron\DayOfWeekField::increment
+     * @covers \Bakame\Cron\Validator\DayOfWeek::increment
      */
     public function testIncrementsDate(): void
     {
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertSame('2011-03-16 00:00:00', $f->increment(new DateTime('2011-03-15 11:15:00'))->format('Y-m-d H:i:s'));
 
         self::assertSame('2011-03-14 23:59:00', $f->increment(new DateTime('2011-03-15 11:15:00'), true)->format('Y-m-d H:i:s'));
     }
 
     /**
-     * @covers \Bakame\Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Bakame\Cron\Validator\DayOfWeek::isSatisfiedBy
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testValidatesHashValueWeekday(): void
     {
         $this->expectException(SyntaxError::class);
 
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '12#1'));
     }
 
     /**
-     * @covers \Bakame\Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Bakame\Cron\Validator\DayOfWeek::isSatisfiedBy
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testValidatesHashValueNth(): void
     {
         $this->expectException(SyntaxError::class);
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '3#6'));
     }
 
     /**
-     * @covers \Bakame\Cron\DayOfWeekField::validate
+     * @covers \Bakame\Cron\Validator\DayOfWeek::validate
      */
     public function testValidateWeekendHash(): void
     {
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertTrue($f->validate('MON#1'));
         self::assertTrue($f->validate('TUE#2'));
         self::assertTrue($f->validate('WED#3'));
@@ -85,11 +86,11 @@ final class DayOfWeekFieldTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\DayOfWeekField::isSatisfiedBy
+     * @covers \Bakame\Cron\Validator\DayOfWeek::isSatisfiedBy
      */
     public function testHandlesZeroAndSevenDayOfTheWeekValues(): void
     {
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '0-2'));
         self::assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '6-0'));
 
@@ -104,7 +105,7 @@ final class DayOfWeekFieldTest extends TestCase
      */
     public function testIssue47(): void
     {
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertFalse($f->validate('mon,'));
         self::assertFalse($f->validate('mon-'));
         self::assertFalse($f->validate('*/2,'));

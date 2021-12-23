@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -10,27 +10,27 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-final class MinutesFieldTest extends TestCase
+final class MinutesTest extends TestCase
 {
     /**
-     * @covers \Bakame\Cron\MinutesField::validate
+     * @covers \Bakame\Cron\Validator\Minutes::validate
      */
     public function testValidatesField(): void
     {
-        $f = new MinutesField();
+        $f = new Minutes();
         self::assertTrue($f->validate('1'));
         self::assertTrue($f->validate('*'));
         self::assertFalse($f->validate('*/3,1,1-12'));
     }
 
     /**
-     * @covers \Bakame\Cron\MinutesField::increment
-     * @covers \Bakame\Cron\CronField::computePosition
+     * @covers \Bakame\Cron\Validator\Minutes::increment
+     * @covers \Bakame\Cron\Validator\CronField::computePosition
      */
     public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
-        $f = new MinutesField();
+        $f = new Minutes();
 
         self::assertSame('2011-03-15 11:16:00', $f->increment($d)->format('Y-m-d H:i:s'));
         self::assertSame('2011-03-15 11:15:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
@@ -44,7 +44,7 @@ final class MinutesFieldTest extends TestCase
      */
     public function testBadSyntaxesShouldNotValidate(): void
     {
-        $f = new MinutesField();
+        $f = new Minutes();
         self::assertFalse($f->validate('*-1'));
         self::assertFalse($f->validate('1-2-3'));
         self::assertFalse($f->validate('-1'));

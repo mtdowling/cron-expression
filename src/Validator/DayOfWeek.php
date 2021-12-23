@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
+use Bakame\Cron\SyntaxError;
 use DateInterval;
 use DateTime;
 use DateTimeInterface;
@@ -21,7 +22,7 @@ use DateTimeInterface;
  * number between one and five. It allows you to specify constructs such as
  * "the second Friday" of a given month.
  */
-final class DayOfWeekField extends CronField
+final class DayOfWeek extends CronField
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 7;

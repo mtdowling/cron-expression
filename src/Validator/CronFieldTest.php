@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
 use PHPUnit\Framework\TestCase;
 
@@ -12,15 +12,15 @@ use PHPUnit\Framework\TestCase;
 final class CronFieldTest extends TestCase
 {
     /**
-     * @covers \Bakame\Cron\CronField::isSatisfied
-     * @covers \Bakame\Cron\CronField::isIncrementsOfRanges
-     * @covers \Bakame\Cron\CronField::isInIncrementsOfRanges
-     * @covers \Bakame\Cron\CronField::isInRange
-     * @covers \Bakame\Cron\CronField::isRange
+     * @covers \Bakame\Cron\Validator\CronField::isSatisfied
+     * @covers \Bakame\Cron\Validator\CronField::isIncrementsOfRanges
+     * @covers \Bakame\Cron\Validator\CronField::isInIncrementsOfRanges
+     * @covers \Bakame\Cron\Validator\CronField::isInRange
+     * @covers \Bakame\Cron\Validator\CronField::isRange
      */
     public function testTestsIfSatisfied(): void
     {
-        $f = new DayOfWeekField();
+        $f = new DayOfWeek();
         self::assertTrue($f->isSatisfied(12, '3-13'));
         self::assertFalse($f->isSatisfied(15, '3-7/2'));
         self::assertTrue($f->isSatisfied(12, '*'));
@@ -37,7 +37,7 @@ final class CronFieldTest extends TestCase
     public function testAllowRangesAndLists(): void
     {
         $expression = '5-7,11-13';
-        $f = new HoursField();
+        $f = new Hours();
         self::assertTrue($f->validate($expression));
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
 use DateInterval;
 use DateTimeInterface;
@@ -10,7 +10,7 @@ use DateTimeInterface;
 /**
  * Minutes field.  Allows: * , / -.
  */
-final class MinutesField extends CronField
+final class Minutes extends CronField
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 59;

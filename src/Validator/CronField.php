@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
+
+use Bakame\Cron\RangeError;
 
 /**
  * Abstract CRON expression field.

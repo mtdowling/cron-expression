@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron;
+namespace Bakame\Cron\Validator;
 
 use DateTime;
 use DateTimeInterface;
@@ -25,7 +25,7 @@ use DateTimeInterface;
  *
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-final class DayOfMonthField extends CronField
+final class DayOfMonth extends CronField
 {
     protected int $rangeStart = 1;
     protected int $rangeEnd = 31;

@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Bakame\Cron;
 
+use Bakame\Cron\Validator\DayOfMonth;
+use Bakame\Cron\Validator\DayOfWeek;
+use Bakame\Cron\Validator\Field;
+use Bakame\Cron\Validator\Hours;
+use Bakame\Cron\Validator\Minutes;
+use Bakame\Cron\Validator\Month;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -38,26 +44,26 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
     private int $maxIterationCount;
 
     /**
-     * Get an instance of a field object for a cron expression position.
+     * Get an instance of a field validator object for a cron expression position.
      *
-     * @param int $position CRON expression position value to retrieve
+     * @param int $fieldPosition CRON expression position value to retrieve
      *
      * @throws SyntaxError if a position is not valid
      */
-    private static function field(int $position): Field
+    private static function validator(int $fieldPosition): Field
     {
-        static $fields = [];
+        static $validators = [];
 
-        $fields[$position] ??= match ($position) {
-            self::MINUTE => new MinutesField(),
-            self::HOUR => new HoursField(),
-            self::MONTHDAY => new DayOfMonthField(),
-            self::MONTH => new MonthField(),
-            self::WEEKDAY => new DayOfWeekField(),
-            default => throw SyntaxError::dueToInvalidPosition($position),
+        $validators[$fieldPosition] ??= match ($fieldPosition) {
+            self::MINUTE => new Minutes(),
+            self::HOUR => new Hours(),
+            self::MONTHDAY => new DayOfMonth(),
+            self::MONTH => new Month(),
+            self::WEEKDAY => new DayOfWeek(),
+            default => throw SyntaxError::dueToInvalidPosition($fieldPosition),
         };
 
-        return $fields[$position];
+        return $validators[$fieldPosition];
     }
 
     /**
@@ -321,31 +327,29 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
     private function calculateRun(DateTime $from, int $nth, int $allowCurrentDate, bool $invert): DateTimeImmutable
     {
         // We don't have to satisfy * or null fields
-        $parts = [];
+        /** @var array<array{0:string, 1:Field}> $fields */
         $fields = [];
         foreach (self::TEST_ORDER_CRON_PARTS as $position) {
             $part = (string) $this->fields[$position];
             if ('*' !== $part) {
-                $parts[$position] = $part;
-                $fields[$position] = self::field($position);
+                $fields[] = [$part, self::validator($position)];
             }
         }
 
         // Set a hard limit to bail on an impossible date
         $nextRun = clone $from;
         for ($i = 0; $i < $this->maxIterationCount; $i++) {
-            foreach ($parts as $position => $part) {
-                $field = $fields[$position];
+            foreach ($fields as [$part, $validator]) {
                 // If the field is not satisfied, then start over
-                if (!$this->isFieldSatisfiedBy($nextRun, $field, $part)) {
-                    $nextRun = $field->increment($nextRun, $invert, $part);
+                if (!$this->isFieldSatisfiedBy($nextRun, $validator, $part)) {
+                    $nextRun = $validator->increment($nextRun, $invert, $part);
                     continue 2;
                 }
             }
 
             // Skip this match if needed
             if (($allowCurrentDate === self::DISALLOW_CURRENT_DATE && $nextRun == $from) || --$nth > -1) {
-                $nextRun = self::field(0)->increment($nextRun, $invert, $parts[0] ?? null);
+                $nextRun = self::validator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
                 continue;
             }
 
@@ -430,7 +434,7 @@ final class CronExpression implements ConfigurableExpression, JsonSerializable, 
         }
 
         foreach ($fields as $position => $field) {
-            if (!self::field($position)->validate($field)) {
+            if (!self::validator($position)->validate($field)) {
                 throw SyntaxError::dueToInvalidFieldValue($field, $position);
             }
 
