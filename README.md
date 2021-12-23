@@ -1,12 +1,11 @@
 PHP Cron Expression Parser
 ==========================
 
-**NOTE** This is a fork of [https://github.com/dragonmantank/cron-expression](https://github.com/dragonmantank/cron-expression).  
+**NOTE** This is a fork of [https://github.com/mtdowling/cron-expression](https://github.com/mtdowling/cron-expression).  
 
 The main difference is to be found in the exposed public API.
 
-The main class `CronExpression` is made an Immutable Value Object and the public API is made
-easier to reason with.
+The main class `CronExpression` is made an Immutable Value Object and the public API is updated to reflect it.
 
 To know more about cron expression your can look at the [Unix documentation](https://www.unix.com/man-page/linux/5/crontab/)
 
@@ -35,6 +34,7 @@ require_once '/vendor/autoload.php';
 // Works with predefined scheduling definitions
 $cron = CronExpression::daily();
 $cron->match();
+echo $cron; // returns '0 0 * * *'
 echo $cron->nextRun()->format('Y-m-d H:i:s');
 echo $cron->previousRun()->format('Y-m-d H:i:s');
 
