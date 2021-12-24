@@ -184,7 +184,7 @@ final class CronExpressionTest extends TestCase
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
         self::assertSame($isDue, $cron->match($relativeTime));
-        self::assertEquals(new DateTime($nextRun), $cron->nextRun($relativeTime, 0, CronExpression::ALLOW_CURRENT_DATE));
+        self::assertEquals(new DateTime($nextRun), $cron->nextRun(0, $relativeTime, CronExpression::ALLOW_CURRENT_DATE));
     }
 
     /**
@@ -260,28 +260,28 @@ final class CronExpressionTest extends TestCase
     public function testCanGetPreviousRunDates(): void
     {
         $cron = new CronExpression('* * * * *');
-        $next = $cron->nextRun('now');
-        $two = $cron->nextRun('now', 1);
-        self::assertEquals($next, $cron->previousRun($two));
+        $next = $cron->nextRun(0, 'now');
+        $two = $cron->nextRun(1, 'now');
+        self::assertEquals($next, $cron->previousRun(0, $two));
 
         $cron = new CronExpression('* */2 * * *');
-        $next = $cron->nextRun('now');
-        $two = $cron->nextRun('now', 1);
-        self::assertEquals($next, $cron->previousRun($two));
+        $next = $cron->nextRun(0, 'now');
+        $two = $cron->nextRun(1, 'now');
+        self::assertEquals($next, $cron->previousRun(0, $two));
 
         $cron = new CronExpression('* * * */2 *');
-        $next = $cron->nextRun('now');
-        $two = $cron->nextRun('now', 1);
-        self::assertEquals($next, $cron->previousRun($two));
+        $next = $cron->nextRun(0, 'now');
+        $two = $cron->nextRun(1, 'now');
+        self::assertEquals($next, $cron->previousRun(0, $two));
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::nextOccurrences
+     * @covers \Bakame\Cron\CronExpression::futureRuns
      */
     public function testProvidesMultipleRunDates(): void
     {
         $cron = new CronExpression('*/2 * * * *');
-        $result = $cron->nextOccurrences(4, '2008-11-09 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
+        $result = $cron->futureRuns(4, '2008-11-09 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
 
         self::assertEquals([
             new DateTime('2008-11-09 00:00:00'),
@@ -292,7 +292,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::nextOccurrences
+     * @covers \Bakame\Cron\CronExpression::futureRuns
      * @covers \Bakame\Cron\CronExpression::maxIterationCount
      * @covers \Bakame\Cron\CronExpression::withMaxIterationCount
      */
@@ -305,7 +305,7 @@ final class CronExpressionTest extends TestCase
         $newCron = $cron->withMaxIterationCount(2000);
         self::assertNotEquals($cron, $newCron);
 
-        $result = $newCron->nextOccurrences(9, '2015-04-28 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
+        $result = $newCron->futureRuns(9, '2015-04-28 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
         self::assertEquals([
             new DateTime('2016-01-12 00:00:00'),
             new DateTime('2017-01-12 00:00:00'),
@@ -325,21 +325,21 @@ final class CronExpressionTest extends TestCase
     public function testCanIterateOverNextRuns(): void
     {
         $cron = CronExpression::weekly();
-        $nextRun = $cron->nextRun('2008-11-09 08:00:00');
+        $nextRun = $cron->nextRun(0, '2008-11-09 08:00:00');
         self::assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
         // true is cast to 1
-        $nextRun = $cron->nextRun('2008-11-09 00:00:00', 1, CronExpression::ALLOW_CURRENT_DATE);
+        $nextRun = $cron->nextRun(1, '2008-11-09 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
         self::assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
         // You can iterate over them
-        $nextRun = $cron->nextRun($cron->nextRun('2008-11-09 00:00:00', 1, CronExpression::ALLOW_CURRENT_DATE), 1, CronExpression::ALLOW_CURRENT_DATE);
+        $nextRun = $cron->nextRun(1, $cron->nextRun(1, '2008-11-09 00:00:00', CronExpression::ALLOW_CURRENT_DATE), CronExpression::ALLOW_CURRENT_DATE);
         self::assertEquals($nextRun, new DateTime('2008-11-23 00:00:00'));
 
         // You can skip more than one
-        $nextRun = $cron->nextRun('2008-11-09 00:00:00', 2, CronExpression::ALLOW_CURRENT_DATE);
+        $nextRun = $cron->nextRun(2, '2008-11-09 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
         self::assertEquals($nextRun, new DateTime('2008-11-23 00:00:00'));
-        $nextRun = $cron->nextRun('2008-11-09 00:00:00', 3, CronExpression::ALLOW_CURRENT_DATE);
+        $nextRun = $cron->nextRun(3, '2008-11-09 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
         self::assertEquals($nextRun, new DateTime('2008-11-30 00:00:00'));
     }
 
@@ -350,8 +350,8 @@ final class CronExpressionTest extends TestCase
     {
         $cron = new CronExpression('* * * * *');
         $current = new DateTime('now');
-        $next = $cron->nextRun($current);
-        $nextPrev = $cron->previousRun($next);
+        $next = $cron->nextRun(0, $current);
+        $nextPrev = $cron->previousRun(0, $next);
         self::assertSame($current->format('Y-m-d H:i:00'), $nextPrev->format('Y-m-d H:i:s'));
     }
 
@@ -363,7 +363,7 @@ final class CronExpressionTest extends TestCase
     {
         $cron = new CronExpression('* * * * *');
         $current = new DateTime('2011-09-27 10:10:54');
-        self::assertSame('2011-09-27 10:11:00', $cron->nextRun($current)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-09-27 10:11:00', $cron->nextRun(0, $current)->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -372,7 +372,7 @@ final class CronExpressionTest extends TestCase
     public function testFixesPhpBugInDateIntervalMonth(): void
     {
         $cron = new CronExpression('0 0 27 JAN *');
-        self::assertSame('2011-01-27 00:00:00', $cron->previousRun('2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
+        self::assertSame('2011-01-27 00:00:00', $cron->previousRun(0, '2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
     }
 
     public function testIssue29(): void
@@ -380,7 +380,7 @@ final class CronExpressionTest extends TestCase
         $cron = CronExpression::weekly();
         self::assertSame(
             '2013-03-10 00:00:00',
-            $cron->previousRun('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
+            $cron->previousRun(0, '2013-03-17 00:00:00')->format('Y-m-d H:i:s')
         );
     }
 
@@ -413,7 +413,7 @@ final class CronExpressionTest extends TestCase
         $now = new DateTime();
         $strNow = $now->format(DateTime::ISO8601);
         $cron = new CronExpression('0 0 * * *');
-        $cron->previousRun($now);
+        $cron->previousRun(0, $now);
         self::assertSame($strNow, $now->format(DateTime::ISO8601));
     }
 
@@ -467,7 +467,7 @@ final class CronExpressionTest extends TestCase
     {
         $this->expectException(SyntaxError::class);
         $cron = new CronExpression('23 0-23/2 * * *');
-        $cron->nextRun('foobar');
+        $cron->nextRun(0, 'foobar');
     }
 
     /**

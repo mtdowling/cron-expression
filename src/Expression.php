@@ -27,25 +27,25 @@ interface Expression
     /**
      * Get a next run date relative to the current date or a specific date.
      *
-     * @param DateTimeInterface|string $from Relative calculation date
      * @param int $nth Number of occurrences to skip before returning a
-     *                 matching next run date.  0, the default, will return the current
-     *                 date and time if the next run date falls on the current date and
-     *                 time.  Setting this value to 1 will skip the first match and go to
-     *                 the second match.  Setting this value to 2 will skip the first 2
-     *                 matches and so on.
+     * @param DateTimeInterface|string $from Relative calculation date
+     *                                       matching next run date.  0, the default, will return the current
+     *                                       date and time if the next run date falls on the current date and
+     *                                       time.  Setting this value to 1 will skip the first match and go to
+     *                                       the second match.  Setting this value to 2 will skip the first 2
+     *                                       matches and so on.
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      *                     the current date if it matches the cron expression
      *
      * @throws ExpressionError
      */
-    public function nextRun(DateTimeInterface|string $from = 'now', int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function nextRun(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
 
     /**
      * Get a previous run date relative to the current date or a specific date.
      *
-     * @param DateTimeInterface|string $from Relative calculation date
      * @param int $nth Number of occurrences to skip before returning
+     * @param DateTimeInterface|string $from Relative calculation date
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      *                     the current date if it matches the cron expression
      *
@@ -53,7 +53,7 @@ interface Expression
      *
      * @see self::getNextRunDate
      */
-    public function previousRun(DateTimeInterface|string $from = 'now', int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function previousRun(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
 
     /**
      * Get multiple run dates starting at the current date or a specific date.
@@ -67,7 +67,7 @@ interface Expression
      *
      * @return Generator<DateTimeImmutable>
      */
-    public function nextOccurrences(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function futureRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
 
     /**
      * Get multiple run dates starting at the current date or a specific date.
@@ -78,12 +78,12 @@ interface Expression
      *                     the current date if it matches the cron expression
      *
      * @throws ExpressionError
-     *
      * @return Generator<DateTimeImmutable>
      *
-     * @see CronExpression::nextOccurrences
+     *
+     * @see CronExpression::futureRuns
      */
-    public function previousOccurrences(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function pastRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
 
     /**
      * Determine if the cron is due to run based on the current date or a

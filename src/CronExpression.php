@@ -89,22 +89,22 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     }
 
     public function nextRun(
-        DateTimeInterface|string $from = 'now',
         int $nth = 0,
+        DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
         return $this->calculateRun($this->filterDate($from), $nth, $options, false);
     }
 
     public function previousRun(
-        DateTimeInterface|string $from = 'now',
         int $nth = 0,
+        DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
         return $this->calculateRun($this->filterDate($from), $nth, $options, true);
     }
 
-    public function nextOccurrences(
+    public function futureRuns(
         int $total,
         DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
@@ -119,7 +119,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
     }
 
-    public function previousOccurrences(
+    public function pastRuns(
         int $total,
         DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
@@ -138,7 +138,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     {
         $currentDate = $this->filterDate($datetime);
         try {
-            return $this->nextRun($currentDate, 0, self::ALLOW_CURRENT_DATE) == $currentDate;
+            return $this->nextRun(0, $currentDate, self::ALLOW_CURRENT_DATE) == $currentDate;
         } catch (Throwable) {
             return false;
         }
@@ -378,14 +378,14 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
         if ($invert) {
             return array_merge(
-                iterator_to_array($domExpression->previousOccurrences($nth + 1, $from, $options), false),
-                iterator_to_array($dowExpression->previousOccurrences($nth + 1, $from, $options), false),
+                iterator_to_array($domExpression->pastRuns($nth + 1, $from, $options), false),
+                iterator_to_array($dowExpression->pastRuns($nth + 1, $from, $options), false),
             );
         }
 
         return array_merge(
-            iterator_to_array($domExpression->nextOccurrences($nth + 1, $from, $options), false),
-            iterator_to_array($dowExpression->nextOccurrences($nth + 1, $from, $options), false),
+            iterator_to_array($domExpression->futureRuns($nth + 1, $from, $options), false),
+            iterator_to_array($dowExpression->futureRuns($nth + 1, $from, $options), false),
         );
     }
 
