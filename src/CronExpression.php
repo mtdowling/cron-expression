@@ -93,7 +93,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
-        return $this->calculateRun($this->filterDate($from), $nth, $options, false);
+        return $this->calculateRun($nth, $this->filterDate($from), $options, false);
     }
 
     public function previousRun(
@@ -101,7 +101,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
-        return $this->calculateRun($this->filterDate($from), $nth, $options, true);
+        return $this->calculateRun($nth, $this->filterDate($from), $options, true);
     }
 
     public function futureRuns(
@@ -112,7 +112,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         $currentDate = $this->filterDate($from);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                yield $this->calculateRun($currentDate, $i, $options, false);
+                yield $this->calculateRun($i, $currentDate, $options, false);
             } catch (RuntimeException) {
                 break;
             }
@@ -127,7 +127,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         $currentDate = $this->filterDate($from);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                yield $this->calculateRun($currentDate, $i, $options, true);
+                yield $this->calculateRun($i, $currentDate, $options, true);
             } catch (RuntimeException) {
                 break;
             }
@@ -265,15 +265,15 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     /**
      * Get the next or previous run date of the expression relative to a date.
      *
-     * @param DateTime $from Relative calculation date
      * @param int $nth Number of matches to skip before returning
+     * @param DateTime $from Relative calculation date
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      * @param bool $invert Set to TRUE to go backwards in time
      *                     the current date if it matches the cron expression
      *
      * @throws ExpressionError on too many iterations
      */
-    private function calculateRun(DateTime $from, int $nth, int $options, bool $invert): DateTimeImmutable
+    private function calculateRun(int $nth, DateTime $from, int $options, bool $invert): DateTimeImmutable
     {
         $fields = $this->getOrderedFields();
 
