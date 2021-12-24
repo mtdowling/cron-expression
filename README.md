@@ -74,10 +74,10 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     public static function hourly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
 
     /* CRON Expression API */
-    public function nextRun(DateTimeInterface|string $from = 'now', int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
-    public function previousRun(DateTimeInterface|string $from = 'now', int $nth = 0, int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
-    public function nextOccurrences(int $total, DateTimeInterface|string $from = 'now',  int $options = self::DISALLOW_CURRENT_DATE): Generator;
-    public function previousOccurrences(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function nextRun(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function previousRun(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function futureRuns(int $total, DateTimeInterface|string $from = 'now',  int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function pastRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
     public function match(DateTimeInterface|string $datetime = 'now',): bool;
 
     /* CRON Expression getters */
