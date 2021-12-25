@@ -65,7 +65,7 @@ echo $cron->match($date); // return true
 
 namespace Bakame\Cron;
 
-final class CronExpression implements EditableExpression, JsonSerializable, Stringable
+final class CronExpression implements EditableExpression, \JsonSerializable, \Stringable
 {
     /* Constructors */
     public function __construct(string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000);
@@ -76,8 +76,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     public static function hourly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
 
     /* CRON Expression API */
-    public function nextRun(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
-    public function previousRun(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function run(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
     public function yieldNextRuns(int $total, DateTimeInterface|string $from = 'now',  int $options = self::DISALLOW_CURRENT_DATE): Generator;
     public function yieldPreviousRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
     public function match(DateTimeInterface|string $datetime = 'now',): bool;
@@ -122,5 +121,18 @@ final class ExpressionParser
     public static function fieldValidator(int $fieldOffset): FieldValidator;
     public static function parse(string $expression): array;
     public static function isValid(string $expression): bool;
+}
+```
+
+## ExpressionParser Public API
+
+```php
+<?php
+
+final class FieldValidator
+{
+    public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool;
+    public function increment(DateTimeInterface $date, bool $invert = false, string $parts = null): DateTimeInterface;
+    public function validate(string $expression): bool;
 }
 ```

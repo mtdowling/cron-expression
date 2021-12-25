@@ -88,20 +88,18 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         return new self('@hourly', $timezone, $maxIterationCount);
     }
 
-    public function nextRun(
+    public function run(
         int $nth = 0,
         DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
     ): DateTimeImmutable {
-        return $this->calculateRun($nth, $this->filterDate($from), $options, false);
-    }
+        $invert = false;
+        if (0 > $nth) {
+            $nth = ($nth * -1) - 1;
+            $invert = true;
+        }
 
-    public function previousRun(
-        int $nth = 0,
-        DateTimeInterface|string $from = 'now',
-        int $options = self::DISALLOW_CURRENT_DATE
-    ): DateTimeImmutable {
-        return $this->calculateRun($nth, $this->filterDate($from), $options, true);
+        return $this->calculateRun($nth, $this->filterDate($from), $options, $invert);
     }
 
     public function yieldNextRuns(
@@ -138,7 +136,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     {
         $currentDate = $this->filterDate($datetime);
         try {
-            return $this->nextRun(0, $currentDate, self::ALLOW_CURRENT_DATE) == $currentDate;
+            return $this->run(0, $currentDate, self::ALLOW_CURRENT_DATE) == $currentDate;
         } catch (Throwable) {
             return false;
         }
@@ -279,7 +277,6 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
         if (isset($fields[ExpressionParser::MONTHDAY], $fields[ExpressionParser::WEEKDAY])) {
             $combined = $this->getCombinedRuns($from, $nth, $options, $invert);
-
             usort($combined, fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
 
             return DateTimeImmutable::createFromInterface($combined[$nth]);
