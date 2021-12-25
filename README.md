@@ -35,22 +35,22 @@ require_once '/vendor/autoload.php';
 $cron = CronExpression::daily();
 $cron->match();
 echo $cron; // returns '0 0 * * *'
-echo $cron->nextRun()->format('Y-m-d H:i:s');
-echo $cron->previousRun()->format('Y-m-d H:i:s');
+echo $cron->run()->format('Y-m-d H:i:s');
+echo $cron->run(-1)->format('Y-m-d H:i:s');
 
 // Works with complex expressions
 $cron = new CronExpression('3-59/15 2,6-12 */15 1 2-5');
-echo $cron->nextRun()->format('Y-m-d H:i:s');
+echo $cron->run()->format('Y-m-d H:i:s');
 
 // Calculate a run date two iterations into the future
 $cron = new CronExpression('@daily');
-echo $cron->nextRun(2)->format('Y-m-d H:i:s');
+echo $cron->run(2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
 $cron = new CronExpression::monthly();
-echo $cron->nextRun(0, '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+echo $cron->run(0, '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 // or
-echo $cron->nextRun(from: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+echo $cron->run(from: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 
 // Works with complex expressions and timezone
 $cron = new CronExpression('45 9 * * *', 'Africa/Kinshasa');
