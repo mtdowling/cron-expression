@@ -12,11 +12,6 @@ interface EditableExpression extends Expression
     public function maxIterationCount(): int;
 
     /**
-     * Returns the timezone attached to the CRON expression.
-     */
-    public function timezone(): DateTimeZone;
-
-    /**
      * Set the minute field of the CRON expression.
      *
      * @param string $field The value to set
@@ -67,12 +62,12 @@ interface EditableExpression extends Expression
     public function withDayOfWeek(string $field): self;
 
     /**
-     * Set max iteration count when searching for next run dates.
-     */
-    public function withMaxIterationCount(int $maxIterationCount): self;
-
-    /**
      * Sets the timezone attached to the CRON expression.
      */
     public function withTimezone(DateTimeZone|string $timezone): self;
+
+    /**
+     * Set max iteration count when searching for next run dates.
+     */
+    public function withMaxIterationCount(int $maxIterationCount): self;
 }

@@ -276,12 +276,12 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::futureRuns
+     * @covers \Bakame\Cron\CronExpression::yieldNextRuns
      */
     public function testProvidesMultipleRunDates(): void
     {
         $cron = new CronExpression('*/2 * * * *');
-        $result = $cron->futureRuns(4, '2008-11-09 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
+        $result = $cron->yieldNextRuns(4, '2008-11-09 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
 
         self::assertEquals([
             new DateTime('2008-11-09 00:00:00'),
@@ -292,7 +292,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::futureRuns
+     * @covers \Bakame\Cron\CronExpression::yieldNextRuns
      * @covers \Bakame\Cron\CronExpression::maxIterationCount
      * @covers \Bakame\Cron\CronExpression::withMaxIterationCount
      */
@@ -305,7 +305,7 @@ final class CronExpressionTest extends TestCase
         $newCron = $cron->withMaxIterationCount(2000);
         self::assertNotEquals($cron, $newCron);
 
-        $result = $newCron->futureRuns(9, '2015-04-28 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
+        $result = $newCron->yieldNextRuns(9, '2015-04-28 00:00:00', CronExpression::ALLOW_CURRENT_DATE);
         self::assertEquals([
             new DateTime('2016-01-12 00:00:00'),
             new DateTime('2017-01-12 00:00:00'),

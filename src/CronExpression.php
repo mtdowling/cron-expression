@@ -104,7 +104,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         return $this->calculateRun($nth, $this->filterDate($from), $options, true);
     }
 
-    public function futureRuns(
+    public function yieldNextRuns(
         int $total,
         DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
@@ -119,7 +119,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
     }
 
-    public function pastRuns(
+    public function yieldPreviousRuns(
         int $total,
         DateTimeInterface|string $from = 'now',
         int $options = self::DISALLOW_CURRENT_DATE
@@ -378,14 +378,14 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
 
         if ($invert) {
             return array_merge(
-                iterator_to_array($domExpression->pastRuns($nth + 1, $from, $options), false),
-                iterator_to_array($dowExpression->pastRuns($nth + 1, $from, $options), false),
+                iterator_to_array($domExpression->yieldPreviousRuns($nth + 1, $from, $options), false),
+                iterator_to_array($dowExpression->yieldPreviousRuns($nth + 1, $from, $options), false),
             );
         }
 
         return array_merge(
-            iterator_to_array($domExpression->futureRuns($nth + 1, $from, $options), false),
-            iterator_to_array($dowExpression->futureRuns($nth + 1, $from, $options), false),
+            iterator_to_array($domExpression->yieldNextRuns($nth + 1, $from, $options), false),
+            iterator_to_array($dowExpression->yieldNextRuns($nth + 1, $from, $options), false),
         );
     }
 

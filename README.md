@@ -44,11 +44,13 @@ echo $cron->nextRun()->format('Y-m-d H:i:s');
 
 // Calculate a run date two iterations into the future
 $cron = new CronExpression('@daily');
-echo $cron->nextRun('now', 2)->format('Y-m-d H:i:s');
+echo $cron->nextRun(2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
 $cron = new CronExpression::monthly();
-echo $cron->nextRun('2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+echo $cron->nextRun(0, '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+// or
+echo $cron->nextRun(from: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 
 // Works with complex expressions and timezone
 $cron = new CronExpression('45 9 * * *', 'Africa/Kinshasa');
@@ -76,11 +78,12 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     /* CRON Expression API */
     public function nextRun(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
     public function previousRun(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
-    public function futureRuns(int $total, DateTimeInterface|string $from = 'now',  int $options = self::DISALLOW_CURRENT_DATE): Generator;
-    public function pastRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function yieldNextRuns(int $total, DateTimeInterface|string $from = 'now',  int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function yieldPreviousRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
     public function match(DateTimeInterface|string $datetime = 'now',): bool;
 
     /* CRON Expression getters */
+    public function timezone(): DateTimeZone;
     public function fields(): array;
     public function minute(): string;
     public function hour(): string;
@@ -92,15 +95,14 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     public function jsonSerialize(): string;
     
     /* CRON Expression configuration methods */
-    public function maxIterationCount(): int;
-    public function timezone(): DateTimeZone;
     public function withMinute(string $field): self;
     public function withHour(string $field): self;
     public function withDayOfMonth(string $field): self;
     public function withMonth(string $field): self;
     public function withDayOfWeek(string $field): self;
-    public function withMaxIterationCount(int $maxIterationCount): self;
     public function withTimezone(DateTimeZone|string $timezone): self;
+    public function maxIterationCount(): int;
+    public function withMaxIterationCount(int $maxIterationCount): self;
  }
 ```
 
