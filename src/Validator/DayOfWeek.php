@@ -29,13 +29,13 @@ final class DayOfWeek extends Field
     protected int $rangeEnd = 7;
     protected array $nthRange;
     protected array $literals = [
-        1 => 'MON',
-        2 => 'TUE',
-        3 => 'WED',
-        4 => 'THU',
-        5 => 'FRI',
-        6 => 'SAT',
-        7 => 'SUN',
+        '1' => 'MON',
+        '2' => 'TUE',
+        '3' => 'WED',
+        '4' => 'THU',
+        '5' => 'FRI',
+        '6' => 'SAT',
+        '7' => 'SUN',
     ];
 
     public function __construct()
@@ -51,7 +51,7 @@ final class DayOfWeek extends Field
         }
 
         // Convert text day of the week values to integers
-        $expression = (string) $this->convertLiterals($expression);
+        $expression = $this->convertLiterals($expression);
 
         $currentYear = (int) $date->format('Y');
         $currentMonth = (int) $date->format('m');
@@ -154,7 +154,7 @@ final class DayOfWeek extends Field
         // Handle the # value
         if (str_contains($expression, '#')) {
             $chunks = explode('#', $expression);
-            $chunks[0] = (string) $this->convertLiterals($chunks[0]);
+            $chunks[0] = $this->convertLiterals($chunks[0]);
             if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && in_array((int) $chunks[1], $this->nthRange, true)) {
                 return true;
             }

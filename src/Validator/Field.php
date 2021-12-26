@@ -127,7 +127,7 @@ abstract class Field implements FieldValidator
     protected function getRangeForExpression(string $expression, int $max): array
     {
         $values = [];
-        $expression = (string) $this->convertLiterals($expression);
+        $expression = $this->convertLiterals($expression);
         if (str_contains($expression, ',')) {
             $ranges = explode(',', $expression);
             foreach ($ranges as $range) {
@@ -167,7 +167,7 @@ abstract class Field implements FieldValidator
         return $values;
     }
 
-    protected function convertLiterals(string $value): int|string
+    protected function convertLiterals(string $value): string
     {
         if ([] === $this->literals) {
             return $value;
@@ -175,7 +175,7 @@ abstract class Field implements FieldValidator
 
         $key = array_search(strtoupper($value), $this->literals, true);
         if ($key !== false) {
-            return $key;
+            return (string) $key;
         }
 
         return $value;
@@ -186,7 +186,7 @@ abstract class Field implements FieldValidator
      */
     public function validate(string $expression): bool
     {
-        $expression = (string) $this->convertLiterals($expression);
+        $expression = $this->convertLiterals($expression);
 
         // All fields allow * as a valid value
         if ('*' === $expression) {
@@ -222,7 +222,7 @@ abstract class Field implements FieldValidator
                 return false;
             }
 
-            return $this->validate((string) $first) && $this->validate((string) $last);
+            return $this->validate($first) && $this->validate($last);
         }
 
         if (!is_numeric($expression)) {
