@@ -161,7 +161,7 @@ final class Scheduler
             $invert = true;
         }
 
-        return $this->calculateRun($nth, $this->filterDate($relativeTo), $this->options, $invert);
+        return $this->calculateRun($nth, $relativeTo, $this->options, $invert);
     }
 
     /**
@@ -232,14 +232,15 @@ final class Scheduler
      * Get the next or previous run date of the expression relative to a date.
      *
      * @param int $nth Number of matches to skip before returning
-     * @param DateTime $from Relative calculation date
+     * @param DateTimeInterface|string $from Relative calculation date
      * @param bool $invert Set to TRUE to go backwards in time
      *                     the current date if it matches the cron expression
      *
      * @throws ExpressionError on too many iterations
      */
-    private function calculateRun(int $nth, DateTime $from, int $options, bool $invert): DateTimeImmutable
+    private function calculateRun(int $nth, DateTimeInterface|string $from, int $options, bool $invert): DateTimeImmutable
     {
+        $from = $this->filterDate($from);
         $fields = $this->getOrderedFields();
 
         if (isset($fields[ExpressionParser::MONTHDAY], $fields[ExpressionParser::WEEKDAY])) {
