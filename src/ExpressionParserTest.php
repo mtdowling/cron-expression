@@ -11,9 +11,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class ExpressionParserTest extends TestCase
 {
-    /**
-     * @covers \Bakame\Cron\ExpressionParser::isValid
-     */
     public function testValidationWorks(): void
     {
         // Invalid. Only four values
@@ -35,7 +32,6 @@ final class ExpressionParserTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\ExpressionParser::parse
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testInvalidCronsWillFail(): void
@@ -47,7 +43,6 @@ final class ExpressionParserTest extends TestCase
 
 
     /**
-     * @covers \Bakame\Cron\ExpressionParser::parse
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testInvalidPartsWillFail(): void

@@ -26,7 +26,7 @@ final class Hours extends Field
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
-        if (is_null($parts) || $parts == '*') {
+        if (null === $parts || $parts == '*') {
             $timezone = $date->getTimezone();
             $date = $date->setTimezone(new DateTimeZone('UTC'));
             $interval = new DateInterval('PT1H');

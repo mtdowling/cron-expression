@@ -13,9 +13,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class DayOfWeekTest extends TestCase
 {
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfWeek::validate
-     */
     public function testValidatesField(): void
     {
         $f = new DayOfWeek();
@@ -26,18 +23,12 @@ final class DayOfWeekTest extends TestCase
         self::assertFalse($f->validate('1.'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfWeek::isSatisfiedBy
-     */
     public function testChecksIfSatisfied(): void
     {
         $f = new DayOfWeek();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfWeek::increment
-     */
     public function testIncrementsDate(): void
     {
         $f = new DayOfWeek();
@@ -47,7 +38,6 @@ final class DayOfWeekTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\Validator\DayOfWeek::isSatisfiedBy
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testValidatesHashValueWeekday(): void
@@ -59,7 +49,6 @@ final class DayOfWeekTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\Validator\DayOfWeek::isSatisfiedBy
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testValidatesHashValueNth(): void
@@ -69,9 +58,6 @@ final class DayOfWeekTest extends TestCase
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '3#6'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfWeek::validate
-     */
     public function testValidateWeekendHash(): void
     {
         $f = new DayOfWeek();
@@ -85,9 +71,6 @@ final class DayOfWeekTest extends TestCase
         self::assertTrue($f->validate('MON#1,MON#3'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfWeek::isSatisfiedBy
-     */
     public function testHandlesZeroAndSevenDayOfTheWeekValues(): void
     {
         $f = new DayOfWeek();
@@ -100,9 +83,6 @@ final class DayOfWeekTest extends TestCase
         self::assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), '7#3'));
     }
 
-    /**
-     * @see https://github.com/mtdowling/cron-expression/issues/47
-     */
     public function testIssue47(): void
     {
         $f = new DayOfWeek();

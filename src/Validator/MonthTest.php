@@ -12,9 +12,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class MonthTest extends TestCase
 {
-    /**
-     * @covers \Bakame\Cron\Validator\Month::validate
-     */
     public function testValidatesField(): void
     {
         $f = new Month();
@@ -24,9 +21,6 @@ final class MonthTest extends TestCase
         self::assertFalse($f->validate('1.fix-regexp'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\Month::increment
-     */
     public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
@@ -37,9 +31,6 @@ final class MonthTest extends TestCase
         self::assertSame('2011-02-28 23:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\Month::increment
-     */
     public function testIncrementsDateWithThirtyMinuteTimezone(): void
     {
         $tz = date_default_timezone_get();
@@ -53,9 +44,6 @@ final class MonthTest extends TestCase
         date_default_timezone_set($tz);
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\Month::increment
-     */
     public function testIncrementsYearAsNeeded(): void
     {
         $f = new Month();
@@ -63,9 +51,6 @@ final class MonthTest extends TestCase
         self::assertSame('2012-01-01 00:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\Month::increment
-     */
     public function testDecrementsYearAsNeeded(): void
     {
         $f = new Month();

@@ -2,12 +2,15 @@
 
 namespace Bakame\Cron;
 
+use AppendIterator;
+use ArrayIterator;
 use Bakame\Cron\Validator\FieldValidator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Generator;
+use NoRewindIterator;
 use RuntimeException;
 use Throwable;
 
@@ -232,26 +235,25 @@ final class Scheduler
      * Get the next or previous run date of the expression relative to a date.
      *
      * @param int $nth Number of matches to skip before returning
-     * @param DateTimeInterface|string $from Relative calculation date
+     * @param DateTimeInterface|string $startDate Relative calculation date
      * @param bool $invert Set to TRUE to go backwards in time
      *                     the current date if it matches the cron expression
      *
      * @throws ExpressionError on too many iterations
      */
-    private function calculateRun(int $nth, DateTimeInterface|string $from, int $options, bool $invert): DateTimeImmutable
+    private function calculateRun(int $nth, DateTimeInterface|string $startDate, int $options, bool $invert): DateTimeImmutable
     {
-        $from = $this->filterDate($from);
+        $start = $this->filterDate($startDate);
         $fields = $this->getOrderedFields();
 
         if (isset($fields[ExpressionParser::MONTHDAY], $fields[ExpressionParser::WEEKDAY])) {
-            $combined = $this->getCombinedRuns($from, $nth, $invert);
-            usort($combined, fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
-
-            return DateTimeImmutable::createFromInterface($combined[$nth]);
+            return DateTimeImmutable::createFromInterface(
+                $this->getCombinedRuns($start, $nth, $invert)
+            );
         }
 
         // Set a hard limit to bail on an impossible date
-        $nextRun = clone $from;
+        $nextRun = clone $start;
         for ($i = 0; $i < $this->maxIterationCount; $i++) {
             foreach ($fields as [$part, $validator]) {
                 // If the field is not satisfied, then start over
@@ -263,7 +265,7 @@ final class Scheduler
             }
 
             // Skip this match if needed
-            if (($options === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
+            if (($options === self::EXCLUDE_START_DATE && $nextRun == $start) || --$nth > -1) {
                 $nextRun = ExpressionParser::fieldValidator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
 
                 continue;
@@ -277,29 +279,33 @@ final class Scheduler
         // @codeCoverageIgnoreEnd
     }
 
-
     /**
      * @throws ExpressionError
-     * @return array<DateTimeInterface>
      */
-    private function getCombinedRuns(DateTime $from, int $nth, bool $invert): array
+    private function getCombinedRuns(DateTime $from, int $nth, bool $invert): DateTimeInterface
     {
-        $domExpression = $this->expression->withDayOfMonth('*');
-        $dowExpression = $this->expression->withDayOfWeek('*');
+        $dayOfWeekScheduler = $this->withExpression($this->expression->withDayOfWeek('*'));
+        $dayOfMonthScheduler = $this->withExpression($this->expression->withDayOfMonth('*'));
 
-
+        $append = new AppendIterator();
         if ($invert) {
-            return array_merge(
-                iterator_to_array($this->withExpression($domExpression)->yieldRunsBackward($nth + 1, $from), false),
-                iterator_to_array($this->withExpression($dowExpression)->yieldRunsBackward($nth + 1, $from), false),
-            );
+            $append->append(new NoRewindIterator($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $from)));
+            $append->append(new NoRewindIterator($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $from)));
+        } else {
+            $append->append(new NoRewindIterator($dayOfMonthScheduler->yieldRunsForward($nth + 1, $from)));
+            $append->append(new NoRewindIterator($dayOfWeekScheduler->yieldRunsForward($nth + 1, $from)));
         }
 
-        return array_merge(
-            iterator_to_array($this->withExpression($domExpression)->yieldRunsForward($nth + 1, $from), false),
-            iterator_to_array($this->withExpression($dowExpression)->yieldRunsForward($nth + 1, $from), false),
-        );
+        $iterator = new ArrayIterator();
+        foreach ($append as $date) {
+            $iterator[] = $date;
+        }
+
+        $iterator->uasort(fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
+
+        return $iterator[$nth];
     }
+
     /**
      * @throws SyntaxError
      */

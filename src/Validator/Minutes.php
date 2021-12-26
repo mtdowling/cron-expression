@@ -22,7 +22,7 @@ final class Minutes extends Field
 
     public function increment(DateTimeInterface $date, $invert = false, string $parts = null): DateTimeInterface
     {
-        if (is_null($parts)) {
+        if (null === $parts) {
             $interval = new DateInterval('PT1M');
             if ($invert) {
                 return $date->sub($interval);
@@ -45,6 +45,7 @@ final class Minutes extends Field
             if ($invert) {
                 return $date->sub($interval)->setTime((int) $date->format('H'), 59);
             }
+
             return $date->add($interval)->setTime((int) $date->format('H'), 0);
         }
 

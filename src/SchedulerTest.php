@@ -13,30 +13,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class SchedulerTest extends TestCase
 {
-
-
-
-
-
-
-
-
-    /**
-     * Data provider for testParsesCronScheduleWithAnySpaceCharsAsSeparators.
-     */
-    public static function scheduleWithDifferentSeparatorsProvider(): array
-    {
-        return [
-            ["*\t*\t*\t*\t*\t", ['*', '*', '*', '*', '*', '*']],
-            ['*  *  *  *  *  ', ['*', '*', '*', '*', '*', '*']],
-            ["* \t * \t * \t * \t * \t", ['*', '*', '*', '*', '*', '*']],
-            ["*\t \t*\t \t*\t \t*\t \t*\t \t", ['*', '*', '*', '*', '*', '*']],
-        ];
-    }
-
     /**
      * Data provider for cron schedule.
-     *
      */
     public function scheduleProvider(): array
     {
@@ -102,14 +80,12 @@ final class SchedulerTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\Scheduler::isDue
-     * @covers \Bakame\Cron\Scheduler::run
      * @covers \Bakame\Cron\Validator\DayOfMonth
      * @covers \Bakame\Cron\Validator\DayOfWeek
      * @covers \Bakame\Cron\Validator\Minutes
      * @covers \Bakame\Cron\Validator\Hours
      * @covers \Bakame\Cron\Validator\Month
-     * @covers \Bakame\Cron\Scheduler::calculateRun
+     *
      * @dataProvider scheduleProvider
      */
     public function testDeterminesIfCronIsDue(string $expression, string|int $relativeTime, string $nextRun, bool $isDue): void
@@ -128,9 +104,6 @@ final class SchedulerTest extends TestCase
         self::assertEquals(new DateTime($nextRun), $scheduler->includeStartDate()->run(0, $relativeTime));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::isDue
-     */
     public function testIsDueHandlesDifferentDates(): void
     {
         $cron = new CronExpression('* * * * *');
@@ -142,10 +115,6 @@ final class SchedulerTest extends TestCase
         self::assertTrue($scheduler->isDue(date('Y-m-d H:i')));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::isDue
-     * @covers \Bakame\Cron\Scheduler::filterTimezone
-     */
     public function testIsDueHandlesDifferentTimezones(): void
     {
         $cron = new CronExpression('0 15 * * 3'); //Wednesday at 15:00
@@ -174,9 +143,6 @@ final class SchedulerTest extends TestCase
         self::assertTrue($cronTok->isDue(new DateTime($date, $tokyo)));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::isDue
-     */
     public function testIsDueHandlesDifferentTimezonesAsArgument(): void
     {
         $cron = new CronExpression('0 15 * * 3');
@@ -200,9 +166,6 @@ final class SchedulerTest extends TestCase
         self::assertTrue($cronTok->isDue(new DateTime($date, $tokyo)));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::run
-     */
     public function testCanGetPreviousRunDates(): void
     {
         $cron = new CronExpression('* * * * *');
@@ -222,9 +185,6 @@ final class SchedulerTest extends TestCase
         self::assertEquals($next, $cron->run(-1, $two));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::yieldRunsForward
-     */
     public function testProvidesMultipleRunDates(): void
     {
         $cron = new Scheduler(expression:new CronExpression('*/2 * * * *'), options: Scheduler::INCLUDE_START_DATE);
@@ -267,9 +227,6 @@ final class SchedulerTest extends TestCase
         ], iterator_to_array($result));
     }
 
-    /**
-     * @covers \Bakame\Cron\CronExpression
-     */
     public function testCanIterateOverNextRuns(): void
     {
         $cron = new Scheduler(CronExpression::weekly());
@@ -291,9 +248,6 @@ final class SchedulerTest extends TestCase
         self::assertEquals($nextRun, new DateTime('2008-11-30 00:00:00'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::calculateRun
-     */
     public function testSkipsCurrentDateByDefault(): void
     {
         $cron = new Scheduler(new CronExpression('* * * * *'));
@@ -303,10 +257,6 @@ final class SchedulerTest extends TestCase
         self::assertSame($current->format('Y-m-d H:i:00'), $nextPrev->format('Y-m-d H:i:s'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::calculateRun
-     * @ticket 7
-     */
     public function testStripsForSeconds(): void
     {
         $cron = new Scheduler(new CronExpression('* * * * *'));
@@ -314,9 +264,6 @@ final class SchedulerTest extends TestCase
         self::assertSame('2011-09-27 10:11:00', $cron->run(0, $current)->format('Y-m-d H:i:s'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::calculateRun
-     */
     public function testFixesPhpBugInDateIntervalMonth(): void
     {
         $cron = new Scheduler(new CronExpression('0 0 27 JAN *'));
@@ -332,9 +279,6 @@ final class SchedulerTest extends TestCase
         );
     }
 
-    /**
-     * @see https://github.com/mtdowling/cron-expression/issues/20
-     */
     public function testIssue20(): void
     {
         $e = new Scheduler(new CronExpression('* * * * MON#1'));
@@ -353,9 +297,6 @@ final class SchedulerTest extends TestCase
         self::assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::calculateRun
-     */
     public function testKeepOriginalTime(): void
     {
         $now = new DateTime();
@@ -365,9 +306,6 @@ final class SchedulerTest extends TestCase
         self::assertSame($strNow, $now->format(DateTime::ISO8601));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::withTimezone
-     */
     public function testUpdateCronExpressionPartReturnsTheSameInstance(): void
     {
         $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
@@ -375,9 +313,6 @@ final class SchedulerTest extends TestCase
         self::assertSame($cron, $cron->withTimezone(date_default_timezone_get()));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::withTimezone
-     */
     public function testUpdateCronExpressionPartReturnsADifferentInstance(): void
     {
         $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
@@ -386,7 +321,6 @@ final class SchedulerTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\Scheduler::filterDate
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testThrowsIfTheDateCanNotBeInstantiated(): void
@@ -397,7 +331,6 @@ final class SchedulerTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\Scheduler::filterMaxIterationCount
      * @covers \Bakame\Cron\SyntaxError
      */
     public function testThrowsIfMaxIterationCountIsNegative(): void

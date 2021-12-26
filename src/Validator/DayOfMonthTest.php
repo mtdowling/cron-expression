@@ -12,9 +12,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class DayOfMonthTest extends TestCase
 {
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfMonth::validate
-     */
     public function testValidatesField(): void
     {
         $f = new DayOfMonth();
@@ -26,18 +23,12 @@ final class DayOfMonthTest extends TestCase
         self::assertFalse($f->validate('1.'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfMonth::isSatisfiedBy
-     */
     public function testChecksIfSatisfied(): void
     {
         $f = new DayOfMonth();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfMonth::increment
-     */
     public function testIncrementsDate(): void
     {
         $f = new DayOfMonth();
@@ -47,9 +38,7 @@ final class DayOfMonthTest extends TestCase
             $f->increment(new DateTime($date))->format('Y-m-d H:i:s')
         );
     }
-    /**
-     * @covers \Bakame\Cron\Validator\DayOfMonth::increment
-     */
+
     public function testDecrementsDate(): void
     {
         $f = new DayOfMonth();
@@ -60,12 +49,6 @@ final class DayOfMonthTest extends TestCase
         );
     }
 
-    /**
-     * Day of the month cannot accept a 0 value, it must be between 1 and 31
-     * See Github issue #120.
-     *
-     * @since 2017-01-22
-     */
     public function testDoesNotAccept0Date(): void
     {
         $f = new DayOfMonth();

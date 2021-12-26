@@ -11,13 +11,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class FieldTest extends TestCase
 {
-    /**
-     * @covers \Bakame\Cron\Validator\Field::isSatisfied
-     * @covers \Bakame\Cron\Validator\Field::isIncrementsOfRanges
-     * @covers \Bakame\Cron\Validator\Field::isInIncrementsOfRanges
-     * @covers \Bakame\Cron\Validator\Field::isInRange
-     * @covers \Bakame\Cron\Validator\Field::isRange
-     */
     public function testTestsIfSatisfied(): void
     {
         $f = new DayOfWeek();
@@ -29,11 +22,7 @@ final class FieldTest extends TestCase
         self::assertFalse($f->isSatisfied(12, '3-7/2'));
         self::assertFalse($f->isSatisfied(12, '11'));
     }
-    /**
-     * Allows ranges and lists to coexist in the same expression.
-     *
-     * @see https://github.com/dragonmantank/cron-expression/issues/5
-     */
+
     public function testAllowRangesAndLists(): void
     {
         $expression = '5-7,11-13';

@@ -12,9 +12,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class HoursTest extends TestCase
 {
-    /**
-     * @covers \Bakame\Cron\Validator\Hours::validate
-     */
     public function testValidatesField(): void
     {
         $f = new Hours();
@@ -23,10 +20,6 @@ final class HoursTest extends TestCase
         self::assertFalse($f->validate('*/3,1,1-12'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\Hours::increment
-     * @covers \Bakame\Cron\Validator\Field::computePosition
-     */
     public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
@@ -39,10 +32,6 @@ final class HoursTest extends TestCase
         self::assertSame('2011-03-15 10:59:00', $d->format('Y-m-d H:i:s'));
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\Hours::increment
-     * @covers \Bakame\Cron\Validator\Field::computePosition
-     */
     public function testIncrementsDateWithThirtyMinuteOffsetTimezone(): void
     {
         $tz = date_default_timezone_get();
@@ -56,10 +45,6 @@ final class HoursTest extends TestCase
         date_default_timezone_set($tz);
     }
 
-    /**
-     * @covers \Bakame\Cron\Validator\Hours::increment
-     * @covers \Bakame\Cron\Validator\Field::computePosition
-     */
     public function testIncrementDateWithFifteenMinuteOffsetTimezone(): void
     {
         $tz = date_default_timezone_get();
