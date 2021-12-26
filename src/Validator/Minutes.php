@@ -6,6 +6,7 @@ namespace Bakame\Cron\Validator;
 
 use DateInterval;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 
 /**
@@ -21,7 +22,7 @@ final class Minutes extends Field
         return $this->isSatisfied((int) $date->format('i'), $expression);
     }
 
-    public function increment(DateTime $date, $invert = false, string $parts = null): DateTime
+    public function increment(DateTime|DateTimeImmutable $date, $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         if (null === $parts) {
             $interval = new DateInterval('PT1M');

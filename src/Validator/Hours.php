@@ -6,6 +6,7 @@ namespace Bakame\Cron\Validator;
 
 use DateInterval;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 
@@ -22,7 +23,7 @@ final class Hours extends Field
         return $this->isSatisfied((int) $date->format('H'), $expression);
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): DateTime
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even

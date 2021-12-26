@@ -6,6 +6,7 @@ namespace Bakame\Cron\Validator;
 
 use DateInterval;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 
 /**
@@ -38,7 +39,7 @@ final class Month extends Field
         );
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): DateTime
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         if ($invert) {
             return $date

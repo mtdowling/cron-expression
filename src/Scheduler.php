@@ -271,7 +271,7 @@ final class Scheduler
         // @codeCoverageIgnoreEnd
     }
 
-    private function formatOutputDate(DateTime $resultDate, DateTimeInterface|string $inputDate): DateTimeImmutable
+    private function formatOutputDate(DateTimeInterface $resultDate, DateTimeInterface|string $inputDate): DateTimeImmutable
     {
         if (!$inputDate instanceof DateTimeImmutable) {
             return DateTimeImmutable::createFromInterface($resultDate);

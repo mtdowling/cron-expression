@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bakame\Cron\Validator;
 
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 
 /**
@@ -89,7 +90,7 @@ final class DayOfMonth extends Field
         return $this->isSatisfied((int) $date->format('d'), $expression);
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): DateTime
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         if ($invert) {
             return $date

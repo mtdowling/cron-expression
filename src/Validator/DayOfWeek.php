@@ -7,6 +7,7 @@ namespace Bakame\Cron\Validator;
 use Bakame\Cron\SyntaxError;
 use DateInterval;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 
 /**
@@ -132,7 +133,7 @@ final class DayOfWeek extends Field
         return $this->isSatisfied((int) $date->format($format), $expression);
     }
 
-    public function increment(DateTime $date, bool $invert = false, string $parts = null): DateTime
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         if ($invert) {
             return $date->sub(new DateInterval('P1D'))->setTime(23, 59, 0);
