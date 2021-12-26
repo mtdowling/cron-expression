@@ -5,7 +5,8 @@ PHP Cron Expression Parser
 
 The main difference is to be found in the exposed public API.
 
-The main class `CronExpression` is made an Immutable Value Object and the public API is updated to reflect it.
+- The main class `CronExpression` is made an Immutable Value Object and the public API is updated to reflect it.
+- An independent class `Scheduler` is added to improve with working with the business logic.
 
 To know more about cron expression your can look at the [Unix documentation](https://www.unix.com/man-page/linux/5/crontab/)
 
@@ -28,34 +29,37 @@ Usage
 <?php
 
 use Bakame\Cron\CronExpression;
+use Bakame\Cron\Scheduler;
 
 require_once '/vendor/autoload.php';
 
 // Works with predefined scheduling definitions
 $cron = CronExpression::daily();
-$cron->isDue();
 echo $cron; // returns '0 0 * * *'
-echo $cron->run()->format('Y-m-d H:i:s');
-echo $cron->run(-1)->format('Y-m-d H:i:s');
+$scheduler = new Scheduler($cron);
+$scheduler->isDue();
+echo $scheduler->run()->format('Y-m-d H:i:s');
+echo $scheduler->run(-1)->format('Y-m-d H:i:s');
 
 // Works with complex expressions
-$cron = new CronExpression('3-59/15 2,6-12 */15 1 2-5');
-echo $cron->run()->format('Y-m-d H:i:s');
+$scheduler = new Scheduler(new CronExpression('3-59/15 2,6-12 */15 1 2-5'));
+echo $scheduler->run()->format('Y-m-d H:i:s');
 
 // Calculate a run date two iterations into the future
-$cron = new CronExpression('@daily');
-echo $cron->run(2)->format('Y-m-d H:i:s');
+$scheduler = new Scheduler(new CronExpression('@daily'));
+echo $scheduler->run(2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
-$cron = new CronExpression::monthly();
-echo $cron->run(0, '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+$scheduler = new Scheduler(new CronExpression::monthly());
+echo $scheduler->run(0, '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 // or
-echo $cron->run(from: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+$scheduler = new Scheduler(new CronExpression::monthly());
+echo $scheduler->run(from: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 
 // Works with complex expressions and timezone
-$cron = new CronExpression('45 9 * * *', 'Africa/Kinshasa');
+$scheduler = new Scheduler(new CronExpression('45 9 * * *'), 'Africa/Kinshasa');
 $date = new DateTime('2014-05-18 08:45', new DateTimeZone('Europe/London'));
-echo $cron->isDue($date); // return true
+echo $scheduler->isDue($date); // return true
 ```
 
 ## CronExpression Public API
@@ -68,22 +72,12 @@ namespace Bakame\Cron;
 final class CronExpression implements EditableExpression, \JsonSerializable, \Stringable
 {
     /* Constructors */
-    public function __construct(string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000);
-    public static function yearly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
-    public static function monthly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
-    public static function weekly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
-    public static function daily(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
-    public static function hourly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
-
-    /* CRON Expression Scheduler API */
-    public function run(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::EXCLUDE_START_DATE): DateTimeImmutable;
-    public function yieldRunsForward(int $total, DateTimeInterface|string $from = 'now',  int $options = self::EXCLUDE_START_DATE): Generator;
-    public function yieldRunsBackward(int $total, DateTimeInterface|string $from = 'now', int $options = self::EXCLUDE_START_DATE): Generator;
-    public function isDue(DateTimeInterface|string $datetime = 'now',): bool;
-    public function timezone(): DateTimeZone;
-    public function withTimezone(DateTimeZone|string $timezone): self;
-    public function maxIterationCount(): int;
-    public function withMaxIterationCount(int $maxIterationCount): self;
+    public function __construct(string $expression);
+    public static function yearly(): self;
+    public static function monthly(): self;
+    public static function weekly(): self;
+    public static function daily(): self;
+    public static function hourly(): self;
 
     /* CRON Expression getters */
     public function fields(): array;
@@ -94,17 +88,16 @@ final class CronExpression implements EditableExpression, \JsonSerializable, \St
     public function dayOfWeek(): string;
     
     /* CRON Expression configuration methods */
-    public function withMinute(string $field): self;
-    public function withHour(string $field): self;
-    public function withDayOfMonth(string $field): self;
-    public function withMonth(string $field): self;
-    public function withDayOfWeek(string $field): self;
+    public function withMinute(string $value): self;
+    public function withHour(string $value): self;
+    public function withDayOfMonth(string $value): self;
+    public function withMonth(string $value): self;
+    public function withDayOfWeek(string $value): self;
     
     /* CRON expression formatting */
     public function toString(): string;
     public function __toString(): string;
     public function jsonSerialize(): string;
-
  }
 ```
 
@@ -127,7 +120,7 @@ final class ExpressionParser
 }
 ```
 
-## ExpressionParser Public API
+## FieldValidator Public API
 
 ```php
 <?php
@@ -138,4 +131,38 @@ final class FieldValidator
     public function increment(DateTimeInterface $date, bool $invert = false, string $parts = null): DateTimeInterface;
     public function validate(string $expression): bool;
 }
+```
+
+## Cron scheduler Public API
+
+```php
+<?php
+
+namespace Bakame\Cron;
+
+final class Scheduler
+{
+    public const EXCLUDE_START_DATE = 0;
+    public const INCLUDE_START_DATE = 1;
+    
+    /* Constructors */
+    public function __construct(Expression $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000, int $options = self::EXCLUDE_START_DATE);
+
+    /* CRON Expression Scheduler API */
+    public function run(int $nth = 0, DateTimeInterface|string $from = 'now'): DateTimeImmutable;
+    public function yieldRunsForward(int $total, DateTimeInterface|string $from = 'now'): Generator;
+    public function yieldRunsBackward(int $total, DateTimeInterface|string $from = 'now'): Generator;
+    public function isDue(DateTimeInterface|string $datetime = 'now'): bool;
+    
+     /* CRON Expression Scheduler Configuration API */
+    public function expression(): Expression;
+    public function withExpression(Expression $expression): self;
+    public function timezone(): DateTimeZone;
+    public function withTimezone(DateTimeZone|string $timezone): self;
+    public function maxIterationCount(): int;
+    public function withMaxIterationCount(int $maxIterationCount): self;
+    public function isStartDateExcluded(): bool;
+    public function excludeStartDate(): self;
+    public function includeStartDate(): self;
+ }
 ```
