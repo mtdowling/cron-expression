@@ -89,7 +89,7 @@ final class DayOfMonth extends Field
         return $this->isSatisfied((int) $date->format('d'), $expression);
     }
 
-    public function increment(DateTimeInterface $date, bool $invert = false, string $parts = null): DateTimeInterface
+    public function increment(DateTime $date, bool $invert = false, string $parts = null): DateTime
     {
         if ($invert) {
             return $date

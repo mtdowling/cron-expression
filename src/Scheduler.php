@@ -97,7 +97,7 @@ final class Scheduler
     public function withTimezone(DateTimeZone|string $timezone): self
     {
         $timezone = $this->filterTimezone($timezone);
-        if ($timezone == $this->timezone) {
+        if ($timezone->getName() === $this->timezone->getName()) {
             return $this;
         }
 
@@ -144,17 +144,15 @@ final class Scheduler
     }
 
     /**
-     * Get a next run date relative to the current date or a specific date.
+     * Get a run date relative to a specific date.
      *
-     * @param int $nth Number of occurrences to skip before returning a
-     *                 matching next run date.  0, the default, will return the current
-     *                 date and time if the next run date falls on the current date and
-     *                 time.  Setting this value to 1 will skip the first match and go to
-     *                 the second match.  Setting this value to 2 will skip the first 2
-     *                 matches and so on.
+     * @param int $nth Number of matches to skip before returning a matching next run date. 0, the default, will
+     *                 return the current date and time if the next run date falls on the current date and time.
+     *                 Setting this value to 1 will skip the first match and go to the second match.
+     *                 Setting this value to 2 will skip the first 2 matches and so on.
      * @param DateTimeInterface|string $relativeTo Relative calculation date
      *
-     * @throws ExpressionError
+     * @throws ExpressionError on too many iterations
      */
     public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable
     {
@@ -168,19 +166,13 @@ final class Scheduler
     }
 
     /**
-     * Determine if the cron is due to run based on the current date or a
-     * specific date.  This method assumes that the current number of
-     * seconds are irrelevant, and should be called once per minute.
-     *
-     * @param DateTimeInterface|string $dateTime Relative calculation date
-     *
-     * @throws ExpressionError
+     * Determine if the cron is due to run based on a specific date.
+     * This method assumes that the current number of seconds are irrelevant, and should be called once per minute.
      */
     public function isDue(DateTimeInterface|string $dateTime = 'now'): bool
     {
-        $currentDate = $this->filterDate($dateTime);
         try {
-            return $this->calculateRun(0, $currentDate, self::INCLUDE_START_DATE, false) == $currentDate;
+            return $this->calculateRun(0, $dateTime, self::INCLUDE_START_DATE, false) == $this->filterInputDate($dateTime);
         } catch (Throwable) {
             return false;
         }
@@ -197,10 +189,9 @@ final class Scheduler
      */
     public function yieldRunsForward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator
     {
-        $currentDate = $this->filterDate($relativeTo);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                yield $this->calculateRun($i, $currentDate, $this->options, false);
+                yield $this->calculateRun($i, $relativeTo, $this->options, false);
             } catch (RuntimeException) {
                 break;
             }
@@ -208,7 +199,7 @@ final class Scheduler
     }
 
     /**
-     * Get multiple run dates starting at the current date or a specific date.
+     * Get multiple run dates ending at the current date or a specific date.
      *
      * @param int $total Set the total number of dates to calculate
      * @param DateTimeInterface|string $relativeTo Relative calculation date
@@ -216,15 +207,13 @@ final class Scheduler
      * @throws ExpressionError
      * @return Generator<DateTimeImmutable>
      *
-     *
      * @see Scheduler::yieldRunsForward
      */
     public function yieldRunsBackward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator
     {
-        $currentDate = $this->filterDate($relativeTo);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                yield $this->calculateRun($i, $currentDate, $this->options, true);
+                yield $this->calculateRun($i, $relativeTo, $this->options, true);
             } catch (RuntimeException) {
                 break;
             }
@@ -235,26 +224,29 @@ final class Scheduler
      * Get the next or previous run date of the expression relative to a date.
      *
      * @param int $nth Number of matches to skip before returning
-     * @param DateTimeInterface|string $startDate Relative calculation date
+     * @param DateTimeInterface|string $relativeTo Relative calculation date
+     * @param int $options Set to self::INCLUDE_START_DATE to return the current date if it matches the cron expression
+     *                     Set to self::EXCLUDE_START_DATE to not return the current date if it matches the cron expression
      * @param bool $invert Set to TRUE to go backwards in time
-     *                     the current date if it matches the cron expression
      *
      * @throws ExpressionError on too many iterations
      */
-    private function calculateRun(int $nth, DateTimeInterface|string $startDate, int $options, bool $invert): DateTimeImmutable
+    private function calculateRun(int $nth, DateTimeInterface|string $relativeTo, int $options, bool $invert): DateTimeImmutable
     {
-        $start = $this->filterDate($startDate);
+        $startDate = $this->filterInputDate($relativeTo);
         $fields = $this->getOrderedFields();
 
         if (isset($fields[ExpressionParser::MONTHDAY], $fields[ExpressionParser::WEEKDAY])) {
-            return DateTimeImmutable::createFromInterface(
-                $this->getCombinedRuns($start, $nth, $invert)
-            );
+            return $this->getCombinedRuns($startDate, $nth, $invert);
         }
 
         // Set a hard limit to bail on an impossible date
-        $nextRun = clone $start;
+        $nextRun = clone $startDate;
         for ($i = 0; $i < $this->maxIterationCount; $i++) {
+            /**
+             * @var string $part
+             * @var FieldValidator $validator
+             */
             foreach ($fields as [$part, $validator]) {
                 // If the field is not satisfied, then start over
                 if (!$this->isFieldSatisfiedBy($nextRun, $validator, $part)) {
@@ -265,13 +257,13 @@ final class Scheduler
             }
 
             // Skip this match if needed
-            if (($options === self::EXCLUDE_START_DATE && $nextRun == $start) || --$nth > -1) {
+            if (($options === self::EXCLUDE_START_DATE && $nextRun == $startDate) || --$nth > -1) {
                 $nextRun = ExpressionParser::fieldValidator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
 
                 continue;
             }
 
-            return DateTimeImmutable::createFromInterface($nextRun);
+            return $this->formatOutputDate($nextRun, $relativeTo);
         }
 
         // @codeCoverageIgnoreStart
@@ -279,10 +271,19 @@ final class Scheduler
         // @codeCoverageIgnoreEnd
     }
 
+    private function formatOutputDate(DateTime $resultDate, DateTimeInterface|string $inputDate): DateTimeImmutable
+    {
+        if (!$inputDate instanceof DateTimeImmutable) {
+            return DateTimeImmutable::createFromInterface($resultDate);
+        }
+
+        return $inputDate::createFromInterface($resultDate);
+    }
+
     /**
      * @throws ExpressionError
      */
-    private function getCombinedRuns(DateTime $from, int $nth, bool $invert): DateTimeInterface
+    private function getCombinedRuns(DateTime $from, int $nth, bool $invert): DateTimeImmutable
     {
         $dayOfWeekScheduler = $this->withExpression($this->expression->withDayOfWeek('*'));
         $dayOfMonthScheduler = $this->withExpression($this->expression->withDayOfMonth('*'));
@@ -309,7 +310,7 @@ final class Scheduler
     /**
      * @throws SyntaxError
      */
-    private function filterDate(DateTimeInterface|string $date): DateTime
+    private function filterInputDate(DateTimeInterface|string $date): DateTime
     {
         if ($date instanceof DateTimeImmutable) {
             $currentDate = DateTime::createFromInterface($date);
