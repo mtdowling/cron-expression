@@ -50,7 +50,7 @@ abstract class Field implements FieldValidator
             return $this->isInRange($dateValue, $value);
         }
 
-        return $value === '*' || $dateValue == (int) $value;
+        return $value === '*' || $dateValue === (int) $value;
     }
 
     /**

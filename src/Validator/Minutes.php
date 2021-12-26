@@ -25,12 +25,11 @@ final class Minutes extends Field
     public function increment(DateTime|DateTimeImmutable $date, $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         if (null === $parts) {
-            $interval = new DateInterval('PT1M');
             if ($invert) {
-                return $date->sub($interval);
+                return $date->sub(new DateInterval('PT1M'));
             }
 
-            return $date->add($interval);
+            return $date->add(new DateInterval('PT1M'));
         }
 
         $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
@@ -43,12 +42,11 @@ final class Minutes extends Field
         $position = $this->computePosition($currentMinute, $minutes, $invert);
 
         if ((!$invert && $currentMinute >= $minutes[$position]) || ($invert && $currentMinute <= $minutes[$position])) {
-            $interval = new DateInterval('PT1H');
             if ($invert) {
-                return $date->sub($interval)->setTime((int) $date->format('H'), 59);
+                return $date->sub(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 59);
             }
 
-            return $date->add($interval)->setTime((int) $date->format('H'), 0);
+            return $date->add(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 0);
         }
 
         return $date->setTime((int) $date->format('H'), (int) $minutes[$position]);

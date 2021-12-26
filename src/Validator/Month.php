@@ -33,10 +33,7 @@ final class Month extends Field
 
     public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
     {
-        return $this->isSatisfied(
-            (int) $date->format('m'),
-            $this->convertLiterals($expression)
-        );
+        return $this->isSatisfied((int) $date->format('m'), $this->convertLiterals($expression));
     }
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable

@@ -81,10 +81,10 @@ final class DayOfWeek extends Field
             $nth = (int) $nth;
             // 0 and 7 are both Sunday, however 7 matches date('N') format ISO-8601
             if ($weekday === '0') {
-                $weekday = 7;
+                $weekday = '7';
             }
 
-            $weekday = $this->convertLiterals((string) $weekday);
+            $weekday = (int) $this->convertLiterals($weekday);
 
             // Validate the hash fields
             if ($weekday < 0 || $weekday > 7) {
@@ -96,7 +96,7 @@ final class DayOfWeek extends Field
             }
 
             // The current weekday must match the targeted weekday to proceed
-            if ($date->format('N') != $weekday) {
+            if ((int) $date->format('N') !== $weekday) {
                 return false;
             }
 
@@ -105,7 +105,7 @@ final class DayOfWeek extends Field
             $dayCount = 0;
             $currentDay = 1;
             while ($currentDay < $lastDayOfMonth + 1) {
-                if ($tempDate->format('N') == $weekday) {
+                if ((int) $tempDate->format('N') === $weekday) {
                     if (++$dayCount >= $nth) {
                         break;
                     }
@@ -113,15 +113,15 @@ final class DayOfWeek extends Field
                 $tempDate->setDate($currentYear, $currentMonth, ++$currentDay);
             }
 
-            return $date->format('j') == $currentDay;
+            return (int) $date->format('j') === $currentDay;
         }
 
         // Handle day of the week values
         if (str_contains($expression, '-')) {
             $parts = explode('-', $expression);
-            if ($parts[0] == '7') {
+            if ($parts[0] === '7') {
                 $parts[0] = '0';
-            } elseif ($parts[1] == '0') {
+            } elseif ($parts[1] === '0') {
                 $parts[1] = '7';
             }
             $expression = implode('-', $parts);
@@ -136,10 +136,10 @@ final class DayOfWeek extends Field
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         if ($invert) {
-            return $date->sub(new DateInterval('P1D'))->setTime(23, 59, 0);
+            return $date->sub(new DateInterval('P1D'))->setTime(23, 59);
         }
 
-        return $date->add(new DateInterval('P1D'))->setTime(0, 0, 0);
+        return $date->add(new DateInterval('P1D'))->setTime(0, 0);
     }
 
     /**

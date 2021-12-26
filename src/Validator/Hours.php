@@ -31,12 +31,11 @@ final class Hours extends Field
         if (null === $parts || $parts == '*') {
             $timezone = $date->getTimezone();
             $date = $date->setTimezone(new DateTimeZone('UTC'));
-            $interval = new DateInterval('PT1H');
             if ($invert) {
-                return $date->sub($interval)->setTimezone($timezone)->setTime((int) $date->format('H'), 59);
+                return $date->sub(new DateInterval('PT1H'))->setTimezone($timezone)->setTime((int) $date->format('H'), 59);
             }
 
-            return $date->add($interval)->setTimezone($timezone)->setTime((int) $date->format('H'), 0);
+            return $date->add(new DateInterval('PT1H'))->setTimezone($timezone)->setTime((int) $date->format('H'), 0);
         }
 
         $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
@@ -45,10 +44,7 @@ final class Hours extends Field
             $hours = array_merge($hours, $this->getRangeForExpression($part, 23));
         }
 
-        $currentHour = (int) $date->format('H');
-        $position = $this->computePosition($currentHour, $hours, $invert);
-
-        $hour = $hours[$position];
+        $hour = $hours[$this->computePosition((int) $date->format('H'), $hours, $invert)];
         if ((!$invert && $date->format('H') >= $hour) || ($invert && $date->format('H') <= $hour)) {
             if ($invert) {
                 return $date->sub(new DateInterval('P1D'))->setTime(23, 59);
