@@ -7,7 +7,7 @@ namespace Bakame\Cron;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @author Michael Dowling <mtdowling@gmail.com>
+ * @coversDefaultClass \Bakame\Cron\CronExpression
  */
 final class CronExpressionTest extends TestCase
 {

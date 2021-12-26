@@ -7,7 +7,7 @@ namespace Bakame\Cron\Validator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @author Michael Dowling <mtdowling@gmail.com>
+ * @coversDefaultClass \Bakame\Cron\Validator\Field
  */
 final class FieldTest extends TestCase
 {

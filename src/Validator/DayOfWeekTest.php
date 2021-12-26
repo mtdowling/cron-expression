@@ -9,7 +9,7 @@ use DateTime;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @author Michael Dowling <mtdowling@gmail.com>
+ * @coversDefaultClass \Bakame\Cron\Validator\DayOfWeek
  */
 final class DayOfWeekTest extends TestCase
 {

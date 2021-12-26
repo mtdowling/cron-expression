@@ -9,7 +9,7 @@ use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @author Michael Dowling <mtdowling@gmail.com>
+ * @coversDefaultClass \Bakame\Cron\Scheduler
  */
 final class SchedulerTest extends TestCase
 {

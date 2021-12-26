@@ -6,6 +6,9 @@ namespace Bakame\Cron;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @coversDefaultClass \Bakame\Cron\ExpressionParser
+ */
 final class ExpressionParserTest extends TestCase
 {
     /**

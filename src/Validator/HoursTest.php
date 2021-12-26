@@ -8,7 +8,7 @@ use DateTime;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @author Michael Dowling <mtdowling@gmail.com>
+ * @coversDefaultClass \Bakame\Cron\Validator\Hours
  */
 final class HoursTest extends TestCase
 {
