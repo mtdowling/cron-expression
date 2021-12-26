@@ -310,14 +310,14 @@ final class SchedulerTest extends TestCase
     {
         $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
 
-        self::assertSame($cron, $cron->withTimezone(date_default_timezone_get()));
+        self::assertSame($cron, $cron->withTimeZone(date_default_timezone_get()));
     }
 
     public function testUpdateCronExpressionPartReturnsADifferentInstance(): void
     {
         $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
 
-        self::assertNotEquals($cron, $cron->withTimezone('Africa/Kinshasa'));
+        self::assertNotEquals($cron, $cron->withTimeZone('Africa/Kinshasa'));
     }
 
     /**

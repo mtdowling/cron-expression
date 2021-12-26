@@ -104,7 +104,7 @@ final class Scheduler
         return $clone;
     }
 
-    public function withTimezone(DateTimeZone|string $timeZone): self
+    public function withTimeZone(DateTimeZone|string $timeZone): self
     {
         $timeZone = $this->filterTimezone($timeZone);
         if ($timeZone->getName() === $this->timeZone->getName()) {
