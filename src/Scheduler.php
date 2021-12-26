@@ -19,29 +19,39 @@ final class Scheduler
     public const EXCLUDE_START_DATE = 0;
     public const INCLUDE_START_DATE = 1;
 
-    private DateTimeZone $timezone;
+    private DateTimeZone $timeZone;
     private int $maxIterationCount;
     private int $options;
 
     public function __construct(
         private Expression $expression,
-        DateTimeZone|string|null $timezone = null,
+        DateTimeZone|string|null $timeZone = null,
         int $maxIterationCount = 1000,
         int $options = self::EXCLUDE_START_DATE
     ) {
-        $this->timezone = $this->filterTimezone($timezone);
+        $this->timeZone = $this->filterTimezone($timeZone);
         $this->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
         $this->options = $this->filterOptions($options);
     }
 
-    private function filterTimezone(DateTimeZone|string|null $timezone): DateTimeZone
+    public static function fromUTC(Expression $expression): self
     {
-        $timezone ??= date_default_timezone_get();
-        if (!$timezone instanceof DateTimeZone) {
-            return new DateTimeZone($timezone);
+        return new self($expression, new DateTimeZone('UTC'));
+    }
+
+    public static function fromSystemTimeZone(Expression $expression): self
+    {
+        return new self($expression, date_default_timezone_get());
+    }
+
+    private function filterTimezone(DateTimeZone|string|null $timeZone): DateTimeZone
+    {
+        $timeZone ??= date_default_timezone_get();
+        if (!$timeZone instanceof DateTimeZone) {
+            return new DateTimeZone($timeZone);
         }
 
-        return $timezone;
+        return $timeZone;
     }
 
     private function filterMaxIterationCount(int $maxIterationCount): int
@@ -67,9 +77,9 @@ final class Scheduler
         return $this->expression;
     }
 
-    public function timezone(): DateTimeZone
+    public function timeZone(): DateTimeZone
     {
-        return $this->timezone;
+        return $this->timeZone;
     }
 
     public function maxIterationCount(): int
@@ -94,15 +104,15 @@ final class Scheduler
         return $clone;
     }
 
-    public function withTimezone(DateTimeZone|string $timezone): self
+    public function withTimezone(DateTimeZone|string $timeZone): self
     {
-        $timezone = $this->filterTimezone($timezone);
-        if ($timezone->getName() === $this->timezone->getName()) {
+        $timeZone = $this->filterTimezone($timeZone);
+        if ($timeZone->getName() === $this->timeZone->getName()) {
             return $this;
         }
 
         $clone = clone $this;
-        $clone->timezone = $timezone;
+        $clone->timeZone = $timeZone;
 
         return $clone;
     }
@@ -314,7 +324,7 @@ final class Scheduler
     {
         if ($date instanceof DateTimeImmutable) {
             $currentDate = DateTime::createFromInterface($date);
-            $currentDate->setTimezone($this->timezone);
+            $currentDate->setTimezone($this->timeZone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
@@ -322,14 +332,14 @@ final class Scheduler
 
         if ($date instanceof DateTime) {
             $currentDate = clone $date;
-            $currentDate->setTimezone($this->timezone);
+            $currentDate->setTimezone($this->timeZone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         }
 
         try {
-            $currentDate = new DateTime($date, $this->timezone);
+            $currentDate = new DateTime($date, $this->timeZone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
