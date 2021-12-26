@@ -15,7 +15,7 @@ use RuntimeException;
 use Stringable;
 use Throwable;
 
-final class CronExpression implements EditableExpression, JsonSerializable, Stringable
+final class CronExpression implements Expression, JsonSerializable, Stringable
 {
     /** @var array<int, string> CRON expression fields */
     private array $fields;
@@ -89,9 +89,9 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     }
 
     public function run(
-        int $nth = 0,
-        DateTimeInterface|string $from = 'now',
-        int $options = self::DISALLOW_CURRENT_DATE
+        int                      $nth = 0,
+        DateTimeInterface|string $relativeTo = 'now',
+        int                      $options = self::EXCLUDE_START_DATE
     ): DateTimeImmutable {
         $invert = false;
         if (0 > $nth) {
@@ -99,15 +99,15 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
             $invert = true;
         }
 
-        return $this->calculateRun($nth, $this->filterDate($from), $options, $invert);
+        return $this->calculateRun($nth, $this->filterDate($relativeTo), $options, $invert);
     }
 
-    public function yieldNextRuns(
-        int $total,
-        DateTimeInterface|string $from = 'now',
-        int $options = self::DISALLOW_CURRENT_DATE
+    public function yieldRunsForward(
+        int                      $total,
+        DateTimeInterface|string $relativeTo = 'now',
+        int                      $options = self::EXCLUDE_START_DATE
     ): Generator {
-        $currentDate = $this->filterDate($from);
+        $currentDate = $this->filterDate($relativeTo);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
                 yield $this->calculateRun($i, $currentDate, $options, false);
@@ -117,12 +117,12 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
     }
 
-    public function yieldPreviousRuns(
-        int $total,
-        DateTimeInterface|string $from = 'now',
-        int $options = self::DISALLOW_CURRENT_DATE
+    public function yieldRunsBackward(
+        int                      $total,
+        DateTimeInterface|string $relativeTo = 'now',
+        int                      $options = self::EXCLUDE_START_DATE
     ): Generator {
-        $currentDate = $this->filterDate($from);
+        $currentDate = $this->filterDate($relativeTo);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
                 yield $this->calculateRun($i, $currentDate, $options, true);
@@ -132,11 +132,11 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
     }
 
-    public function match(DateTimeInterface|string $datetime = 'now'): bool
+    public function isDue(DateTimeInterface|string $datetime = 'now'): bool
     {
         $currentDate = $this->filterDate($datetime);
         try {
-            return $this->run(0, $currentDate, self::ALLOW_CURRENT_DATE) == $currentDate;
+            return $this->run(0, $currentDate, self::INCLUDE_START_DATE) == $currentDate;
         } catch (Throwable) {
             return false;
         }
@@ -295,7 +295,7 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
             }
 
             // Skip this match if needed
-            if (($options === self::DISALLOW_CURRENT_DATE && $nextRun == $from) || --$nth > -1) {
+            if (($options === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
                 $nextRun = ExpressionParser::fieldValidator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
 
                 continue;
@@ -312,18 +312,18 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
     /**
      * @throws SyntaxError
      */
-    private function filterDate(DateTimeInterface|string $currentTime): DateTime
+    private function filterDate(DateTimeInterface|string $date): DateTime
     {
-        if ($currentTime instanceof DateTimeImmutable) {
-            $currentDate = DateTime::createFromInterface($currentTime);
+        if ($date instanceof DateTimeImmutable) {
+            $currentDate = DateTime::createFromInterface($date);
             $currentDate->setTimezone($this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         }
 
-        if ($currentTime instanceof DateTime) {
-            $currentDate = clone $currentTime;
+        if ($date instanceof DateTime) {
+            $currentDate = clone $date;
             $currentDate->setTimezone($this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
@@ -331,12 +331,12 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
         }
 
         try {
-            $currentDate = new DateTime($currentTime, $this->timezone);
+            $currentDate = new DateTime($date, $this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         } catch (Throwable $exception) {
-            throw SyntaxError::dueToInvalidDate($currentTime, $exception);
+            throw SyntaxError::dueToInvalidDate($date, $exception);
         }
     }
 
@@ -357,32 +357,19 @@ final class CronExpression implements EditableExpression, JsonSerializable, Stri
      */
     private function getCombinedRuns(DateTime $from, int $nth, int $options, bool $invert): array
     {
-        $domExpression = new self(sprintf(
-            '%s %s %s %s *',
-            $this->fields[ExpressionParser::MINUTE],
-            $this->fields[ExpressionParser::HOUR],
-            $this->fields[ExpressionParser::MONTHDAY],
-            $this->fields[ExpressionParser::MONTH]
-        ), $this->timezone);
-
-        $dowExpression = new self(sprintf(
-            '%s %s * %s %s',
-            $this->fields[ExpressionParser::MINUTE],
-            $this->fields[ExpressionParser::HOUR],
-            $this->fields[ExpressionParser::MONTH],
-            $this->fields[ExpressionParser::WEEKDAY]
-        ), $this->timezone);
+        $domExpression = $this->withDayOfWeek('*');
+        $dowExpression = $this->withDayOfMonth('*');
 
         if ($invert) {
             return array_merge(
-                iterator_to_array($domExpression->yieldPreviousRuns($nth + 1, $from, $options), false),
-                iterator_to_array($dowExpression->yieldPreviousRuns($nth + 1, $from, $options), false),
+                iterator_to_array($domExpression->yieldRunsBackward($nth + 1, $from, $options), false),
+                iterator_to_array($dowExpression->yieldRunsBackward($nth + 1, $from, $options), false),
             );
         }
 
         return array_merge(
-            iterator_to_array($domExpression->yieldNextRuns($nth + 1, $from, $options), false),
-            iterator_to_array($dowExpression->yieldNextRuns($nth + 1, $from, $options), false),
+            iterator_to_array($domExpression->yieldRunsForward($nth + 1, $from, $options), false),
+            iterator_to_array($dowExpression->yieldRunsForward($nth + 1, $from, $options), false),
         );
     }
 

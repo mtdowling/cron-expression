@@ -33,7 +33,7 @@ require_once '/vendor/autoload.php';
 
 // Works with predefined scheduling definitions
 $cron = CronExpression::daily();
-$cron->match();
+$cron->isDue();
 echo $cron; // returns '0 0 * * *'
 echo $cron->run()->format('Y-m-d H:i:s');
 echo $cron->run(-1)->format('Y-m-d H:i:s');
@@ -55,7 +55,7 @@ echo $cron->run(from: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 // Works with complex expressions and timezone
 $cron = new CronExpression('45 9 * * *', 'Africa/Kinshasa');
 $date = new DateTime('2014-05-18 08:45', new DateTimeZone('Europe/London'));
-echo $cron->match($date); // return true
+echo $cron->isDue($date); // return true
 ```
 
 ## CronExpression Public API
@@ -75,23 +75,23 @@ final class CronExpression implements EditableExpression, \JsonSerializable, \St
     public static function daily(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
     public static function hourly(DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000): self;
 
-    /* CRON Expression API */
-    public function run(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
-    public function yieldNextRuns(int $total, DateTimeInterface|string $from = 'now',  int $options = self::DISALLOW_CURRENT_DATE): Generator;
-    public function yieldPreviousRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
-    public function match(DateTimeInterface|string $datetime = 'now',): bool;
+    /* CRON Expression Scheduler API */
+    public function run(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::EXCLUDE_START_DATE): DateTimeImmutable;
+    public function yieldRunsForward(int $total, DateTimeInterface|string $from = 'now',  int $options = self::EXCLUDE_START_DATE): Generator;
+    public function yieldRunsBackward(int $total, DateTimeInterface|string $from = 'now', int $options = self::EXCLUDE_START_DATE): Generator;
+    public function isDue(DateTimeInterface|string $datetime = 'now',): bool;
+    public function timezone(): DateTimeZone;
+    public function withTimezone(DateTimeZone|string $timezone): self;
+    public function maxIterationCount(): int;
+    public function withMaxIterationCount(int $maxIterationCount): self;
 
     /* CRON Expression getters */
-    public function timezone(): DateTimeZone;
     public function fields(): array;
     public function minute(): string;
     public function hour(): string;
     public function dayOfMonth(): string;
     public function month(): string;
     public function dayOfWeek(): string;
-    public function toString(): string;
-    public function __toString(): string;
-    public function jsonSerialize(): string;
     
     /* CRON Expression configuration methods */
     public function withMinute(string $field): self;
@@ -99,9 +99,12 @@ final class CronExpression implements EditableExpression, \JsonSerializable, \St
     public function withDayOfMonth(string $field): self;
     public function withMonth(string $field): self;
     public function withDayOfWeek(string $field): self;
-    public function withTimezone(DateTimeZone|string $timezone): self;
-    public function maxIterationCount(): int;
-    public function withMaxIterationCount(int $maxIterationCount): self;
+    
+    /* CRON expression formatting */
+    public function toString(): string;
+    public function __toString(): string;
+    public function jsonSerialize(): string;
+
  }
 ```
 

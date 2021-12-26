@@ -6,7 +6,6 @@ namespace Bakame\Cron;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use DateTimeZone;
 use Generator;
 
 /**
@@ -22,8 +21,8 @@ use Generator;
  */
 interface Expression
 {
-    public const ALLOW_CURRENT_DATE = 1;
-    public const DISALLOW_CURRENT_DATE = 0;
+    public const INCLUDE_START_DATE = 1;
+    public const EXCLUDE_START_DATE = 0;
 
     /**
      * Get a next run date relative to the current date or a specific date.
@@ -34,33 +33,33 @@ interface Expression
      *                 time.  Setting this value to 1 will skip the first match and go to
      *                 the second match.  Setting this value to 2 will skip the first 2
      *                 matches and so on.
-     * @param DateTimeInterface|string $from Relative calculation date
+     * @param DateTimeInterface|string $relativeTo Relative calculation date
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      *                     the current date if it matches the cron expression
      *
      * @throws ExpressionError
      */
-    public function run(int $nth = 0, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): DateTimeImmutable;
+    public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now', int $options = self::EXCLUDE_START_DATE): DateTimeImmutable;
 
     /**
      * Get multiple run dates starting at the current date or a specific date.
      *
      * @param int $total Set the total number of dates to calculate
-     * @param DateTimeInterface|string $from Relative calculation date
+     * @param DateTimeInterface|string $relativeTo Relative calculation date
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      *                     the current date if it matches the cron expression
      *
-     * @throws ExpressionError
-     *
+     *@throws ExpressionError
      * @return Generator<DateTimeImmutable>
+     *
      */
-    public function yieldNextRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function yieldRunsForward(int $total, DateTimeInterface|string $relativeTo = 'now', int $options = self::EXCLUDE_START_DATE): Generator;
 
     /**
      * Get multiple run dates starting at the current date or a specific date.
      *
      * @param int $total Set the total number of dates to calculate
-     * @param DateTimeInterface|string $from Relative calculation date
+     * @param DateTimeInterface|string $relativeTo Relative calculation date
      * @param int $options Set to self::ALLOW_CURRENT_DATE or self::DISALLOW_CURRENT_DATE to return or not
      *                     the current date if it matches the cron expression
      *
@@ -68,9 +67,9 @@ interface Expression
      * @return Generator<DateTimeImmutable>
      *
      *
-     * @see CronExpression::yieldNextRuns
+     * @see CronExpression::yieldRunsForward
      */
-    public function yieldPreviousRuns(int $total, DateTimeInterface|string $from = 'now', int $options = self::DISALLOW_CURRENT_DATE): Generator;
+    public function yieldRunsBackward(int $total, DateTimeInterface|string $relativeTo = 'now', int $options = self::EXCLUDE_START_DATE): Generator;
 
     /**
      * Determine if the cron is due to run based on the current date or a
@@ -81,12 +80,7 @@ interface Expression
      *
      * @throws ExpressionError
      */
-    public function match(DateTimeInterface|string $datetime = 'now'): bool;
-
-    /**
-     * Returns the timezone attached to the CRON expression.
-     */
-    public function timezone(): DateTimeZone;
+    public function isDue(DateTimeInterface|string $datetime = 'now'): bool;
 
     /**
      * Returns the CRON expression fields as array.
@@ -124,4 +118,54 @@ interface Expression
      * Returns the string representation of the CRON expression.
      */
     public function toString(): string;
+
+    /**
+     * Set the minute field of the CRON expression.
+     *
+     * @param string $field The value to set
+     *
+     * @throws ExpressionError if the value is not valid for the part
+     *
+     */
+    public function withMinute(string $field): self;
+
+    /**
+     * Set the hour field of the CRON expression.
+     *
+     * @param string $field The value to set
+     *
+     * @throws ExpressionError if the value is not valid for the part
+     *
+     */
+    public function withHour(string $field): self;
+
+    /**
+     * Set the day of month field of the CRON expression.
+     *
+     * @param string $field The value to set
+     *
+     * @throws ExpressionError if the value is not valid for the part
+     *
+     */
+    public function withDayOfMonth(string $field): self;
+
+    /**
+     * Set the month field of the CRON expression.
+     *
+     * @param string $field The value to set
+     *
+     * @throws ExpressionError if the value is not valid for the part
+     *
+     */
+    public function withMonth(string $field): self;
+
+    /**
+     * Set the day of the week field of the CRON expression.
+     *
+     * @param string $field The value to set
+     *
+     * @throws ExpressionError if the value is not valid for the part
+     *
+     */
+    public function withDayOfWeek(string $field): self;
 }

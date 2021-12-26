@@ -164,7 +164,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::match
+     * @covers \Bakame\Cron\CronExpression::isDue
      * @covers \Bakame\Cron\CronExpression::run
      * @covers \Bakame\Cron\Validator\DayOfMonth
      * @covers \Bakame\Cron\Validator\DayOfWeek
@@ -183,24 +183,24 @@ final class CronExpressionTest extends TestCase
         } else {
             $relativeTime = date('Y-m-d H:i:s', $relativeTime);
         }
-        self::assertSame($isDue, $cron->match($relativeTime));
-        self::assertEquals(new DateTime($nextRun), $cron->run(0, $relativeTime, Expression::ALLOW_CURRENT_DATE));
+        self::assertSame($isDue, $cron->isDue($relativeTime));
+        self::assertEquals(new DateTime($nextRun), $cron->run(0, $relativeTime, Expression::INCLUDE_START_DATE));
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::match
+     * @covers \Bakame\Cron\CronExpression::isDue
      */
     public function testIsDueHandlesDifferentDates(): void
     {
         $cron = new CronExpression('* * * * *');
-        self::assertTrue($cron->match());
-        self::assertTrue($cron->match('NOW'));
-        self::assertTrue($cron->match(new DateTime('NOW')));
-        self::assertTrue($cron->match(date('Y-m-d H:i')));
+        self::assertTrue($cron->isDue());
+        self::assertTrue($cron->isDue('NOW'));
+        self::assertTrue($cron->isDue(new DateTime('NOW')));
+        self::assertTrue($cron->isDue(date('Y-m-d H:i')));
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::match
+     * @covers \Bakame\Cron\CronExpression::isDue
      * @covers \Bakame\Cron\CronExpression::filterTimezone
      */
     public function testIsDueHandlesDifferentTimezones(): void
@@ -214,23 +214,23 @@ final class CronExpressionTest extends TestCase
         $tokyo = new DateTimeZone('Asia/Tokyo');
 
         date_default_timezone_set('UTC');
-        self::assertTrue($cronUTC->match(new DateTime($date, $utc)));
-        self::assertFalse($cronUTC->match(new DateTime($date, $amsterdam)));
-        self::assertFalse($cronUTC->match(new DateTime($date, $tokyo)));
+        self::assertTrue($cronUTC->isDue(new DateTime($date, $utc)));
+        self::assertFalse($cronUTC->isDue(new DateTime($date, $amsterdam)));
+        self::assertFalse($cronUTC->isDue(new DateTime($date, $tokyo)));
 
         date_default_timezone_set('Europe/Amsterdam');
-        self::assertFalse($cronAms->match(new DateTime($date, $utc)));
-        self::assertTrue($cronAms->match(new DateTime($date, $amsterdam)));
-        self::assertFalse($cronAms->match(new DateTime($date, $tokyo)));
+        self::assertFalse($cronAms->isDue(new DateTime($date, $utc)));
+        self::assertTrue($cronAms->isDue(new DateTime($date, $amsterdam)));
+        self::assertFalse($cronAms->isDue(new DateTime($date, $tokyo)));
 
         date_default_timezone_set('Asia/Tokyo');
-        self::assertFalse($cronTok->match(new DateTime($date, $utc)));
-        self::assertFalse($cronTok->match(new DateTime($date, $amsterdam)));
-        self::assertTrue($cronTok->match(new DateTime($date, $tokyo)));
+        self::assertFalse($cronTok->isDue(new DateTime($date, $utc)));
+        self::assertFalse($cronTok->isDue(new DateTime($date, $amsterdam)));
+        self::assertTrue($cronTok->isDue(new DateTime($date, $tokyo)));
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::match
+     * @covers \Bakame\Cron\CronExpression::isDue
      */
     public function testIsDueHandlesDifferentTimezonesAsArgument(): void
     {
@@ -241,17 +241,17 @@ final class CronExpressionTest extends TestCase
         $utc       = new DateTimeZone('UTC');
         $amsterdam = new DateTimeZone('Europe/Amsterdam');
         $tokyo     = new DateTimeZone('Asia/Tokyo');
-        self::assertTrue($cronUTC->match(new DateTime($date, $utc)));
-        self::assertFalse($cronUTC->match(new DateTime($date, $amsterdam)));
-        self::assertFalse($cronUTC->match(new DateTime($date, $tokyo)));
+        self::assertTrue($cronUTC->isDue(new DateTime($date, $utc)));
+        self::assertFalse($cronUTC->isDue(new DateTime($date, $amsterdam)));
+        self::assertFalse($cronUTC->isDue(new DateTime($date, $tokyo)));
 
-        self::assertFalse($cronAms->match(new DateTime($date, $utc)));
-        self::assertTrue($cronAms->match(new DateTime($date, $amsterdam)));
-        self::assertFalse($cronAms->match(new DateTime($date, $tokyo)));
+        self::assertFalse($cronAms->isDue(new DateTime($date, $utc)));
+        self::assertTrue($cronAms->isDue(new DateTime($date, $amsterdam)));
+        self::assertFalse($cronAms->isDue(new DateTime($date, $tokyo)));
 
-        self::assertFalse($cronTok->match(new DateTime($date, $utc)));
-        self::assertFalse($cronTok->match(new DateTime($date, $amsterdam)));
-        self::assertTrue($cronTok->match(new DateTime($date, $tokyo)));
+        self::assertFalse($cronTok->isDue(new DateTime($date, $utc)));
+        self::assertFalse($cronTok->isDue(new DateTime($date, $amsterdam)));
+        self::assertTrue($cronTok->isDue(new DateTime($date, $tokyo)));
     }
 
     /**
@@ -276,12 +276,12 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::yieldNextRuns
+     * @covers \Bakame\Cron\CronExpression::yieldRunsForward
      */
     public function testProvidesMultipleRunDates(): void
     {
         $cron = new CronExpression('*/2 * * * *');
-        $result = $cron->yieldNextRuns(4, '2008-11-09 00:00:00', Expression::ALLOW_CURRENT_DATE);
+        $result = $cron->yieldRunsForward(4, '2008-11-09 00:00:00', Expression::INCLUDE_START_DATE);
 
         self::assertEquals([
             new DateTime('2008-11-09 00:00:00'),
@@ -292,7 +292,7 @@ final class CronExpressionTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\CronExpression::yieldNextRuns
+     * @covers \Bakame\Cron\CronExpression::yieldRunsForward
      * @covers \Bakame\Cron\CronExpression::maxIterationCount
      * @covers \Bakame\Cron\CronExpression::withMaxIterationCount
      */
@@ -305,7 +305,7 @@ final class CronExpressionTest extends TestCase
         $newCron = $cron->withMaxIterationCount(2000);
         self::assertNotEquals($cron, $newCron);
 
-        $result = $newCron->yieldNextRuns(9, '2015-04-28 00:00:00', Expression::ALLOW_CURRENT_DATE);
+        $result = $newCron->yieldRunsForward(9, '2015-04-28 00:00:00', Expression::INCLUDE_START_DATE);
         self::assertEquals([
             new DateTime('2016-01-12 00:00:00'),
             new DateTime('2017-01-12 00:00:00'),
@@ -325,21 +325,21 @@ final class CronExpressionTest extends TestCase
     public function testCanIterateOverNextRuns(): void
     {
         $cron = CronExpression::weekly();
-        $nextRun = $cron->run(from:'2008-11-09 08:00:00');
+        $nextRun = $cron->run(relativeTo:'2008-11-09 08:00:00');
         self::assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
         // true is cast to 1
-        $nextRun = $cron->run(1, '2008-11-09 00:00:00', Expression::ALLOW_CURRENT_DATE);
+        $nextRun = $cron->run(1, '2008-11-09 00:00:00', Expression::INCLUDE_START_DATE);
         self::assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
         // You can iterate over them
-        $nextRun = $cron->run(1, $cron->run(1, '2008-11-09 00:00:00', Expression::ALLOW_CURRENT_DATE), Expression::ALLOW_CURRENT_DATE);
+        $nextRun = $cron->run(1, $cron->run(1, '2008-11-09 00:00:00', Expression::INCLUDE_START_DATE), Expression::INCLUDE_START_DATE);
         self::assertEquals($nextRun, new DateTime('2008-11-23 00:00:00'));
 
         // You can skip more than one
-        $nextRun = $cron->run(2, '2008-11-09 00:00:00', Expression::ALLOW_CURRENT_DATE);
+        $nextRun = $cron->run(2, '2008-11-09 00:00:00', Expression::INCLUDE_START_DATE);
         self::assertEquals($nextRun, new DateTime('2008-11-23 00:00:00'));
-        $nextRun = $cron->run(3, '2008-11-09 00:00:00', Expression::ALLOW_CURRENT_DATE);
+        $nextRun = $cron->run(3, '2008-11-09 00:00:00', Expression::INCLUDE_START_DATE);
         self::assertEquals($nextRun, new DateTime('2008-11-30 00:00:00'));
     }
 
@@ -390,19 +390,19 @@ final class CronExpressionTest extends TestCase
     public function testIssue20(): void
     {
         $e = new CronExpression('* * * * MON#1');
-        self::assertTrue($e->match(new DateTime('2014-04-07 00:00:00')));
-        self::assertFalse($e->match(new DateTime('2014-04-14 00:00:00')));
-        self::assertFalse($e->match(new DateTime('2014-04-21 00:00:00')));
+        self::assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+        self::assertFalse($e->isDue(new DateTime('2014-04-14 00:00:00')));
+        self::assertFalse($e->isDue(new DateTime('2014-04-21 00:00:00')));
 
         $e = new CronExpression('* * * * SAT#2');
-        self::assertFalse($e->match(new DateTime('2014-04-05 00:00:00')));
-        self::assertTrue($e->match(new DateTime('2014-04-12 00:00:00')));
-        self::assertFalse($e->match(new DateTime('2014-04-19 00:00:00')));
+        self::assertFalse($e->isDue(new DateTime('2014-04-05 00:00:00')));
+        self::assertTrue($e->isDue(new DateTime('2014-04-12 00:00:00')));
+        self::assertFalse($e->isDue(new DateTime('2014-04-19 00:00:00')));
 
         $e = new CronExpression('* * * * SUN#3');
-        self::assertFalse($e->match(new DateTime('2014-04-13 00:00:00')));
-        self::assertTrue($e->match(new DateTime('2014-04-20 00:00:00')));
-        self::assertFalse($e->match(new DateTime('2014-04-27 00:00:00')));
+        self::assertFalse($e->isDue(new DateTime('2014-04-13 00:00:00')));
+        self::assertTrue($e->isDue(new DateTime('2014-04-20 00:00:00')));
+        self::assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
     }
 
     /**
