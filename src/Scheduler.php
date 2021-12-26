@@ -161,7 +161,7 @@ final class Scheduler
             $invert = true;
         }
 
-        return $this->calculateRun($nth, $this->filterDate($relativeTo), $invert);
+        return $this->calculateRun($nth, $this->filterDate($relativeTo), $this->options, $invert);
     }
 
     /**
@@ -175,16 +175,10 @@ final class Scheduler
      */
     public function isDue(DateTimeInterface|string $dateTime = 'now'): bool
     {
-        $options = $this->options;
-        $this->options = self::INCLUDE_START_DATE;
         $currentDate = $this->filterDate($dateTime);
         try {
-            $res = $this->run(0, $currentDate) == $currentDate;
-            $this->options = $options;
-
-            return $res;
+            return $this->calculateRun(0, $currentDate, self::INCLUDE_START_DATE, false) == $currentDate;
         } catch (Throwable) {
-            $this->options = $options;
             return false;
         }
     }
@@ -203,7 +197,7 @@ final class Scheduler
         $currentDate = $this->filterDate($relativeTo);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                yield $this->calculateRun($i, $currentDate, false);
+                yield $this->calculateRun($i, $currentDate, $this->options, false);
             } catch (RuntimeException) {
                 break;
             }
@@ -227,7 +221,7 @@ final class Scheduler
         $currentDate = $this->filterDate($relativeTo);
         for ($i = 0; $i < max(0, $total); $i++) {
             try {
-                yield $this->calculateRun($i, $currentDate, true);
+                yield $this->calculateRun($i, $currentDate, $this->options, true);
             } catch (RuntimeException) {
                 break;
             }
@@ -244,7 +238,7 @@ final class Scheduler
      *
      * @throws ExpressionError on too many iterations
      */
-    private function calculateRun(int $nth, DateTime $from, bool $invert): DateTimeImmutable
+    private function calculateRun(int $nth, DateTime $from, int $options, bool $invert): DateTimeImmutable
     {
         $fields = $this->getOrderedFields();
 
@@ -268,7 +262,7 @@ final class Scheduler
             }
 
             // Skip this match if needed
-            if (($this->options === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
+            if (($options === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
                 $nextRun = ExpressionParser::fieldValidator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
 
                 continue;
