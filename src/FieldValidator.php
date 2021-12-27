@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron\Validator;
-
-use Bakame\Cron\RangeError;
+namespace Bakame\Cron;
 
 /**
  * Abstract CRON expression field.
  */
-abstract class Field implements FieldValidator
+abstract class FieldValidator implements CronFieldValidator
 {
     /**
      * Full range of values that are allowed for this field type.
@@ -121,8 +119,6 @@ abstract class Field implements FieldValidator
 
     /**
      * Returns a range of values for the given cron expression.
-     *
-     * @return array<int, int|string>
      */
     protected function getRangeForExpression(string $expression, int $max): array
     {
@@ -181,27 +177,24 @@ abstract class Field implements FieldValidator
         return $value;
     }
 
-    /**
-     * Checks to see if a value is valid for the field.
-     */
-    public function validate(string $expression): bool
+    public function validate(string $fieldExpression): bool
     {
-        $expression = $this->convertLiterals($expression);
+        $fieldExpression = $this->convertLiterals($fieldExpression);
 
         // All fields allow * as a valid value
-        if ('*' === $expression) {
+        if ('*' === $fieldExpression) {
             return true;
         }
 
-        if (str_contains($expression, '/')) {
-            [$range, $step] = explode('/', $expression);
+        if (str_contains($fieldExpression, '/')) {
+            [$range, $step] = explode('/', $fieldExpression);
 
             return $this->validate($range) && false !== filter_var($step, FILTER_VALIDATE_INT);
         }
 
         // Validate each chunk of a list individually
-        if (str_contains($expression, ',')) {
-            foreach (explode(',', $expression) as $listItem) {
+        if (str_contains($fieldExpression, ',')) {
+            foreach (explode(',', $fieldExpression) as $listItem) {
                 if (!$this->validate($listItem)) {
                     return false;
                 }
@@ -209,12 +202,12 @@ abstract class Field implements FieldValidator
             return true;
         }
 
-        if (str_contains($expression, '-')) {
-            if (substr_count($expression, '-') > 1) {
+        if (str_contains($fieldExpression, '-')) {
+            if (substr_count($fieldExpression, '-') > 1) {
                 return false;
             }
 
-            [$first, $last] = explode('-', $expression);
+            [$first, $last] = explode('-', $fieldExpression);
             $first = $this->convertLiterals($first);
             $last = $this->convertLiterals($last);
 
@@ -225,15 +218,15 @@ abstract class Field implements FieldValidator
             return $this->validate($first) && $this->validate($last);
         }
 
-        if (!is_numeric($expression)) {
+        if (!is_numeric($fieldExpression)) {
             return false;
         }
 
-        if (str_contains($expression, '.')) {
+        if (str_contains($fieldExpression, '.')) {
             return false;
         }
 
-        return in_array((int) $expression, $this->fullRange, true);
+        return in_array((int) $fieldExpression, $this->fullRange, true);
     }
 
     protected function computePosition(int $currentValue, array $references, bool $invert): int

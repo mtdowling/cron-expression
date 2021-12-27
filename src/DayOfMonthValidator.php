@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron\Validator;
+namespace Bakame\Cron;
 
 use DateTime;
 use DateTimeImmutable;
@@ -26,7 +26,7 @@ use DateTimeInterface;
  *
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-final class DayOfMonth extends Field
+final class DayOfMonthValidator extends FieldValidator
 {
     protected int $rangeStart = 1;
     protected int $rangeEnd = 31;
@@ -62,32 +62,32 @@ final class DayOfMonth extends Field
         return $target;
     }
 
-    public function isSatisfiedBy(DateTimeInterface $date, $expression): bool
+    public function isSatisfiedBy(DateTimeInterface $date, $fieldExpression): bool
     {
         // ? states that the field value is to be skipped
-        if ($expression == '?') {
+        if ($fieldExpression == '?') {
             return true;
         }
 
         $fieldValue = $date->format('d');
 
         // Check to see if this is the last day of the month
-        if ($expression == 'L') {
+        if ($fieldExpression == 'L') {
             return $fieldValue == $date->format('t');
         }
 
         // Check to see if this is the nearest weekday to a particular value
-        $pos = strpos($expression, 'W');
+        $pos = strpos($fieldExpression, 'W');
         if (false !== $pos) {
             // Find out if the current day is the nearest day of the week
             return $date->format('j') == self::getNearestWeekday(
                 (int) $date->format('Y'),
                 (int) $date->format('m'),
-                (int) substr($expression, 0, $pos) // Parse the target day
+                (int) substr($fieldExpression, 0, $pos) // Parse the target day
             )->format('j');
         }
 
-        return $this->isSatisfied((int) $date->format('d'), $expression);
+        return $this->isSatisfied((int) $date->format('d'), $fieldExpression);
     }
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
@@ -106,14 +106,14 @@ final class DayOfMonth extends Field
     /**
      * @inheritDoc
      */
-    public function validate(string $expression): bool
+    public function validate(string $fieldExpression): bool
     {
         return match (true) {
-            str_contains($expression, ',') && (str_contains($expression, 'W') || str_contains($expression, 'L')) => false,
-            true === parent::validate($expression) => true,
-            '?' === $expression => true,
-            $expression === 'L' => true,
-            default => (1 === preg_match('/^(.*)W$/', $expression, $matches)) && $this->validate($matches[1]),
+            str_contains($fieldExpression, ',') && (str_contains($fieldExpression, 'W') || str_contains($fieldExpression, 'L')) => false,
+            true === parent::validate($fieldExpression) => true,
+            '?' === $fieldExpression => true,
+            $fieldExpression === 'L' => true,
+            default => (1 === preg_match('/^(.*)W$/', $fieldExpression, $matches)) && $this->validate($matches[1]),
         };
     }
 }

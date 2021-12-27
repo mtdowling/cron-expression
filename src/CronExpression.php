@@ -49,50 +49,50 @@ interface CronExpression
     /**
      * Set the minute field of the CRON expression.
      *
-     * @param string $fieldValue The value to set
+     * @param string $fieldExpression The value to set
      *
      * @throws CronError if the value is not valid for the part
      *
      */
-    public function withMinute(string $fieldValue): self;
+    public function withMinute(string $fieldExpression): self;
 
     /**
      * Set the hour field of the CRON expression.
      *
-     * @param string $fieldValue The value to set
+     * @param string $fieldExpression The value to set
      *
      * @throws CronError if the value is not valid for the part
      *
      */
-    public function withHour(string $fieldValue): self;
+    public function withHour(string $fieldExpression): self;
 
     /**
      * Set the day of month field of the CRON expression.
      *
-     * @param string $fieldValue The value to set
+     * @param string $fieldExpression The value to set
      *
      * @throws CronError if the value is not valid for the part
      *
      */
-    public function withDayOfMonth(string $fieldValue): self;
+    public function withDayOfMonth(string $fieldExpression): self;
 
     /**
      * Set the month field of the CRON expression.
      *
-     * @param string $fieldValue The value to set
+     * @param string $fieldExpression The value to set
      *
      * @throws CronError if the value is not valid for the part
      *
      */
-    public function withMonth(string $fieldValue): self;
+    public function withMonth(string $fieldExpression): self;
 
     /**
      * Set the day of the week field of the CRON expression.
      *
-     * @param string $fieldValue The value to set
+     * @param string $fieldExpression The value to set
      *
      * @throws CronError if the value is not valid for the part
      *
      */
-    public function withDayOfWeek(string $fieldValue): self;
+    public function withDayOfWeek(string $fieldExpression): self;
 }

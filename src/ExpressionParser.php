@@ -2,12 +2,6 @@
 
 namespace Bakame\Cron;
 
-use Bakame\Cron\Validator\DayOfMonth;
-use Bakame\Cron\Validator\DayOfWeek;
-use Bakame\Cron\Validator\FieldValidator;
-use Bakame\Cron\Validator\Hours;
-use Bakame\Cron\Validator\Minutes;
-use Bakame\Cron\Validator\Month;
 use Throwable;
 
 final class ExpressionParser
@@ -25,16 +19,16 @@ final class ExpressionParser
      *
      * @throws SyntaxError if a position is not valid
      */
-    public static function fieldValidator(int $fieldOffset): FieldValidator
+    public static function fieldValidator(int $fieldOffset): CronFieldValidator
     {
         static $validators = [];
 
         $validators[$fieldOffset] ??= match ($fieldOffset) {
-            self::MINUTE => new Minutes(),
-            self::HOUR => new Hours(),
-            self::MONTHDAY => new DayOfMonth(),
-            self::MONTH => new Month(),
-            self::WEEKDAY => new DayOfWeek(),
+            self::MINUTE => new MinuteValidator(),
+            self::HOUR => new HourValidator(),
+            self::MONTHDAY => new DayOfMonthValidator(),
+            self::MONTH => new MonthValidator(),
+            self::WEEKDAY => new DayOfWeekValidator(),
             default => throw SyntaxError::dueToInvalidPosition($fieldOffset),
         };
 

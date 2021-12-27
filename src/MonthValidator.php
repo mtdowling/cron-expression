@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron\Validator;
+namespace Bakame\Cron;
 
 use DateInterval;
 use DateTime;
@@ -12,7 +12,7 @@ use DateTimeInterface;
 /**
  * Month field.  Allows: * , / -.
  */
-final class Month extends Field
+final class MonthValidator extends FieldValidator
 {
     protected int $rangeStart = 1;
     protected int $rangeEnd = 12;
@@ -31,9 +31,9 @@ final class Month extends Field
         '12' => 'DEC',
     ];
 
-    public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
+    public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
     {
-        return $this->isSatisfied((int) $date->format('m'), $this->convertLiterals($expression));
+        return $this->isSatisfied((int) $date->format('m'), $this->convertLiterals($fieldExpression));
     }
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable

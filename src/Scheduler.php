@@ -2,7 +2,6 @@
 
 namespace Bakame\Cron;
 
-use Bakame\Cron\Validator\FieldValidator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -147,17 +146,6 @@ final class Scheduler implements CronScheduler
         return new self($this->expression, $this->timezone, $this->maxIterationCount, self::EXCLUDE_START_DATE);
     }
 
-    /**
-     * Get a run date relative to a specific date.
-     *
-     * @param int $nth Number of matches to skip before returning a matching next run date. 0, the default, will
-     *                 return the current date and time if the next run date falls on the current date and time.
-     *                 Setting this value to 1 will skip the first match and go to the second match.
-     *                 Setting this value to 2 will skip the first 2 matches and so on.
-     * @param DateTimeInterface|string $relativeTo Relative calculation date
-     *
-     * @throws CronError on too many iterations
-     */
     public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable
     {
         $invert = false;
@@ -170,10 +158,6 @@ final class Scheduler implements CronScheduler
         return $this->calculateRun($nth, $relativeTo, $this->options, $invert);
     }
 
-    /**
-     * Determine if the cron is due to run based on a specific date.
-     * This method assumes that the current number of seconds are irrelevant, and should be called once per minute.
-     */
     public function isDue(DateTimeInterface|string $dateTime = 'now'): bool
     {
         try {
@@ -183,15 +167,6 @@ final class Scheduler implements CronScheduler
         }
     }
 
-    /**
-     * Get multiple run dates starting at the current date or a specific date.
-     *
-     * @param int $total Set the total number of dates to calculate
-     * @param DateTimeInterface|string $relativeTo Relative calculation date
-     *
-     * @return Generator<DateTimeImmutable>
-     *@throws CronError
-     */
     public function yieldRunsForward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator
     {
         for ($i = 0; $i < max(0, $total); $i++) {
@@ -203,17 +178,6 @@ final class Scheduler implements CronScheduler
         }
     }
 
-    /**
-     * Get multiple run dates ending at the current date or a specific date.
-     *
-     * @param int $total Set the total number of dates to calculate
-     * @param DateTimeInterface|string $relativeTo Relative calculation date
-     *
-     * @throws CronError
-     * @return Generator<DateTimeImmutable>
-     *
-     * @see Scheduler::yieldRunsForward
-     */
     public function yieldRunsBackward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator
     {
         for ($i = 0; $i < max(0, $total); $i++) {
@@ -242,7 +206,7 @@ final class Scheduler implements CronScheduler
         $fields = $this->getOrderedFields();
 
         if (isset($fields[ExpressionParser::MONTHDAY], $fields[ExpressionParser::WEEKDAY])) {
-            return $this->getCombinedRuns($startDate, $nth, $invert);
+            return $this->combineRuns($nth, $startDate, $invert);
         }
 
         // Set a hard limit to bail on an impossible date
@@ -250,7 +214,7 @@ final class Scheduler implements CronScheduler
         for ($i = 0; $i < $this->maxIterationCount; $i++) {
             /**
              * @var string $part
-             * @var FieldValidator $validator
+             * @var CronFieldValidator $validator
              */
             foreach ($fields as [$part, $validator]) {
                 // If the field is not satisfied, then start over
@@ -277,7 +241,7 @@ final class Scheduler implements CronScheduler
     /**
      * @throws CronError
      */
-    private function getCombinedRuns(DateTime $relativeTo, int $nth, bool $invert): DateTimeImmutable
+    private function combineRuns(int $nth, DateTime $relativeTo, bool $invert): DateTimeImmutable
     {
         $dayOfWeekScheduler = $this->withExpression($this->expression->withDayOfWeek('*'));
         $dayOfMonthScheduler = $this->withExpression($this->expression->withDayOfMonth('*'));
@@ -326,7 +290,7 @@ final class Scheduler implements CronScheduler
         };
     }
 
-    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, FieldValidator $field, string $part): bool
+    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, CronFieldValidator $field, string $part): bool
     {
         foreach (array_map('trim', explode(',', $part)) as $listPart) {
             if ($field->isSatisfiedBy($dateTime, $listPart)) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron\Validator;
+namespace Bakame\Cron;
 
 use DateInterval;
 use DateTime;
@@ -12,14 +12,14 @@ use DateTimeInterface;
 /**
  * Minutes field.  Allows: * , / -.
  */
-final class Minutes extends Field
+final class MinuteValidator extends FieldValidator
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 59;
 
-    public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
+    public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
     {
-        return $this->isSatisfied((int) $date->format('i'), $expression);
+        return $this->isSatisfied((int) $date->format('i'), $fieldExpression);
     }
 
     public function increment(DateTime|DateTimeImmutable $date, $invert = false, string $parts = null): DateTime|DateTimeImmutable

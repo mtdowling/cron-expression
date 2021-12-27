@@ -2,20 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron\Validator;
+namespace Bakame\Cron;
 
-use Bakame\Cron\SyntaxError;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \Bakame\Cron\Validator\DayOfWeek
+ * @coversDefaultClass \Bakame\Cron\DayOfWeekValidator
  */
-final class DayOfWeekTest extends TestCase
+final class DayOfWeekValidatorTest extends TestCase
 {
     public function testValidatesField(): void
     {
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertTrue($f->validate('1'));
         self::assertTrue($f->validate('*'));
         self::assertFalse($f->validate('*/3,1,1-12'));
@@ -25,13 +24,13 @@ final class DayOfWeekTest extends TestCase
 
     public function testChecksIfSatisfied(): void
     {
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
     }
 
     public function testIncrementsDate(): void
     {
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertSame('2011-03-16 00:00:00', $f->increment(new DateTime('2011-03-15 11:15:00'))->format('Y-m-d H:i:s'));
 
         self::assertSame('2011-03-14 23:59:00', $f->increment(new DateTime('2011-03-15 11:15:00'), true)->format('Y-m-d H:i:s'));
@@ -44,7 +43,7 @@ final class DayOfWeekTest extends TestCase
     {
         $this->expectException(SyntaxError::class);
 
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '12#1'));
     }
 
@@ -54,13 +53,13 @@ final class DayOfWeekTest extends TestCase
     public function testValidatesHashValueNth(): void
     {
         $this->expectException(SyntaxError::class);
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '3#6'));
     }
 
     public function testValidateWeekendHash(): void
     {
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertTrue($f->validate('MON#1'));
         self::assertTrue($f->validate('TUE#2'));
         self::assertTrue($f->validate('WED#3'));
@@ -73,7 +72,7 @@ final class DayOfWeekTest extends TestCase
 
     public function testHandlesZeroAndSevenDayOfTheWeekValues(): void
     {
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '0-2'));
         self::assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '6-0'));
 
@@ -85,7 +84,7 @@ final class DayOfWeekTest extends TestCase
 
     public function testIssue47(): void
     {
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertFalse($f->validate('mon,'));
         self::assertFalse($f->validate('mon-'));
         self::assertFalse($f->validate('*/2,'));

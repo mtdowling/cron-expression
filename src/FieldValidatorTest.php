@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron\Validator;
+namespace Bakame\Cron;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \Bakame\Cron\Validator\Field
+ * @coversDefaultClass \Bakame\Cron\FieldValidator
  */
-final class FieldTest extends TestCase
+final class FieldValidatorTest extends TestCase
 {
     public function testTestsIfSatisfied(): void
     {
-        $f = new DayOfWeek();
+        $f = new DayOfWeekValidator();
         self::assertTrue($f->isSatisfied(12, '3-13'));
         self::assertFalse($f->isSatisfied(15, '3-7/2'));
         self::assertTrue($f->isSatisfied(12, '*'));
@@ -26,7 +26,7 @@ final class FieldTest extends TestCase
     public function testAllowRangesAndLists(): void
     {
         $expression = '5-7,11-13';
-        $f = new Hours();
+        $f = new HourValidator();
         self::assertTrue($f->validate($expression));
     }
 }

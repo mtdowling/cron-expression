@@ -79,8 +79,8 @@ interface CronScheduler
      * @param int $total Set the total number of dates to calculate
      * @param DateTimeInterface|string $relativeTo Relative calculation date
      *
-     * @return Generator<DateTimeImmutable>
      *@throws CronError
+     * @return Generator<DateTimeImmutable>
      */
     public function yieldRunsForward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator;
 
@@ -90,9 +90,9 @@ interface CronScheduler
      * @param int $total Set the total number of dates to calculate
      * @param DateTimeInterface|string $relativeTo Relative calculation date
      *
+     * @throws CronError
      * @return Generator<DateTimeImmutable>
      *
-     * @throws CronError
      * @see Scheduler::yieldRunsForward
      */
     public function yieldRunsBackward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator;

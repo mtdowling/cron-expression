@@ -99,11 +99,11 @@ final class SchedulerTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\Validator\DayOfMonth
-     * @covers \Bakame\Cron\Validator\DayOfWeek
-     * @covers \Bakame\Cron\Validator\Minutes
-     * @covers \Bakame\Cron\Validator\Hours
-     * @covers \Bakame\Cron\Validator\Month
+     * @covers \Bakame\Cron\DayOfMonthValidator
+     * @covers \Bakame\Cron\DayOfWeekValidator
+     * @covers \Bakame\Cron\MinuteValidator
+     * @covers \Bakame\Cron\HourValidator
+     * @covers \Bakame\Cron\MonthValidator
      *
      * @dataProvider scheduleProvider
      */

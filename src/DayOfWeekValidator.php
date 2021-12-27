@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron\Validator;
+namespace Bakame\Cron;
 
-use Bakame\Cron\SyntaxError;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
@@ -23,7 +22,7 @@ use DateTimeInterface;
  * number between one and five. It allows you to specify constructs such as
  * "the second Friday" of a given month.
  */
-final class DayOfWeek extends Field
+final class DayOfWeekValidator extends FieldValidator
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 7;
@@ -44,23 +43,23 @@ final class DayOfWeek extends Field
         $this->nthRange = range(1, 5);
     }
 
-    public function isSatisfiedBy(DateTimeInterface $date, string $expression): bool
+    public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
     {
-        if ($expression == '?') {
+        if ($fieldExpression == '?') {
             return true;
         }
 
         // Convert text day of the week values to integers
-        $expression = $this->convertLiterals($expression);
+        $fieldExpression = $this->convertLiterals($fieldExpression);
 
         $currentYear = (int) $date->format('Y');
         $currentMonth = (int) $date->format('m');
         $lastDayOfMonth = (int) $date->format('t');
 
         // Find out if this is the last specific weekday of the month
-        $pos = strpos($expression, 'L');
+        $pos = strpos($fieldExpression, 'L');
         if (false !== $pos) {
-            $weekday = str_replace('7', '0', substr($expression, 0, $pos));
+            $weekday = str_replace('7', '0', substr($fieldExpression, 0, $pos));
             $tempDate = DateTime::createFromInterface($date);
             $tempDate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
             while ($tempDate->format('w') !== $weekday) {
@@ -71,8 +70,8 @@ final class DayOfWeek extends Field
         }
 
         // Handle # hash tokens
-        if (str_contains($expression, '#')) {
-            [$weekday, $nth] = explode('#', $expression);
+        if (str_contains($fieldExpression, '#')) {
+            [$weekday, $nth] = explode('#', $fieldExpression);
 
             if (!is_numeric($nth)) {
                 throw SyntaxError::dueToInvalidWeekday($nth);
@@ -117,20 +116,20 @@ final class DayOfWeek extends Field
         }
 
         // Handle day of the week values
-        if (str_contains($expression, '-')) {
-            $parts = explode('-', $expression);
+        if (str_contains($fieldExpression, '-')) {
+            $parts = explode('-', $fieldExpression);
             if ($parts[0] === '7') {
                 $parts[0] = '0';
             } elseif ($parts[1] === '0') {
                 $parts[1] = '7';
             }
-            $expression = implode('-', $parts);
+            $fieldExpression = implode('-', $parts);
         }
 
         // Test to see which Sunday to use -- 0 == 7 == Sunday
-        $format = in_array('7', str_split($expression), true) ? 'N' : 'w';
+        $format = in_array('7', str_split($fieldExpression), true) ? 'N' : 'w';
 
-        return $this->isSatisfied((int) $date->format($format), $expression);
+        return $this->isSatisfied((int) $date->format($format), $fieldExpression);
     }
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
@@ -142,26 +141,26 @@ final class DayOfWeek extends Field
         return $date->add(new DateInterval('P1D'))->setTime(0, 0);
     }
 
-    public function validate(string $expression): bool
+    public function validate(string $fieldExpression): bool
     {
-        if (true === parent::validate($expression)) {
+        if (true === parent::validate($fieldExpression)) {
             return true;
         }
 
-        if ('?' === $expression) {
+        if ('?' === $fieldExpression) {
             return true;
         }
 
         // Handle the # value
-        if (str_contains($expression, '#')) {
-            $chunks = explode('#', $expression);
+        if (str_contains($fieldExpression, '#')) {
+            $chunks = explode('#', $fieldExpression);
             $chunks[0] = $this->convertLiterals($chunks[0]);
             if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && in_array((int) $chunks[1], $this->nthRange, true)) {
                 return true;
             }
         }
 
-        if (1 !== preg_match('/^(.*)L$/', $expression, $matches)) {
+        if (1 !== preg_match('/^(.*)L$/', $fieldExpression, $matches)) {
             return false;
         }
 

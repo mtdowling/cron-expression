@@ -102,9 +102,9 @@ final class Expression implements CronExpression, JsonSerializable, Stringable
         return $this->toString();
     }
 
-    public function withMinute(string $fieldValue): self
+    public function withMinute(string $fieldExpression): self
     {
-        return $this->newInstance([ExpressionParser::MINUTE => $fieldValue] + $this->fields);
+        return $this->newInstance([ExpressionParser::MINUTE => $fieldExpression] + $this->fields);
     }
 
     /**
@@ -120,23 +120,23 @@ final class Expression implements CronExpression, JsonSerializable, Stringable
         return new self(implode(' ', $fields));
     }
 
-    public function withHour(string $fieldValue): self
+    public function withHour(string $fieldExpression): self
     {
-        return $this->newInstance([ExpressionParser::HOUR => $fieldValue] + $this->fields);
+        return $this->newInstance([ExpressionParser::HOUR => $fieldExpression] + $this->fields);
     }
 
-    public function withDayOfMonth(string $fieldValue): self
+    public function withDayOfMonth(string $fieldExpression): self
     {
-        return $this->newInstance([ExpressionParser::MONTHDAY => $fieldValue] + $this->fields);
+        return $this->newInstance([ExpressionParser::MONTHDAY => $fieldExpression] + $this->fields);
     }
 
-    public function withMonth(string $fieldValue): self
+    public function withMonth(string $fieldExpression): self
     {
-        return $this->newInstance([ExpressionParser::MONTH => $fieldValue] + $this->fields);
+        return $this->newInstance([ExpressionParser::MONTH => $fieldExpression] + $this->fields);
     }
 
-    public function withDayOfWeek(string $fieldValue): self
+    public function withDayOfWeek(string $fieldExpression): self
     {
-        return $this->newInstance([ExpressionParser::WEEKDAY => $fieldValue] + $this->fields);
+        return $this->newInstance([ExpressionParser::WEEKDAY => $fieldExpression] + $this->fields);
     }
 }

@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Bakame\Cron\Validator;
+namespace Bakame\Cron;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \Bakame\Cron\Validator\DayOfMonth
+ * @coversDefaultClass \Bakame\Cron\DayOfMonthValidator
  */
-final class DayOfMonthTest extends TestCase
+final class DayOfMonthValidatorTest extends TestCase
 {
     public function testValidatesField(): void
     {
-        $f = new DayOfMonth();
+        $f = new DayOfMonthValidator();
         self::assertTrue($f->validate('1'));
         self::assertTrue($f->validate('*'));
         self::assertTrue($f->validate('L'));
@@ -25,13 +25,13 @@ final class DayOfMonthTest extends TestCase
 
     public function testChecksIfSatisfied(): void
     {
-        $f = new DayOfMonth();
+        $f = new DayOfMonthValidator();
         self::assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
     }
 
     public function testIncrementsDate(): void
     {
-        $f = new DayOfMonth();
+        $f = new DayOfMonthValidator();
         $date = '2011-03-15 11:15:00';
         self::assertSame(
             '2011-03-16 00:00:00',
@@ -41,7 +41,7 @@ final class DayOfMonthTest extends TestCase
 
     public function testDecrementsDate(): void
     {
-        $f = new DayOfMonth();
+        $f = new DayOfMonthValidator();
         $date = '2011-03-15 11:15:00';
         self::assertSame(
             '2011-03-14 23:59:00',
@@ -51,7 +51,7 @@ final class DayOfMonthTest extends TestCase
 
     public function testDoesNotAccept0Date(): void
     {
-        $f = new DayOfMonth();
+        $f = new DayOfMonthValidator();
         self::assertFalse($f->validate('0'));
     }
 }
