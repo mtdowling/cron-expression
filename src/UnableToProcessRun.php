@@ -4,7 +4,7 @@ namespace Bakame\Cron;
 
 use RuntimeException;
 
-final class UnableToProcessRun extends RuntimeException implements ExpressionError
+final class UnableToProcessRun extends RuntimeException implements CronError
 {
     public static function dueToMaxIterationCountReached(int $iterationCount): self
     {

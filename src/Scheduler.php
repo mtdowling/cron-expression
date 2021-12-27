@@ -11,21 +11,21 @@ use Generator;
 use RuntimeException;
 use Throwable;
 
-final class Scheduler
+final class Scheduler implements CronScheduler
 {
     public const EXCLUDE_START_DATE = 0;
     public const INCLUDE_START_DATE = 1;
 
-    private Expression $expression;
+    private CronExpression $expression;
     private DateTimeZone $timezone;
     private int $maxIterationCount;
     private int $options;
 
     public function __construct(
-        Expression|string $expression,
+        CronExpression|string    $expression,
         DateTimeZone|string|null $timezone = null,
-        int $maxIterationCount = 1000,
-        int $options = self::EXCLUDE_START_DATE
+        int                      $maxIterationCount = 1000,
+        int                      $options = self::EXCLUDE_START_DATE
     ) {
         $this->expression = $this->filterExpression($expression);
         $this->timezone = $this->filterTimezone($timezone);
@@ -33,33 +33,23 @@ final class Scheduler
         $this->options = $this->filterOptions($options);
     }
 
-    public static function fromUTC(Expression|string $expression): self
+    private function filterExpression(CronExpression|string $expression): CronExpression
     {
-        return new self($expression, new DateTimeZone('UTC'));
-    }
-
-    public static function fromSystemTimeZone(Expression|string $expression): self
-    {
-        return new self($expression, date_default_timezone_get());
-    }
-
-    private function filterExpression(Expression|string $expression): Expression
-    {
-        if (!$expression instanceof Expression) {
-            return new CronExpression($expression);
+        if (!$expression instanceof CronExpression) {
+            return new Expression($expression);
         }
 
         return $expression;
     }
 
-    private function filterTimezone(DateTimeZone|string|null $timeZone): DateTimeZone
+    private function filterTimezone(DateTimeZone|string|null $timezone): DateTimeZone
     {
-        $timeZone ??= date_default_timezone_get();
-        if (!$timeZone instanceof DateTimeZone) {
-            return new DateTimeZone($timeZone);
+        $timezone ??= date_default_timezone_get();
+        if (!$timezone instanceof DateTimeZone) {
+            return new DateTimeZone($timezone);
         }
 
-        return $timeZone;
+        return $timezone;
     }
 
     private function filterMaxIterationCount(int $maxIterationCount): int
@@ -80,7 +70,17 @@ final class Scheduler
         return $options;
     }
 
-    public function expression(): Expression
+    public static function fromUTC(CronExpression|string $expression): self
+    {
+        return new self($expression, new DateTimeZone('UTC'));
+    }
+
+    public static function fromSystemTimeZone(CronExpression|string $expression): self
+    {
+        return new self($expression, date_default_timezone_get());
+    }
+
+    public function expression(): CronExpression
     {
         return $this->expression;
     }
@@ -100,7 +100,7 @@ final class Scheduler
         return self::EXCLUDE_START_DATE === $this->options;
     }
 
-    public function withExpression(Expression|string $expression): self
+    public function withExpression(CronExpression|string $expression): self
     {
         $expression = $this->filterExpression($expression);
         if ($expression->toString() == $this->expression->toString()) {
@@ -156,7 +156,7 @@ final class Scheduler
      *                 Setting this value to 2 will skip the first 2 matches and so on.
      * @param DateTimeInterface|string $relativeTo Relative calculation date
      *
-     * @throws ExpressionError on too many iterations
+     * @throws CronError on too many iterations
      */
     public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable
     {
@@ -189,8 +189,8 @@ final class Scheduler
      * @param int $total Set the total number of dates to calculate
      * @param DateTimeInterface|string $relativeTo Relative calculation date
      *
-     * @throws ExpressionError
      * @return Generator<DateTimeImmutable>
+     *@throws CronError
      */
     public function yieldRunsForward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator
     {
@@ -209,7 +209,7 @@ final class Scheduler
      * @param int $total Set the total number of dates to calculate
      * @param DateTimeInterface|string $relativeTo Relative calculation date
      *
-     * @throws ExpressionError
+     * @throws CronError
      * @return Generator<DateTimeImmutable>
      *
      * @see Scheduler::yieldRunsForward
@@ -234,7 +234,7 @@ final class Scheduler
      *                     Set to self::EXCLUDE_START_DATE to not return the current date if it matches the cron expression
      * @param bool $invert Set to TRUE to go backwards in time
      *
-     * @throws ExpressionError on too many iterations
+     * @throws CronError on too many iterations
      */
     private function calculateRun(int $nth, DateTimeInterface|string $relativeTo, int $options, bool $invert): DateTimeImmutable
     {
@@ -275,7 +275,7 @@ final class Scheduler
     }
 
     /**
-     * @throws ExpressionError
+     * @throws CronError
      */
     private function getCombinedRuns(DateTime $relativeTo, int $nth, bool $invert): DateTimeImmutable
     {

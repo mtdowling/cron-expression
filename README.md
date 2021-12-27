@@ -28,13 +28,13 @@ Usage
 ```php
 <?php
 
-use Bakame\Cron\CronExpression;
+use Bakame\Cron\Expression;
 use Bakame\Cron\Scheduler;
 
 require_once '/vendor/autoload.php';
 
 // Works with predefined scheduling definitions
-$cron = CronExpression::daily();
+$cron = Expression::daily();
 echo $cron; // returns '0 0 * * *'
 $scheduler = new Scheduler($cron);
 $scheduler->isDue();
@@ -42,7 +42,7 @@ echo $scheduler->run()->format('Y-m-d H:i:s');
 echo $scheduler->run(-1)->format('Y-m-d H:i:s');
 
 // Works with complex expressions
-$scheduler = new Scheduler(new CronExpression('3-59/15 2,6-12 */15 1 2-5'));
+$scheduler = new Scheduler(new Expression('3-59/15 2,6-12 */15 1 2-5'));
 echo $scheduler->run()->format('Y-m-d H:i:s');
 
 // Calculate a run date two iterations into the future
@@ -50,10 +50,10 @@ $scheduler = new Scheduler('@daily');
 echo $scheduler->run(2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
-$scheduler = new Scheduler(new CronExpression::monthly());
+$scheduler = new Scheduler(new Expression::monthly());
 echo $scheduler->run(0, '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 // or
-$scheduler = new Scheduler(new CronExpression::monthly());
+$scheduler = new Scheduler(new Expression::monthly());
 echo $scheduler->run(relativeTo: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 
 // Works with complex expressions and timezone
@@ -75,9 +75,9 @@ final class Scheduler
     public const INCLUDE_START_DATE = 1;
     
     /* CRON Expression Scheduler Constructors */
-    public function __construct(Expression|string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000, int $options = self::EXCLUDE_START_DATE);
-    public static function fromUTC(Expression|string $expression): self;
-    public static function fromSystemTimeZone(Expression|string $expression): self;
+    public function __construct(CronExpression|string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000, int $options = self::EXCLUDE_START_DATE);
+    public static function fromUTC(CronExpression|string $expression): self;
+    public static function fromSystemTimeZone(CronExpression|string $expression): self;
 
     /* CRON Expression Scheduler API */
     public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable;
@@ -86,10 +86,10 @@ final class Scheduler
     public function isDue(DateTimeInterface|string $dateTime = 'now'): bool;
     
      /* CRON Expression Scheduler Configuration API */
-    public function expression(): Expression;
-    public function withExpression(Expression $expression): self;
+    public function expression(): CronExpression;
+    public function withExpression(CronExpression $expression): self;
     public function timeZone(): DateTimeZone;
-    public function withTimeZone(DateTimeZone|string $timeZone): self;
+    public function withTimeZone(DateTimeZone|string $timezone): self;
     public function maxIterationCount(): int;
     public function withMaxIterationCount(int $maxIterationCount): self;
     public function isStartDateExcluded(): bool;
@@ -105,7 +105,7 @@ final class Scheduler
 
 namespace Bakame\Cron;
 
-final class CronExpression implements Expression, \JsonSerializable, \Stringable
+final class Expression implements CronExpression, \JsonSerializable, \Stringable
 {
     /* Constructors */
     public function __construct(string $expression);

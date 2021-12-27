@@ -6,7 +6,7 @@ use DateTime;
 use InvalidArgumentException;
 use Throwable;
 
-final class SyntaxError extends InvalidArgumentException implements ExpressionError
+final class SyntaxError extends InvalidArgumentException implements CronError
 {
     public static function dueToInvalidPosition(int $position): self
     {

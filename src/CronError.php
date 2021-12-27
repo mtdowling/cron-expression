@@ -4,6 +4,6 @@ namespace Bakame\Cron;
 
 use Throwable;
 
-interface ExpressionError extends Throwable
+interface CronError extends Throwable
 {
 }

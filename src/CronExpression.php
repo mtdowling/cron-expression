@@ -4,139 +4,95 @@ declare(strict_types=1);
 
 namespace Bakame\Cron;
 
-use JsonSerializable;
-use Stringable;
-
-final class CronExpression implements Expression, JsonSerializable, Stringable
+/**
+ * CRON expression object.
+ */
+interface CronExpression
 {
-    /** @var array<int, string> CRON expression fields */
-    private array $fields;
-
-    public function __construct(string $expression)
-    {
-        $this->fields = ExpressionParser::parse($expression);
-    }
+    /**
+     * Returns the CRON expression fields as array.
+     *
+     * @return array<int, string|int>
+     */
+    public function fields(): array;
 
     /**
-     * Returns the Cron expression for running once a year, midnight, Jan. 1 - 0 0 1 1 *.
+     * Returns the minute field of the CRON expression.
      */
-    public static function yearly(): self
-    {
-        return new self('@yearly');
-    }
+    public function minute(): string;
 
     /**
-     * Returns the Cron expression for running once a month, midnight, first of month - 0 0 1 * *.
+     * Returns the hour field of the CRON expression.
      */
-    public static function monthly(): self
-    {
-        return new self('@monthly');
-    }
+    public function hour(): string;
 
     /**
-     * Returns the Cron expression for running once a week, midnight on Sun - 0 0 * * 0.
+     * Returns the day of the month field of the CRON expression.
      */
-    public static function weekly(): self
-    {
-        return new self('@weekly');
-    }
+    public function dayOfMonth(): string;
 
     /**
-     * Returns the Cron expression for running once a day, midnight - 0 0 * * *.
+     * Returns the month field of the CRON expression.
      */
-    public static function daily(): self
-    {
-        return new self('@daily');
-    }
+    public function month(): string;
 
     /**
-     * Returns the Cron expression for running once an hour, first minute - 0 * * * *.
+     * Returns the day of the week field of the CRON expression.
      */
-    public static function hourly(): self
-    {
-        return new self('@hourly');
-    }
-
-    public function fields(): array
-    {
-        return $this->fields;
-    }
-
-    public function minute(): string
-    {
-        return $this->fields[ExpressionParser::MINUTE];
-    }
-
-    public function hour(): string
-    {
-        return $this->fields[ExpressionParser::HOUR];
-    }
-
-    public function dayOfMonth(): string
-    {
-        return $this->fields[ExpressionParser::MONTHDAY];
-    }
-
-    public function month(): string
-    {
-        return $this->fields[ExpressionParser::MONTH];
-    }
-
-    public function dayOfWeek(): string
-    {
-        return $this->fields[ExpressionParser::WEEKDAY];
-    }
-
-    public function toString(): string
-    {
-        return implode(' ', $this->fields);
-    }
-
-    public function __toString(): string
-    {
-        return $this->toString();
-    }
-
-    public function jsonSerialize(): string
-    {
-        return $this->toString();
-    }
-
-    public function withMinute(string $fieldValue): self
-    {
-        return $this->newInstance([ExpressionParser::MINUTE => $fieldValue] + $this->fields);
-    }
+    public function dayOfWeek(): string;
 
     /**
-     * @param array<int, string|int> $fields
+     * Returns the string representation of the CRON expression.
      */
-    private function newInstance(array $fields): self
-    {
-        ksort($fields);
-        if ($fields === $this->fields) {
-            return $this;
-        }
+    public function toString(): string;
 
-        return new self(implode(' ', $fields));
-    }
+    /**
+     * Set the minute field of the CRON expression.
+     *
+     * @param string $fieldValue The value to set
+     *
+     * @throws CronError if the value is not valid for the part
+     *
+     */
+    public function withMinute(string $fieldValue): self;
 
-    public function withHour(string $fieldValue): self
-    {
-        return $this->newInstance([ExpressionParser::HOUR => $fieldValue] + $this->fields);
-    }
+    /**
+     * Set the hour field of the CRON expression.
+     *
+     * @param string $fieldValue The value to set
+     *
+     * @throws CronError if the value is not valid for the part
+     *
+     */
+    public function withHour(string $fieldValue): self;
 
-    public function withDayOfMonth(string $fieldValue): self
-    {
-        return $this->newInstance([ExpressionParser::MONTHDAY => $fieldValue] + $this->fields);
-    }
+    /**
+     * Set the day of month field of the CRON expression.
+     *
+     * @param string $fieldValue The value to set
+     *
+     * @throws CronError if the value is not valid for the part
+     *
+     */
+    public function withDayOfMonth(string $fieldValue): self;
 
-    public function withMonth(string $fieldValue): self
-    {
-        return $this->newInstance([ExpressionParser::MONTH => $fieldValue] + $this->fields);
-    }
+    /**
+     * Set the month field of the CRON expression.
+     *
+     * @param string $fieldValue The value to set
+     *
+     * @throws CronError if the value is not valid for the part
+     *
+     */
+    public function withMonth(string $fieldValue): self;
 
-    public function withDayOfWeek(string $fieldValue): self
-    {
-        return $this->newInstance([ExpressionParser::WEEKDAY => $fieldValue] + $this->fields);
-    }
+    /**
+     * Set the day of the week field of the CRON expression.
+     *
+     * @param string $fieldValue The value to set
+     *
+     * @throws CronError if the value is not valid for the part
+     *
+     */
+    public function withDayOfWeek(string $fieldValue): self;
 }

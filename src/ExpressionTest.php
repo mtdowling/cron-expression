@@ -7,23 +7,23 @@ namespace Bakame\Cron;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \Bakame\Cron\CronExpression
+ * @coversDefaultClass \Bakame\Cron\Expression
  */
-final class CronExpressionTest extends TestCase
+final class ExpressionTest extends TestCase
 {
     public function testFactoryRecognizesTemplates(): void
     {
-        self::assertSame('0 0 1 1 *', CronExpression::yearly()->toString());
-        self::assertSame('0 0 1 * *', CronExpression::monthly()->toString());
-        self::assertSame('0 0 * * 0', CronExpression::weekly()->toString());
-        self::assertSame('0 0 * * *', CronExpression::daily()->toString());
-        self::assertSame('0 * * * *', CronExpression::hourly()->toString());
+        self::assertSame('0 0 1 1 *', Expression::yearly()->toString());
+        self::assertSame('0 0 1 * *', Expression::monthly()->toString());
+        self::assertSame('0 0 * * 0', Expression::weekly()->toString());
+        self::assertSame('0 0 * * *', Expression::daily()->toString());
+        self::assertSame('0 * * * *', Expression::hourly()->toString());
     }
 
     public function testParsesCronSchedule(): void
     {
         // '2010-09-10 12:00:00'
-        $cron = new CronExpression('1 2-4 * 4,5,6 */3');
+        $cron = new Expression('1 2-4 * 4,5,6 */3');
         self::assertSame('1', $cron->minute());
         self::assertSame('2-4', $cron->hour());
         self::assertSame('*', $cron->dayOfMonth());
@@ -39,7 +39,7 @@ final class CronExpressionTest extends TestCase
     {
         $this->expectException(SyntaxError::class);
 
-        new CronExpression('A 1 2 3 4');
+        new Expression('A 1 2 3 4');
     }
 
     /**
@@ -47,7 +47,7 @@ final class CronExpressionTest extends TestCase
      */
     public function testParsesCronScheduleWithAnySpaceCharsAsSeparators(string $schedule, array $expected): void
     {
-        $cron = new CronExpression($schedule);
+        $cron = new Expression($schedule);
         self::assertSame($expected[0], $cron->minute());
         self::assertSame($expected[1], $cron->hour());
         self::assertSame($expected[2], $cron->dayOfMonth());
@@ -70,7 +70,7 @@ final class CronExpressionTest extends TestCase
 
     public function testUpdateCronExpressionPartReturnsTheSameInstance(): void
     {
-        $cron = new CronExpression('23 0-23/2 * * *');
+        $cron = new Expression('23 0-23/2 * * *');
 
         self::assertSame($cron, $cron->withMinute($cron->minute()));
         self::assertSame($cron, $cron->withHour($cron->hour()));
@@ -81,7 +81,7 @@ final class CronExpressionTest extends TestCase
 
     public function testUpdateCronExpressionPartReturnsADifferentInstance(): void
     {
-        $cron = new CronExpression('23 0-23/2 * * *');
+        $cron = new Expression('23 0-23/2 * * *');
 
         self::assertNotEquals($cron, $cron->withMinute('22'));
         self::assertNotEquals($cron, $cron->withHour('12'));
@@ -95,6 +95,6 @@ final class CronExpressionTest extends TestCase
     {
         $this->expectException(SyntaxError::class);
 
-        (new CronExpression('* * * * *'))->withDayOfWeek('abc');
+        (new Expression('* * * * *'))->withDayOfWeek('abc');
     }
 }

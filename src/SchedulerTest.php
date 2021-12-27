@@ -110,7 +110,7 @@ final class SchedulerTest extends TestCase
     public function testDeterminesIfCronIsDue(string $expression, string|int $relativeTime, string $nextRun, bool $isDue): void
     {
         // Test next run date
-        $cron = new CronExpression($expression);
+        $cron = new Expression($expression);
         if (is_string($relativeTime)) {
             $relativeTime = new DateTime($relativeTime);
         } else {
@@ -135,7 +135,7 @@ final class SchedulerTest extends TestCase
 
     public function testIsDueHandlesDifferentTimezones(): void
     {
-        $cron = new CronExpression('0 15 * * 3'); //Wednesday at 15:00
+        $cron = new Expression('0 15 * * 3'); //Wednesday at 15:00
 
         $cronUTC = new Scheduler($cron, 'UTC'); //Wednesday at 15:00
         $cronAms = new Scheduler($cron, 'Europe/Amsterdam'); //Wednesday at 15:00
@@ -163,7 +163,7 @@ final class SchedulerTest extends TestCase
 
     public function testIsDueHandlesDifferentTimezonesAsArgument(): void
     {
-        $cron = new CronExpression('0 15 * * 3');
+        $cron = new Expression('0 15 * * 3');
         $cronUTC = new Scheduler($cron, 'UTC'); //Wednesday at 15:00
         $cronAms = new Scheduler($cron, new DateTimeZone('Europe/Amsterdam')); //Wednesday at 15:00
         $cronTok = new Scheduler($cron, new DateTimeZone('Asia/Tokyo')); //Wednesday at 15:00
@@ -191,7 +191,7 @@ final class SchedulerTest extends TestCase
         $two = $scheduler->run(1);
         self::assertEquals($next, $scheduler->run(-1, $two));
 
-        $cron = new Scheduler(new CronExpression('* */2 * * *'));
+        $cron = new Scheduler(new Expression('* */2 * * *'));
         $next = $cron->run();
         $two = $cron->run(1);
         self::assertEquals($next, $cron->run(-1, $two));
@@ -204,7 +204,7 @@ final class SchedulerTest extends TestCase
 
     public function testProvidesMultipleRunDates(): void
     {
-        $cron = new Scheduler(expression:new CronExpression('*/2 * * * *'), options: Scheduler::INCLUDE_START_DATE);
+        $cron = new Scheduler(expression:new Expression('*/2 * * * *'), options: Scheduler::INCLUDE_START_DATE);
         $result = $cron->yieldRunsForward(4, '2008-11-09 00:00:00');
 
         self::assertEquals([
@@ -223,7 +223,7 @@ final class SchedulerTest extends TestCase
     public function testProvidesMultipleRunDatesForTheFarFuture(): void
     {
         // Fails with the default 1000 iteration limit
-        $cron = new Scheduler(new CronExpression('0 0 12 1 *'));
+        $cron = new Scheduler(new Expression('0 0 12 1 *'));
         $cron = $cron->includeStartDate();
         self::assertSame($cron, $cron->withMaxIterationCount($cron->maxIterationCount()));
 
@@ -245,7 +245,7 @@ final class SchedulerTest extends TestCase
 
     public function testCanIterateOverNextRuns(): void
     {
-        $cron = new Scheduler(CronExpression::weekly());
+        $cron = new Scheduler(Expression::weekly());
         $nextRun = $cron->run(relativeTo:'2008-11-09 08:00:00');
         self::assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
@@ -266,7 +266,7 @@ final class SchedulerTest extends TestCase
 
     public function testSkipsCurrentDateByDefault(): void
     {
-        $cron = new Scheduler(new CronExpression('* * * * *'));
+        $cron = new Scheduler(new Expression('* * * * *'));
         $current = new DateTime('now');
         $next = $cron->run(0, $current);
         $nextPrev = $cron->run(-1, $next);
@@ -275,20 +275,20 @@ final class SchedulerTest extends TestCase
 
     public function testStripsForSeconds(): void
     {
-        $cron = new Scheduler(new CronExpression('* * * * *'));
+        $cron = new Scheduler(new Expression('* * * * *'));
         $current = new DateTime('2011-09-27 10:10:54');
         self::assertSame('2011-09-27 10:11:00', $cron->run(0, $current)->format('Y-m-d H:i:s'));
     }
 
     public function testFixesPhpBugInDateIntervalMonth(): void
     {
-        $cron = new Scheduler(new CronExpression('0 0 27 JAN *'));
+        $cron = new Scheduler(new Expression('0 0 27 JAN *'));
         self::assertSame('2011-01-27 00:00:00', $cron->run(-1, '2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
     }
 
     public function testIssue29(): void
     {
-        $cron = new Scheduler(CronExpression::weekly());
+        $cron = new Scheduler(Expression::weekly());
         self::assertSame(
             '2013-03-10 00:00:00',
             $cron->run(-1, '2013-03-17 00:00:00')->format('Y-m-d H:i:s')
@@ -297,17 +297,17 @@ final class SchedulerTest extends TestCase
 
     public function testIssue20(): void
     {
-        $e = new Scheduler(new CronExpression('* * * * MON#1'));
+        $e = new Scheduler(new Expression('* * * * MON#1'));
         self::assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
         self::assertFalse($e->isDue(new DateTime('2014-04-14 00:00:00')));
         self::assertFalse($e->isDue(new DateTime('2014-04-21 00:00:00')));
 
-        $e = new Scheduler(new CronExpression('* * * * SAT#2'));
+        $e = new Scheduler(new Expression('* * * * SAT#2'));
         self::assertFalse($e->isDue(new DateTime('2014-04-05 00:00:00')));
         self::assertTrue($e->isDue(new DateTime('2014-04-12 00:00:00')));
         self::assertFalse($e->isDue(new DateTime('2014-04-19 00:00:00')));
 
-        $e = new Scheduler(new CronExpression('* * * * SUN#3'));
+        $e = new Scheduler(new Expression('* * * * SUN#3'));
         self::assertFalse($e->isDue(new DateTime('2014-04-13 00:00:00')));
         self::assertTrue($e->isDue(new DateTime('2014-04-20 00:00:00')));
         self::assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
@@ -317,21 +317,21 @@ final class SchedulerTest extends TestCase
     {
         $now = new DateTime();
         $strNow = $now->format(DateTime::ISO8601);
-        $cron = new Scheduler(new CronExpression('0 0 * * *'));
+        $cron = new Scheduler(new Expression('0 0 * * *'));
         $cron->run(-1, $now);
         self::assertSame($strNow, $now->format(DateTime::ISO8601));
     }
 
     public function testUpdateCronExpressionPartReturnsTheSameInstance(): void
     {
-        $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
+        $cron = new Scheduler(new Expression('23 0-23/2 * * *'));
 
         self::assertSame($cron, $cron->withTimezone(date_default_timezone_get()));
     }
 
     public function testUpdateCronExpressionPartReturnsADifferentInstance(): void
     {
-        $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
+        $cron = new Scheduler(new Expression('23 0-23/2 * * *'));
 
         self::assertNotEquals($cron, $cron->withTimezone('Africa/Kinshasa'));
     }
@@ -342,7 +342,7 @@ final class SchedulerTest extends TestCase
     public function testThrowsIfTheDateCanNotBeInstantiated(): void
     {
         $this->expectException(SyntaxError::class);
-        $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
+        $cron = new Scheduler(new Expression('23 0-23/2 * * *'));
         $cron->run(0, 'foobar');
     }
 
@@ -353,7 +353,7 @@ final class SchedulerTest extends TestCase
     {
         $this->expectException(SyntaxError::class);
 
-        new Scheduler(new CronExpression('* * * * *'), 'Africa/Nairobi', -1);
+        new Scheduler(new Expression('* * * * *'), 'Africa/Nairobi', -1);
     }
     /**
      * Makes sure that 00 is considered a valid value for 0-based fields
@@ -363,16 +363,16 @@ final class SchedulerTest extends TestCase
      */
     public function testDoubleZeroIsValid(): void
     {
-        $scheduler = new Scheduler(new CronExpression('00 * * * *'));
+        $scheduler = new Scheduler(new Expression('00 * * * *'));
         self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:00:00')));
 
-        $scheduler = new Scheduler(new CronExpression('01 * * * *'));
+        $scheduler = new Scheduler(new Expression('01 * * * *'));
         self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:01:00')));
 
-        $scheduler = new Scheduler(new CronExpression('* 00 * * *'));
+        $scheduler = new Scheduler(new Expression('* 00 * * *'));
         self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:00:00')));
 
-        $scheduler = new Scheduler(new CronExpression('* 01 * * *'));
+        $scheduler = new Scheduler(new Expression('* 01 * * *'));
         self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 01:00:00')));
     }
 
@@ -385,7 +385,7 @@ final class SchedulerTest extends TestCase
      */
     public function testRangesWrapAroundWithLargeSteps(): void
     {
-        $scheduler = new Scheduler(new CronExpression('* * * */123 *'));
+        $scheduler = new Scheduler(new Expression('* * * */123 *'));
         self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:00:00')));
 
         $nextRunDate = $scheduler->run(relativeTo: new DateTime('2014-04-07 00:00:00'));
@@ -400,7 +400,7 @@ final class SchedulerTest extends TestCase
      */
     public function testMakeDayOfWeekAnOrSometimes(): void
     {
-        $cron = new Scheduler(expression: new CronExpression('30 0 1 * 1'), options: Scheduler::INCLUDE_START_DATE);
+        $cron = new Scheduler(expression: new Expression('30 0 1 * 1'), options: Scheduler::INCLUDE_START_DATE);
         $runs = $cron->yieldRunsForward(5, new DateTime('2019-10-10 23:20:00'));
         $runs = iterator_to_array($runs, false);
         self::assertSame('2019-10-14 00:30:00', $runs[0]->format('Y-m-d H:i:s'));
