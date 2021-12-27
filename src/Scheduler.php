@@ -285,21 +285,16 @@ final class Scheduler
         $dayOfWeekScheduler = $this->withExpression($this->expression->withDayOfWeek('*'));
         $dayOfMonthScheduler = $this->withExpression($this->expression->withDayOfMonth('*'));
 
-        if ($invert) {
-            foreach ($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $relativeTo) as $date) {
-                $combinedArray[] = $date;
-            }
-            foreach ($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $relativeTo) as $date) {
-                $combinedArray[] = $date;
-            }
-        } else {
-            foreach ($dayOfMonthScheduler->yieldRunsForward($nth + 1, $relativeTo) as $date) {
-                $combinedArray[] = $date;
-            }
-            foreach ($dayOfWeekScheduler->yieldRunsForward($nth + 1, $relativeTo) as $date) {
-                $combinedArray[] = $date;
-            }
-        }
+        $combinedArray = match (true) {
+            $invert === true => array_merge(
+                iterator_to_array($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $relativeTo), false),
+                iterator_to_array($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $relativeTo), false)
+            ),
+            default => array_merge(
+                iterator_to_array($dayOfMonthScheduler->yieldRunsForward($nth + 1, $relativeTo), false),
+                iterator_to_array($dayOfWeekScheduler->yieldRunsForward($nth + 1, $relativeTo), false)
+            ),
+        };
 
         usort($combinedArray, fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
 
@@ -311,40 +306,27 @@ final class Scheduler
      */
     private function filterInputDate(DateTimeInterface|string $date): DateTime
     {
-        if ($date instanceof DateTimeImmutable) {
-            $currentDate = DateTime::createFromInterface($date);
-            $currentDate->setTimezone($this->timezone);
-            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
-
-            return $currentDate;
-        }
-
-        if ($date instanceof DateTime) {
-            $currentDate = clone $date;
-            $currentDate->setTimezone($this->timezone);
-            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
-
-            return $currentDate;
-        }
-
         try {
-            $currentDate = new DateTime($date);
+            $currentDate = match (true) {
+                $date instanceof DateTimeImmutable => DateTime::createFromInterface($date),
+                $date instanceof DateTime => clone $date,
+                default => new DateTime($date),
+            };
             $currentDate->setTimezone($this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         } catch (Throwable $exception) {
-            throw SyntaxError::dueToInvalidDate($date, $exception);
+            throw SyntaxError::dueToInvalidDate($exception);
         }
     }
 
     private function formatOutputDate(DateTimeInterface $resultDate, DateTimeInterface|string $inputDate): DateTimeImmutable
     {
-        if ($inputDate instanceof DateTimeImmutable) {
-            return $inputDate::createFromInterface($resultDate)->setTimezone($this->timezone);
-        }
-
-        return DateTimeImmutable::createFromInterface($resultDate)->setTimezone($this->timezone);
+        return match (true) {
+            $inputDate instanceof DateTimeImmutable => $inputDate::createFromInterface($resultDate)->setTimezone($this->timezone),
+            default => DateTimeImmutable::createFromInterface($resultDate)->setTimezone($this->timezone)
+        };
     }
 
     private function isFieldSatisfiedBy(DateTimeInterface $dateTime, FieldValidator $field, string $part): bool

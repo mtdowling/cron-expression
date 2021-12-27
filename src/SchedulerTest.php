@@ -419,18 +419,22 @@ final class SchedulerTest extends TestCase
         $tzServer = new DateTimeZone('Europe/London');
         $scheduler = new Scheduler(expression: $cron, timezone: $tzCron, options: Scheduler::INCLUDE_START_DATE);
 
+        /** @var DateTime $dtCurrent */
         $dtCurrent = DateTime::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
         $dtPrev = $scheduler->run(-1, $dtCurrent);
         self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
+        /** @var DateTimeImmutable $dtCurrent */
         $dtCurrent = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
         $dtPrev = $scheduler->run(-1, $dtCurrent);
         self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
+        /** @var DateTimeImmutable $dtCurrent */
         $dtCurrent = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
         $dtPrev = $scheduler->run(-1, $dtCurrent->format('c'));
         self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
+        /** @var DateTimeImmutable $dtCurrent */
         $dtCurrent = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
         $dtPrev = $scheduler->run(-1, $dtCurrent->format('\\@U'));
         self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));

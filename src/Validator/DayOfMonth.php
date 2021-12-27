@@ -108,27 +108,12 @@ final class DayOfMonth extends Field
      */
     public function validate(string $expression): bool
     {
-        // Validate that a list don't have W or L
-        if (str_contains($expression, ',') && (str_contains($expression, 'W') || str_contains($expression, 'L'))) {
-            return false;
-        }
-
-        if (true === parent::validate($expression)) {
-            return true;
-        }
-
-        if ('?' === $expression) {
-            return true;
-        }
-
-        if ($expression === 'L') {
-            return true;
-        }
-
-        if (1 !== preg_match('/^(.*)W$/', $expression, $matches)) {
-            return false;
-        }
-
-        return $this->validate($matches[1]);
+        return match (true) {
+            str_contains($expression, ',') && (str_contains($expression, 'W') || str_contains($expression, 'L')) => false,
+            true === parent::validate($expression) => true,
+            '?' === $expression => true,
+            $expression === 'L' => true,
+            default => (1 === preg_match('/^(.*)W$/', $expression, $matches)) && $this->validate($matches[1]),
+        };
     }
 }

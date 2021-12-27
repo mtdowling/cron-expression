@@ -23,9 +23,9 @@ final class SyntaxError extends InvalidArgumentException implements ExpressionEr
         return new self('Invalid CRON field value '.$value.' at position '.$position);
     }
 
-    public static function dueToInvalidDate(string $datetime, Throwable $exception): self
+    public static function dueToInvalidDate(Throwable $exception): self
     {
-        return new self('Invalid DateTime expression `'.$datetime.'` to instantiate a `'.DateTime::class.'`.', 0, $exception);
+        return new self('Invalid DateTime expression to instantiate a `'.DateTime::class.'`.', 0, $exception);
     }
 
     public static function dueToInvalidWeekday(int|string $nth): self
