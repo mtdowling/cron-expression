@@ -34,32 +34,31 @@ use Bakame\Cron\Scheduler;
 require_once '/vendor/autoload.php';
 
 // Works with predefined scheduling definitions
-$cron = Expression::daily();
-echo $cron; // returns '0 0 * * *'
-$scheduler = new Scheduler($cron);
-$scheduler->isDue();
-echo $scheduler->run()->format('Y-m-d H:i:s');
-echo $scheduler->run(-1)->format('Y-m-d H:i:s');
+$cron = new Scheduler(Expression::daily(), 'Africa/Kigali');
+$cron->isDue();
+echo $cron->run()->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $cron->run(-1)->format('Y-m-d H:i:s, e'), PHP_EOL;
 
 // Works with complex expressions
-$scheduler = new Scheduler(new Expression('3-59/15 2,6-12 */15 1 2-5'));
-echo $scheduler->run()->format('Y-m-d H:i:s');
+$cron = Scheduler::fromUTC('3-59/15 6-12 */15 1 2-5');
+echo $cron->run()->format('Y-m-d H:i:s, e'), PHP_EOL;
 
 // Calculate a run date two iterations into the future
-$scheduler = new Scheduler('@daily');
-echo $scheduler->run(2)->format('Y-m-d H:i:s');
+$cron = Scheduler::fromSystemTimeZone('@daily');
+echo $cron->run(2)->format('Y-m-d H:i:s, e'), PHP_EOL;
 
 // Calculate a run date relative to a specific time
-$scheduler = new Scheduler(new Expression::monthly());
-echo $scheduler->run(0, '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
-// or
-$scheduler = new Scheduler(new Expression::monthly());
-echo $scheduler->run(relativeTo: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
+$cron = new Scheduler('@monthly');
+echo $cron->run(relativeTo:'2010-01-12 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
 
-// Works with complex expressions and timezone
-$scheduler = new Scheduler('45 9 * * *', 'Africa/Kinshasa');
-$date = new DateTime('2014-05-18 08:45', new DateTimeZone('Europe/London'));
-echo $scheduler->isDue($date); // return true
+// Handle complex timezone
+$previousRun = Scheduler::fromUTC('0 7 * * *')
+    ->withTimezone('America/New_York')
+    ->includeStartDate()
+    ->run(-1, new DateTime('2017-10-17 10:00:00', new DateTimeZone('Europe/London')));
+
+echo $previousRun->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $previousRun::class, PHP_EOL;
 ```
 
 ## Cron scheduler Public API
@@ -77,7 +76,7 @@ final class Scheduler implements CronScheduler
     /* CRON Expression Scheduler Constructors */
     public function __construct(CronExpression|string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000, int $options = self::EXCLUDE_START_DATE);
     public static function fromUTC(CronExpression|string $expression): self;
-    public static function fromSystemTimeZone(CronExpression|string $expression): self;
+    public static function fromSystemTimezone(CronExpression|string $expression): self;
 
     /* CRON Expression Scheduler API */
     public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable;
@@ -88,8 +87,8 @@ final class Scheduler implements CronScheduler
      /* CRON Expression Scheduler Configuration API */
     public function expression(): CronExpression;
     public function withExpression(CronExpression $expression): self;
-    public function timeZone(): DateTimeZone;
-    public function withTimeZone(DateTimeZone|string $timezone): self;
+    public function timezone(): DateTimeZone;
+    public function withTimezone(DateTimeZone|string $timezone): self;
     public function maxIterationCount(): int;
     public function withMaxIterationCount(int $maxIterationCount): self;
     public function isStartDateExcluded(): bool;
