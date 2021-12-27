@@ -2,15 +2,12 @@
 
 namespace Bakame\Cron;
 
-use AppendIterator;
-use ArrayIterator;
 use Bakame\Cron\Validator\FieldValidator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Generator;
-use NoRewindIterator;
 use RuntimeException;
 use Throwable;
 
@@ -19,17 +16,17 @@ final class Scheduler
     public const EXCLUDE_START_DATE = 0;
     public const INCLUDE_START_DATE = 1;
 
-    private DateTimeZone $timeZone;
+    private DateTimeZone $timezone;
     private int $maxIterationCount;
     private int $options;
 
     public function __construct(
         private Expression $expression,
-        DateTimeZone|string|null $timeZone = null,
+        DateTimeZone|string|null $timezone = null,
         int $maxIterationCount = 1000,
         int $options = self::EXCLUDE_START_DATE
     ) {
-        $this->timeZone = $this->filterTimezone($timeZone);
+        $this->timezone = $this->filterTimezone($timezone);
         $this->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
         $this->options = $this->filterOptions($options);
     }
@@ -77,9 +74,9 @@ final class Scheduler
         return $this->expression;
     }
 
-    public function timeZone(): DateTimeZone
+    public function timezone(): DateTimeZone
     {
-        return $this->timeZone;
+        return $this->timezone;
     }
 
     public function maxIterationCount(): int
@@ -104,15 +101,15 @@ final class Scheduler
         return $clone;
     }
 
-    public function withTimeZone(DateTimeZone|string $timeZone): self
+    public function withTimezone(DateTimeZone|string $timezone): self
     {
-        $timeZone = $this->filterTimezone($timeZone);
-        if ($timeZone->getName() === $this->timeZone->getName()) {
+        $timezone = $this->filterTimezone($timezone);
+        if ($timezone->getName() === $this->timezone->getName()) {
             return $this;
         }
 
         $clone = clone $this;
-        $clone->timeZone = $timeZone;
+        $clone->timezone = $timezone;
 
         return $clone;
     }
@@ -168,8 +165,9 @@ final class Scheduler
     {
         $invert = false;
         if (0 > $nth) {
-            $nth = ($nth * -1) - 1;
             $invert = true;
+            $nth *= -1;
+            --$nth;
         }
 
         return $this->calculateRun($nth, $relativeTo, $this->options, $invert);
@@ -276,45 +274,36 @@ final class Scheduler
             return $this->formatOutputDate($nextRun, $relativeTo);
         }
 
-        // @codeCoverageIgnoreStart
         throw UnableToProcessRun::dueToMaxIterationCountReached($this->maxIterationCount);
-        // @codeCoverageIgnoreEnd
-    }
-
-    private function formatOutputDate(DateTimeInterface $resultDate, DateTimeInterface|string $inputDate): DateTimeImmutable
-    {
-        if (!$inputDate instanceof DateTimeImmutable) {
-            return DateTimeImmutable::createFromInterface($resultDate);
-        }
-
-        return $inputDate::createFromInterface($resultDate);
     }
 
     /**
      * @throws ExpressionError
      */
-    private function getCombinedRuns(DateTime $from, int $nth, bool $invert): DateTimeImmutable
+    private function getCombinedRuns(DateTime $relativeTo, int $nth, bool $invert): DateTimeImmutable
     {
         $dayOfWeekScheduler = $this->withExpression($this->expression->withDayOfWeek('*'));
         $dayOfMonthScheduler = $this->withExpression($this->expression->withDayOfMonth('*'));
 
-        $append = new AppendIterator();
         if ($invert) {
-            $append->append(new NoRewindIterator($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $from)));
-            $append->append(new NoRewindIterator($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $from)));
+            foreach ($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $relativeTo) as $date) {
+                $combinedArray[] = $date;
+            }
+            foreach ($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $relativeTo) as $date) {
+                $combinedArray[] = $date;
+            }
         } else {
-            $append->append(new NoRewindIterator($dayOfMonthScheduler->yieldRunsForward($nth + 1, $from)));
-            $append->append(new NoRewindIterator($dayOfWeekScheduler->yieldRunsForward($nth + 1, $from)));
+            foreach ($dayOfMonthScheduler->yieldRunsForward($nth + 1, $relativeTo) as $date) {
+                $combinedArray[] = $date;
+            }
+            foreach ($dayOfWeekScheduler->yieldRunsForward($nth + 1, $relativeTo) as $date) {
+                $combinedArray[] = $date;
+            }
         }
 
-        $iterator = new ArrayIterator();
-        foreach ($append as $date) {
-            $iterator[] = $date;
-        }
+        usort($combinedArray, fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
 
-        $iterator->uasort(fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
-
-        return $iterator[$nth];
+        return $combinedArray[$nth];
     }
 
     /**
@@ -324,7 +313,7 @@ final class Scheduler
     {
         if ($date instanceof DateTimeImmutable) {
             $currentDate = DateTime::createFromInterface($date);
-            $currentDate->setTimezone($this->timeZone);
+            $currentDate->setTimezone($this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
@@ -332,20 +321,30 @@ final class Scheduler
 
         if ($date instanceof DateTime) {
             $currentDate = clone $date;
-            $currentDate->setTimezone($this->timeZone);
+            $currentDate->setTimezone($this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         }
 
         try {
-            $currentDate = new DateTime($date, $this->timeZone);
+            $currentDate = new DateTime($date);
+            $currentDate->setTimezone($this->timezone);
             $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
 
             return $currentDate;
         } catch (Throwable $exception) {
             throw SyntaxError::dueToInvalidDate($date, $exception);
         }
+    }
+
+    private function formatOutputDate(DateTimeInterface $resultDate, DateTimeInterface|string $inputDate): DateTimeImmutable
+    {
+        if ($inputDate instanceof DateTimeImmutable) {
+            return $inputDate::createFromInterface($resultDate)->setTimezone($this->timezone);
+        }
+
+        return DateTimeImmutable::createFromInterface($resultDate)->setTimezone($this->timezone);
     }
 
     private function isFieldSatisfiedBy(DateTimeInterface $dateTime, FieldValidator $field, string $part): bool
@@ -376,7 +375,7 @@ final class Scheduler
         foreach ($testOrderCronFields as $position) {
             $part = $expressionFields[$position];
             if ('*' !== $part) {
-                $fields[] = [$part, ExpressionParser::fieldValidator($position)];
+                $fields[$position] = [$part, ExpressionParser::fieldValidator($position)];
             }
         }
 

@@ -51,4 +51,18 @@ final class ExpressionParserTest extends TestCase
 
         ExpressionParser::parse('* * abc * *');
     }
+
+    /**
+     * Makes sure that 00 is considered a valid value for 0-based fields
+     * cronie allows numbers with a leading 0, so adding support for this as well.
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/12
+     */
+    public function testDoubleZeroIsValid(): void
+    {
+        self::assertTrue(ExpressionParser::isValid('00 * * * *'));
+        self::assertTrue(ExpressionParser::isValid('01 * * * *'));
+        self::assertTrue(ExpressionParser::isValid('* 00 * * *'));
+        self::assertTrue(ExpressionParser::isValid('* 01 * * *'));
+    }
 }

@@ -117,6 +117,10 @@ final class DayOfMonth extends Field
             return true;
         }
 
+        if ('?' === $expression) {
+            return true;
+        }
+
         if ($expression === 'L') {
             return true;
         }

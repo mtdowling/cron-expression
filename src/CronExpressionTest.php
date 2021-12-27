@@ -89,4 +89,12 @@ final class CronExpressionTest extends TestCase
         self::assertNotEquals($cron, $cron->withMonth('12'));
         self::assertNotEquals($cron, $cron->withDayOfWeek('Fri'));
     }
+
+
+    public function testInvalidPartsWillFail(): void
+    {
+        $this->expectException(SyntaxError::class);
+
+        (new CronExpression('* * * * *'))->withDayOfWeek('abc');
+    }
 }

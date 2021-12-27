@@ -86,7 +86,7 @@ final class ExpressionParser
             '@hourly' => '0 * * * *',
         ];
 
-        $expression = $mappings[$expression] ?? $expression;
+        $expression = $mappings[strtolower($expression)] ?? $expression;
 
         /** @var array<int, string> $fields */
         $fields = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);

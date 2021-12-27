@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bakame\Cron;
 
 use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 
@@ -56,7 +57,7 @@ final class SchedulerTest extends TestCase
             // Test Day of the Week and the Day of the Month (issue #1)
             ['0 0 1 1 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false],
             ['0 0 1 JAN 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false],
-            ['0 0 1 * 0', strtotime('2011-06-15 23:09:00'), '2012-01-01 00:00:00', false],
+            ['0 0 1 * 0', strtotime('2011-06-15 23:09:00'), '2011-06-19 00:00:00', false],
             // Test the W day of the week modifier for day of the month field
             ['0 0 2W * *', strtotime('2011-07-01 00:00:00'), '2011-07-01 00:00:00', true],
             ['0 0 1W * *', strtotime('2011-05-01 00:00:00'), '2011-05-02 00:00:00', false],
@@ -76,6 +77,24 @@ final class SchedulerTest extends TestCase
             ['* * * * 5#2', strtotime('2011-07-01 00:00:00'), '2011-07-08 00:00:00', false],
             ['* * * * 5#1', strtotime('2011-07-01 00:00:00'), '2011-07-01 00:00:00', true],
             ['* * * * 3#4', strtotime('2011-07-01 00:00:00'), '2011-07-27 00:00:00', false],
+
+            // Issue #7, documented example failed
+            ['3-59/15 6-12 */15 1 2-5', strtotime('2017-01-08 00:00:00'), '2017-01-10 06:03:00', false],
+
+            // https://github.com/laravel/framework/commit/07d160ac3cc9764d5b429734ffce4fa311385403
+            ['* * * * MON-FRI', strtotime('2017-01-08 00:00:00'), '2017-01-09 00:00:00', false],
+            ['* * * * TUE', strtotime('2017-01-08 00:00:00'), '2017-01-10 00:00:00', false],
+
+            // Issue #60, make sure that casing is less relevant for shortcuts, months, and days
+            ['0 1 15 JUL mon,Wed,FRi', strtotime('2019-11-14 00:00:00'), '2020-07-01 01:00:00', false],
+            ['0 1 15 jul mon,Wed,FRi', strtotime('2019-11-14 00:00:00'), '2020-07-01 01:00:00', false],
+            ['@Weekly', strtotime('2019-11-14 00:00:00'), '2019-11-17 00:00:00', false],
+            ['@WEEKLY', strtotime('2019-11-14 00:00:00'), '2019-11-17 00:00:00', false],
+            ['@WeeklY', strtotime('2019-11-14 00:00:00'), '2019-11-17 00:00:00', false],
+
+            // Issue #76, DOW and DOM do not support ?
+            ['0 12 * * ?', strtotime('2020-08-20 00:00:00'), '2020-08-20 12:00:00', false],
+            ['0 12 ? * *', strtotime('2020-08-20 00:00:00'), '2020-08-20 12:00:00', false],
         ];
     }
 
@@ -213,7 +232,6 @@ final class SchedulerTest extends TestCase
         $newCron = $cron->withMaxIterationCount(2000);
         self::assertNotEquals($cron, $newCron);
 
-        $result = $newCron->yieldRunsForward(9, '2015-04-28 00:00:00');
         self::assertEquals([
             new DateTime('2016-01-12 00:00:00'),
             new DateTime('2017-01-12 00:00:00'),
@@ -224,7 +242,7 @@ final class SchedulerTest extends TestCase
             new DateTime('2022-01-12 00:00:00'),
             new DateTime('2023-01-12 00:00:00'),
             new DateTime('2024-01-12 00:00:00'),
-        ], iterator_to_array($result));
+        ], iterator_to_array($newCron->yieldRunsForward(9, '2015-04-28 00:00:00')));
     }
 
     public function testCanIterateOverNextRuns(): void
@@ -310,14 +328,14 @@ final class SchedulerTest extends TestCase
     {
         $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
 
-        self::assertSame($cron, $cron->withTimeZone(date_default_timezone_get()));
+        self::assertSame($cron, $cron->withTimezone(date_default_timezone_get()));
     }
 
     public function testUpdateCronExpressionPartReturnsADifferentInstance(): void
     {
         $cron = new Scheduler(new CronExpression('23 0-23/2 * * *'));
 
-        self::assertNotEquals($cron, $cron->withTimeZone('Africa/Kinshasa'));
+        self::assertNotEquals($cron, $cron->withTimezone('Africa/Kinshasa'));
     }
 
     /**
@@ -338,5 +356,83 @@ final class SchedulerTest extends TestCase
         $this->expectException(SyntaxError::class);
 
         new Scheduler(new CronExpression('* * * * *'), 'Africa/Nairobi', -1);
+    }
+    /**
+     * Makes sure that 00 is considered a valid value for 0-based fields
+     * cronie allows numbers with a leading 0, so adding support for this as well.
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/12
+     */
+    public function testDoubleZeroIsValid(): void
+    {
+        $scheduler = new Scheduler(new CronExpression('00 * * * *'));
+        self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:00:00')));
+
+        $scheduler = new Scheduler(new CronExpression('01 * * * *'));
+        self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:01:00')));
+
+        $scheduler = new Scheduler(new CronExpression('* 00 * * *'));
+        self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:00:00')));
+
+        $scheduler = new Scheduler(new CronExpression('* 01 * * *'));
+        self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 01:00:00')));
+    }
+
+    /**
+     * Ranges with large steps should "wrap around" to the appropriate value
+     * cronie allows for steps that are larger than the range of a field, with it wrapping around like a ring buffer. We
+     * should do the same.
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/6
+     */
+    public function testRangesWrapAroundWithLargeSteps(): void
+    {
+        $scheduler = new Scheduler(new CronExpression('* * * */123 *'));
+        self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:00:00')));
+
+        $nextRunDate = $scheduler->run(relativeTo: new DateTime('2014-04-07 00:00:00'));
+        self::assertSame('2014-04-07 00:01:00', $nextRunDate->format('Y-m-d H:i:s'));
+
+        $nextRunDate = $scheduler->run(relativeTo: new DateTime('2014-05-07 00:00:00'));
+        self::assertSame('2015-04-01 00:00:00', $nextRunDate->format('Y-m-d H:i:s'));
+    }
+
+    /**
+     * @see https://github.com/dragonmantank/cron-expression/issues/35
+     */
+    public function testMakeDayOfWeekAnOrSometimes(): void
+    {
+        $cron = new Scheduler(expression: new CronExpression('30 0 1 * 1'), options: Scheduler::INCLUDE_START_DATE);
+        $runs = $cron->yieldRunsForward(5, new DateTime('2019-10-10 23:20:00'));
+        $runs = iterator_to_array($runs, false);
+        self::assertSame('2019-10-14 00:30:00', $runs[0]->format('Y-m-d H:i:s'));
+        self::assertSame('2019-10-21 00:30:00', $runs[1]->format('Y-m-d H:i:s'));
+        self::assertSame('2019-10-28 00:30:00', $runs[2]->format('Y-m-d H:i:s'));
+        self::assertSame('2019-11-01 00:30:00', $runs[3]->format('Y-m-d H:i:s'));
+        self::assertSame('2019-11-04 00:30:00', $runs[4]->format('Y-m-d H:i:s'));
+    }
+
+    public function testRecognisesTimezonesAsPartOfDateTime(): void
+    {
+        $cron = new CronExpression('0 7 * * *');
+        $tzCron = 'America/New_York';
+        $tzServer = new DateTimeZone('Europe/London');
+        $scheduler = new Scheduler(expression: $cron, timezone: $tzCron, options: Scheduler::INCLUDE_START_DATE);
+
+        $dtCurrent = DateTime::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
+        $dtPrev = $scheduler->run(-1, $dtCurrent);
+        self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
+
+        $dtCurrent = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
+        $dtPrev = $scheduler->run(-1, $dtCurrent);
+        self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
+
+        $dtCurrent = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
+        $dtPrev = $scheduler->run(-1, $dtCurrent->format('c'));
+        self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
+
+        $dtCurrent = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
+        $dtPrev = $scheduler->run(-1, $dtCurrent->format('\\@U'));
+        self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
     }
 }

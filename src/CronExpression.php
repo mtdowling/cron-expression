@@ -108,19 +108,16 @@ final class CronExpression implements Expression, JsonSerializable, Stringable
     }
 
     /**
-     * @param array<int, string|int> $parts
+     * @param array<int, string|int> $fields
      */
-    private function newInstance(array $parts): self
+    private function newInstance(array $fields): self
     {
-        ksort($parts);
-        if ($parts === $this->fields) {
+        ksort($fields);
+        if ($fields === $this->fields) {
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->fields = ExpressionParser::parse(implode(' ', $parts));
-
-        return $clone;
+        return new self(implode(' ', $fields));
     }
 
     public function withHour(string $fieldValue): self

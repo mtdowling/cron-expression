@@ -142,12 +142,13 @@ final class DayOfWeek extends Field
         return $date->add(new DateInterval('P1D'))->setTime(0, 0);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function validate(string $expression): bool
     {
         if (true === parent::validate($expression)) {
+            return true;
+        }
+
+        if ('?' === $expression) {
             return true;
         }
 
