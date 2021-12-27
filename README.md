@@ -46,7 +46,7 @@ $scheduler = new Scheduler(new CronExpression('3-59/15 2,6-12 */15 1 2-5'));
 echo $scheduler->run()->format('Y-m-d H:i:s');
 
 // Calculate a run date two iterations into the future
-$scheduler = new Scheduler(new CronExpression('@daily'));
+$scheduler = new Scheduler('@daily');
 echo $scheduler->run(2)->format('Y-m-d H:i:s');
 
 // Calculate a run date relative to a specific time
@@ -57,7 +57,7 @@ $scheduler = new Scheduler(new CronExpression::monthly());
 echo $scheduler->run(relativeTo: '2010-01-12 00:00:00')->format('Y-m-d H:i:s');
 
 // Works with complex expressions and timezone
-$scheduler = new Scheduler(new CronExpression('45 9 * * *'), 'Africa/Kinshasa');
+$scheduler = new Scheduler('45 9 * * *', 'Africa/Kinshasa');
 $date = new DateTime('2014-05-18 08:45', new DateTimeZone('Europe/London'));
 echo $scheduler->isDue($date); // return true
 ```
@@ -75,9 +75,9 @@ final class Scheduler
     public const INCLUDE_START_DATE = 1;
     
     /* CRON Expression Scheduler Constructors */
-    public function __construct(Expression $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000, int $options = self::EXCLUDE_START_DATE);
-    public static function fromUTC(Expression $expression): self;
-    public static function fromSystemTimeZone(Expression $expression): self;
+    public function __construct(Expression|string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000, int $options = self::EXCLUDE_START_DATE);
+    public static function fromUTC(Expression|string $expression): self;
+    public static function fromSystemTimeZone(Expression|string $expression): self;
 
     /* CRON Expression Scheduler API */
     public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable;

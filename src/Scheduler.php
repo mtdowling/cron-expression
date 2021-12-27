@@ -16,29 +16,40 @@ final class Scheduler
     public const EXCLUDE_START_DATE = 0;
     public const INCLUDE_START_DATE = 1;
 
+    private Expression $expression;
     private DateTimeZone $timezone;
     private int $maxIterationCount;
     private int $options;
 
     public function __construct(
-        private Expression $expression,
+        Expression|string $expression,
         DateTimeZone|string|null $timezone = null,
         int $maxIterationCount = 1000,
         int $options = self::EXCLUDE_START_DATE
     ) {
+        $this->expression = $this->filterExpression($expression);
         $this->timezone = $this->filterTimezone($timezone);
         $this->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
         $this->options = $this->filterOptions($options);
     }
 
-    public static function fromUTC(Expression $expression): self
+    public static function fromUTC(Expression|string $expression): self
     {
         return new self($expression, new DateTimeZone('UTC'));
     }
 
-    public static function fromSystemTimeZone(Expression $expression): self
+    public static function fromSystemTimeZone(Expression|string $expression): self
     {
         return new self($expression, date_default_timezone_get());
+    }
+
+    private function filterExpression(Expression|string $expression): Expression
+    {
+        if (!$expression instanceof Expression) {
+            return new CronExpression($expression);
+        }
+
+        return $expression;
     }
 
     private function filterTimezone(DateTimeZone|string|null $timeZone): DateTimeZone
@@ -89,16 +100,14 @@ final class Scheduler
         return self::EXCLUDE_START_DATE === $this->options;
     }
 
-    public function withExpression(Expression $expression): self
+    public function withExpression(Expression|string $expression): self
     {
+        $expression = $this->filterExpression($expression);
         if ($expression->toString() == $this->expression->toString()) {
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->expression = $expression;
-
-        return $clone;
+        return new self($expression, $this->timezone, $this->maxIterationCount, $this->options);
     }
 
     public function withTimezone(DateTimeZone|string $timezone): self
@@ -108,10 +117,7 @@ final class Scheduler
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->timezone = $timezone;
-
-        return $clone;
+        return new self($this->expression, $timezone, $this->maxIterationCount, $this->options);
     }
 
     public function withMaxIterationCount(int $maxIterationCount): self
@@ -120,10 +126,7 @@ final class Scheduler
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
-
-        return $clone;
+        return new self($this->expression, $this->timezone, $maxIterationCount, $this->options);
     }
 
     public function includeStartDate(): self
@@ -132,10 +135,7 @@ final class Scheduler
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->options = self::INCLUDE_START_DATE;
-
-        return $clone;
+        return new self($this->expression, $this->timezone, $this->maxIterationCount, self::INCLUDE_START_DATE);
     }
 
     public function excludeStartDate(): self
@@ -144,10 +144,7 @@ final class Scheduler
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->options = self::EXCLUDE_START_DATE;
-
-        return $clone;
+        return new self($this->expression, $this->timezone, $this->maxIterationCount, self::EXCLUDE_START_DATE);
     }
 
     /**

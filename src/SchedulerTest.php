@@ -125,8 +125,7 @@ final class SchedulerTest extends TestCase
 
     public function testIsDueHandlesDifferentDates(): void
     {
-        $cron = new CronExpression('* * * * *');
-        $scheduler = new Scheduler($cron);
+        $scheduler = new Scheduler('* * * * *');
 
         self::assertTrue($scheduler->isDue());
         self::assertTrue($scheduler->isDue('NOW'));
@@ -187,8 +186,7 @@ final class SchedulerTest extends TestCase
 
     public function testCanGetPreviousRunDates(): void
     {
-        $cron = new CronExpression('* * * * *');
-        $scheduler = new Scheduler($cron);
+        $scheduler = new Scheduler('* * * * *');
         $next = $scheduler->run();
         $two = $scheduler->run(1);
         self::assertEquals($next, $scheduler->run(-1, $two));
@@ -198,7 +196,7 @@ final class SchedulerTest extends TestCase
         $two = $cron->run(1);
         self::assertEquals($next, $cron->run(-1, $two));
 
-        $cron = new Scheduler(new CronExpression('* * * */2 *'));
+        $cron = new Scheduler('* * * */2 *');
         $next = $cron->run();
         $two = $cron->run(1);
         self::assertEquals($next, $cron->run(-1, $two));
@@ -414,10 +412,9 @@ final class SchedulerTest extends TestCase
 
     public function testRecognisesTimezonesAsPartOfDateTime(): void
     {
-        $cron = new CronExpression('0 7 * * *');
         $tzCron = 'America/New_York';
         $tzServer = new DateTimeZone('Europe/London');
-        $scheduler = new Scheduler(expression: $cron, timezone: $tzCron, options: Scheduler::INCLUDE_START_DATE);
+        $scheduler = new Scheduler(expression: '0 7 * * *', timezone: $tzCron, options: Scheduler::INCLUDE_START_DATE);
 
         /** @var DateTime $dtCurrent */
         $dtCurrent = DateTime::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
