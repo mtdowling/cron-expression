@@ -167,7 +167,8 @@ final class Scheduler implements CronScheduler
 
     public function yieldRunsForward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator
     {
-        for ($i = 0; $i < max(0, $recurrences); $i++) {
+        $max = max(0, $recurrences);
+        for ($i = 0; $i < $max; $i++) {
             try {
                 yield $this->calculateRun($i, $startDate, $this->startDatePresence, false);
             } catch (UnableToProcessRun) {
@@ -178,7 +179,8 @@ final class Scheduler implements CronScheduler
 
     public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator
     {
-        for ($i = 0; $i < max(0, $recurrences); $i++) {
+        $max = max(0, $recurrences);
+        for ($i = 0; $i < $max; $i++) {
             try {
                 yield $this->calculateRun($i, $startDate, $this->startDatePresence, true);
             } catch (UnableToProcessRun) {

@@ -1,14 +1,21 @@
-PHP Cron Expression Parser
+Bakame Cron Expression Handler
 ==========================
 
-**NOTE** This is a fork of [https://github.com/mtdowling/cron-expression](https://github.com/mtdowling/cron-expression).  
+**NOTE** This is a fork/rewrite of:
 
-The main difference is to be found in the exposed public API.
-
-- The main class `CronExpression` is made an Immutable Value Object and the public API is updated to reflect it.
-- An independent class `Scheduler` is added to improve with working with the business logic.
+- [https://github.com/mtdowling/cron-expression](https://github.com/mtdowling/cron-expression).  
+- [https://github.com/dragonmantank/cron-expression](https://github.com/dragonmantank/cron-expression)
 
 To know more about cron expression your can look at the [Unix documentation](https://www.unix.com/man-page/linux/5/crontab/)
+
+## Motivation
+
+This package would not exist if the two listed packages did not exist and were not maintained as they are. 
+While those packages are well known and used throughout the community I wanted to see if I could present an 
+alternate way of dealing with cron expression.  
+The reason a fork was created instead of submitting PRs is because the changes to the public API are 
+so important that it would have warranted multiples PR with some passing and other not. Hopefully, some ideas 
+develop here can be re-use in the source packages.
 
 ## System Requirements
 
@@ -22,8 +29,187 @@ Add the dependency to your project:
 composer require bakame-php/cron-expression
 ```
 
-Usage
-=====
+## Usage
+
+### Parsing a CRON Expression
+
+This package resolves CRON Expression as they are described in the [CRONTAB documentation](https://www.unix.com/man-page/linux/5/crontab/)
+
+The `Bakame\Cron\ExpressionParser` class is responsible for parsing a CRON expression and converting it into a PHP `array` list as shown below:
+
+```php
+<?php
+
+use Bakame\Cron\ExpressionParser;
+
+require_once '/vendor/autoload.php';
+
+var_export(ExpressionParser::parse('3-59/15 6-12 */15 1 2-5'));
+// returns the following array
+// array(
+//   0 => '3-59/15',
+//   1 => '6-12',
+//   2 => '*/15',
+//   3 => '1',
+//   4 => '2-5',
+// )
+```
+
+Each array offset is representative of a cron expression field, The `Bakame\Cron\ExpressionParser` exposes those 
+offsets via descriptive constants name, following the table below:
+
+| CRON field   | array offset |Expression Parser Constant   |
+|--------------|--------------|------------------------------|
+| minute       | `0`          | `ExpressionParser::MINUTE`   |
+| hour         | `1`          | `ExpressionParser::HOUR`     |
+| day of month | `2`          | `ExpressionParser::MONTHDAY` |
+| month        | `3`          | `ExpressionParser::MONTH`    |
+| day of week  | `4`          | `ExpressionParser::WEEKDAY`  |
+
+```php
+<?php
+
+use Bakame\Cron\ExpressionParser;
+
+require_once '/vendor/autoload.php';
+
+echo ExpressionParser::parse('3-59/15 6-12 */15 1 2-5')[ExpressionParser::MONTHDAY];
+// display '*/15'
+```
+
+In case of error a `Bakame\Cron\ExpressionParser` exception will be thrown if the submitted string is not 
+a valid CRON expression.
+
+```php
+<?php
+
+ExpressionParser::parse('not a real CRON expression');
+// throws a Bakame\Cron\SyntaxError with the following message 'Invalid CRON expression value `not` for the minute field'
+```
+
+### Validating a CRON Expression
+
+Validating a CRON Expression is done using the `Bakame\Cron\ExpressionParser::isValid` method:
+
+```php
+<?php
+
+ExpressionParser::isValid('not a real CRON expression'); // will return false
+```
+
+Validation of a specific CRON expression field can be done using the `ExpressionParser::fieldValidator` method.  
+This method accept a cron field offset and returns its corresponding `CronFieldValidator` object which validates 
+the requested field:
+
+```php
+<?php
+$fieldValidator = ExpressionParser::fieldValidator(ExpressionParser::MONTH); 
+$fieldValidator->isValid('JAN'); //return true `JAN` is a valid month field value
+$fieldValidator->isValid(23);    //return false `23` is invalid for the month field
+```
+
+### The CRON Expression Immutable Value Object
+
+#### Instantiating the object
+
+To ease manipulating a CRON expression the package comes bundle with a `Expression` immutable value object
+representing a CRON expression. This class uses under the hood the `ExpressionParser` class.
+
+```php
+<?php
+
+use Bakame\Cron\Expression;
+
+$cron = new Expression('3-59/15 6-12 */15 1 2-5');
+echo $cron->minute();     //displays '3-59/15'
+echo $cron->hour();       //displays '6-12'
+echo $cron->dayOfMonth(); //displays '*/15'
+echo $cron->month();      //displays '1'
+echo $cron->dayOfWeek();  //displays '2-5'
+var_export($cron->fields());
+//returns 
+//array (
+//  0 => '3-59/15',
+//  1 => '6-12',
+//  2 => '*/15',
+//  3 => '1',
+//  4 => '2-5',
+//)
+```
+
+#### Special expressions
+
+Just like the `ExpressionParser` the `Expression` class is able to handle special CRON expression:
+
+| Special expression | meaning              | Expression constructor | Expression shortcut     |
+|--------------------|----------------------|------------------------|-------------------------|
+| `@reboot`          | Run once, at startup | **Not supported**      | **Not supported**       |
+| `@yearly`          | Run once a year      | `0 0 1 1 *`            | `Expression::yearly()`  |
+| `@annually`        | Run once a year      | `0 0 1 1 *`            | `Expression::yearly()`  |
+| `@monthly`         | Run once a month     | `0 0 1 * *`            | `Expression::monthly()` |
+| `@weekly`          | Run once a week      | `0 0 * * 0`            | `Expression::weekly()`  |
+| `@daily`           | Run once a day       | `0 0 * * *`            | `Expression::daily()`   |
+| `@midnight`        | Run once a day       | `0 0 * * *`            | `Expression::daily()`   |
+| `@hourly`          | Run once a hour      | `0 * * * *`            | `Expression::hourly()`  |
+
+```php
+<?php
+
+use Bakame\Cron\Expression;
+
+echo Expression::daily()->toString();         // displays "0 0 * * *"
+echo (new Expression('@DAILY'))->toString();  // displays "0 0 * * *"
+```
+
+#### Updating the object
+
+Apart from exposing getter methods you can also easily update the CRON expression via its `with*` methods where the `*`
+is replaced by the corresponding CRON field.
+
+```php
+<?php
+
+use Bakame\Cron\Expression;
+
+$cron = new Expression('3-59/15 6-12 */15 1 2-5');
+echo $cron->withMinute('2')->toString();     //displays '2 6-12 */15 1 2-5'
+echo $cron->withHour('2')->toString();       //displays '3-59/15 2 */15 1 2-5'
+echo $cron->withDayOfMonth('2')->toString(); //displays '3-59/15 6-12 2 1 2-5'
+echo $cron->withMonth('2')->toString();      //displays '3-59/15 6-12 */15 2 2-5'
+echo $cron->withDayOfWeek('2')->toString();  //displays '3-59/15 6-12 */15 1 2'
+```
+
+#### Formatting the object
+
+The value object implements the `JsonSerializable` and the `Stringable` interfaces to ease interoperability.
+
+```php
+<?php
+
+use Bakame\Cron\Expression;
+
+$cron = new Expression('3-59/15 6-12 */15 1 2-5');
+echo $cron->toString();  //display '3-59/15 6-12 */15 1 2-5'
+echo $cron;              //display '3-59/15 6-12 */15 1 2-5'
+echo json_encode($cron); //display '"3-59\/15 6-12 *\/15 1 2-5"'
+```
+
+### Calculating the running time
+
+#### Instantiating the Scheduler object
+
+To determine the next running time for a CRON expression the package uses the `Bakame\Cron\Scheduler` class.  
+To work as expected this class needs:
+
+- a CRON Expression ( as a string or as a `Expression` object)
+- the Scheduler working timezone as a PHP `DateTimeZone` or  the timezone string name.
+- to know if the `startDate` if eligible should be present in the results.
+- the maximum iteration count to use to resolve the running time. If this value is exceeded the calculation will bail out.
+
+To ease instantiating the `Scheduler`, it comes bundle with two named constructors around timezone usage:  
+
+- `Scheduler::fromUTC`: instantiate a scheduler using the `UTC` timezone.
+- `Scheduler::fromSystemTimezone`: instantiate a scheduler using the underlying system timezone
 
 ```php
 <?php
@@ -33,141 +219,128 @@ use Bakame\Cron\Scheduler;
 
 require_once '/vendor/autoload.php';
 
-// Works with predefined scheduling definitions
-$cron = new Scheduler(Expression::daily(), 'Africa/Kigali');
-$cron->isDue();
-echo $cron->run()->format('Y-m-d H:i:s, e'), PHP_EOL;
-echo $cron->run(-1)->format('Y-m-d H:i:s, e'), PHP_EOL;
+// You can define all properties on instantiation
+$scheduler = new Scheduler(
+    new Expression('0 7 * * *'), 
+    new DateTimeZone('UTC'),
+    Scheduler::INCLUDE_START_DATE,
+    2000
+ );
 
-// Works with complex expressions
-$cron = Scheduler::fromUTC('3-59/15 6-12 */15 1 2-5');
-echo $cron->run()->format('Y-m-d H:i:s, e'), PHP_EOL;
-
-// Calculate a run date two iterations into the future
-$cron = Scheduler::fromSystemTimezone('@daily');
-echo $cron->run(2)->format('Y-m-d H:i:s, e'), PHP_EOL;
-
-// Calculate a run date relative to a specific time
-$cron = new Scheduler('@monthly');
-echo $cron->run(startDate:'2010-01-12 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
-
-// Handle complex timezone
-$previousRun = Scheduler::fromUTC('0 7 * * *')
-    ->withTimezone('America/New_York')
+// Or we can use a named constructor and the scheduler configuration methods
+$scheduler = Scheduler::fromUTC('0 7 * * *')
     ->includeStartDate()
-    ->run(-1, new DateTime('2017-10-17 10:00:00', new DateTimeZone('Europe/London')));
+    ->withMaxIterationCount(2000);
 
-echo $previousRun->format('Y-m-d H:i:s, e'), PHP_EOL;
-echo $previousRun::class, PHP_EOL;
+//both instantiated object are equals.
 ```
 
-## Cron scheduler Public API
+#### Finding a running date for a CRON expression
+
+Once instantiated you can use the `Scheduler` to find the run date according to a specific date.
 
 ```php
 <?php
 
-namespace Bakame\Cron;
+use Bakame\Cron\Expression;
+use Bakame\Cron\Scheduler;
 
-final class Scheduler implements CronScheduler
-{
-    public const EXCLUDE_START_DATE = 0;
-    public const INCLUDE_START_DATE = 1;
-    
-    /* CRON Expression Scheduler Constructors */
-    public function __construct(CronExpression|string $expression, DateTimeZone|string|null $timezone = null, int $startDatePresence = self::EXCLUDE_START_DATE, int $maxIterationCount = 1000);
-    public static function fromUTC(CronExpression|string $expression): self;
-    public static function fromSystemTimezone(CronExpression|string $expression): self;
+require_once '/vendor/autoload.php';
 
-    /* CRON Expression Scheduler API */
-    public function run(int $nth = 0, DateTimeInterface|string $startDate = 'now'): DateTimeImmutable;
-    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator;
-    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator;
-    public function isDue(DateTimeInterface|string $when = 'now'): bool;
-    
-     /* CRON Expression Scheduler Configuration API */
-    public function expression(): CronExpression;
-    public function withExpression(CronExpression $expression): self;
-    public function timezone(): DateTimeZone;
-    public function withTimezone(DateTimeZone|string $timezone): self;
-    public function maxIterationCount(): int;
-    public function withMaxIterationCount(int $maxIterationCount): self;
-    public function isStartDateExcluded(): bool;
-    public function excludeStartDate(): self;
-    public function includeStartDate(): self;
- }
+$scheduler = new Scheduler(Expression::daily(), 'Africa/Kigali');
+echo $scheduler->run()->format('Y-m-d H:i:s, e'), PHP_EOL;
+//display 2021-12-29 00:00:00, Africa/Kigali
 ```
 
-## CronExpression Public API
+You can specify the number of matches to skip before calculating the next run.
 
 ```php
-<?php
-
-namespace Bakame\Cron;
-
-final class Expression implements CronExpression, \JsonSerializable, \Stringable
-{
-    /* Constructors */
-    public function __construct(string $expression);
-    public static function yearly(): self;
-    public static function monthly(): self;
-    public static function weekly(): self;
-    public static function daily(): self;
-    public static function hourly(): self;
-
-    /* CRON Expression getters */
-    public function fields(): array;
-    public function minute(): string;
-    public function hour(): string;
-    public function dayOfMonth(): string;
-    public function month(): string;
-    public function dayOfWeek(): string;
-    
-    /* CRON Expression configuration methods */
-    public function withMinute(string $fieldValue): self;
-    public function withHour(string $fieldValue): self;
-    public function withDayOfMonth(string $fieldValue): self;
-    public function withMonth(string $fieldValue): self;
-    public function withDayOfWeek(string $fieldValue): self;
-    
-    /* CRON expression formatting */
-    public function toString(): string;
-    public function __toString(): string;
-    public function jsonSerialize(): string;
- }
+$scheduler = new Scheduler(Expression::daily(), 'Africa/Kigali');
+echo $scheduler->run(3)->format('Y-m-d H:i:s, e'), PHP_EOL;
+//display 2022-01-01 00:00:00, Africa/Kigali
 ```
 
-## ExpressionParser Public API
+You can specify the starting date for calculating the next run.
 
 ```php
-<?php
-
-namespace Bakame\Cron;
-
-final class ExpressionParser
-{
-    public const MINUTE = 0;
-    public const HOUR = 1;
-    public const MONTHDAY = 2;
-    public const MONTH = 3;
-    public const WEEKDAY = 4;
-
-    public static function fieldValidator(int $fieldOffset): FieldValidator;
-    public static function parse(string $expression): array;
-    public static function isValid(string $expression): bool;
-}
+$scheduler = new Scheduler(Expression::daily(), 'Africa/Kigali');
+echo $scheduler->run(startDate: '2022-01-01 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
+//display 2022-01-02 00:00:00, Africa/Kigali
 ```
 
-## FieldValidator Public API
+If you want to get a date in the past just use a negative number.
 
 ```php
-<?php
-
-namespace Bakame\Cron;
-
-final class FieldValidator implements CronFieldValidator
-{
-    public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool;
-    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable;
-    public function validate(string $fieldExpression): bool;
-}
+$scheduler = new Scheduler(Expression::daily(), 'Africa/Kigali');
+echo $scheduler->run(-2, '2022-01-01 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
+//display 2021-12-31 00:00:00, Africa/Kigali
 ```
+
+If you do not explicitly require it the start date will not be eligible to be added to the results.  
+Use the constructor to do so or the `includeStartDate` configuration method to add the settings.
+The `Scheduler` is an immutable object anytime a configuration settings is changed a new object is
+returned instead of modifying the current object.
+
+```php
+$dateTime = new DateTime('2022-01-01 00:04:00', new DateTimeZone('Africa/Kigali'));
+$dateTimeImmutable = DateTimeImmutable::createFromInterface($dateTime);
+$scheduler = new Scheduler('4-59/2 * * * *', 'Africa/Kigali');
+echo $scheduler->run(0, $dateTime)->format('Y-m-d H:i:s, e'), PHP_EOL;
+//display 2022-01-01 00:06:00, Africa/Kigali
+echo $scheduler->includeStartDate()->run(0, $dateTime)->format('Y-m-d H:i:s, e'), PHP_EOL;
+//display 2022-01-01 00:04:00, Africa/Kigali
+```
+
+**The `Scheduler` public API accepts `string`, `DateTime` or `DateTimeImmutable` object but will always return `DateTimeImmutable` objects with the Scheduler specified `DateTimeZone`.**
+
+#### Knowing if a CRON expression will run at a specific date
+
+The `Scheduler` class can also tell whether a specific CRON is due to run on a specific date.
+
+```php
+$scheduler = new Scheduler(new Expression('* * * * MON#1'));
+$scheduler->isDue(new DateTime('2014-04-07 00:00:00')); // returns true
+$scheduler->isDue();      // returns false 
+// is the same as
+$scheduler->isDue('NOW'); // returns false 
+```
+
+Last but not least you can iterate over a set of recurrent date where the cron is supposed to run.
+The iteration can be done forward to list all occurrences from the start date up to the total of recurrences
+or you can iterate backward from the start date down to a past run date depending on the total recurrence value.
+
+The returning result is a generator containing `DateTimeImmutable` objects.
+
+#### Iterating forward
+
+```php
+$scheduler = new Scheduler(expression: '30 0 1 * 1', startDatePresence: Scheduler::INCLUDE_START_DATE);
+$runs = $scheduler->yieldRunsForward(5, new DateTime('2019-10-10 23:20:00'));
+var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:s'), iterator_to_array($runs, false)));
+//returns
+//array (
+//  0 => '2019-10-14 00:30:00',
+//  1 => '2019-10-21 00:30:00',
+//  2 => '2019-10-28 00:30:00',
+//  3 => '2019-11-01 00:30:00',
+//  4 => '2019-11-04 00:30:00',
+//)
+```
+
+#### Iterating backward
+
+```php
+$scheduler = new Scheduler(expression: '30 0 1 * 1', startDatePresence: Scheduler::INCLUDE_START_DATE);
+$runs = $scheduler->yieldRunsBackward(5, new DateTime('2019-10-10 23:20:00'));
+var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:s'), iterator_to_array($runs, false)));
+//returns
+//array (
+//  0 => '2019-10-01 00:30:00',
+//  1 => '2019-09-30 00:30:00',
+//  2 => '2019-09-23 00:30:00',
+//  3 => '2019-09-16 00:30:00',
+//  4 => '2019-09-09 00:30:00',
+//)
+```
+
+**HAPPY CODING!**
