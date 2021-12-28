@@ -76,18 +76,18 @@ interface CronScheduler
     /**
      * Get multiple run dates starting at the current date or a specific date.
      *
-     * @param int $total Set the total number of dates to calculate
+     * @param int $recurrences Set the total number of dates to calculate
      * @param DateTimeInterface|string $relativeTo Relative calculation date
      *
      *@throws CronError
-     * @return Generator<DateTimeImmutable>
+     *@return Generator<DateTimeImmutable>
      */
-    public function yieldRunsForward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator;
+    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator;
 
     /**
      * Get multiple run dates ending at the current date or a specific date.
      *
-     * @param int $total Set the total number of dates to calculate
+     * @param int $recurrences Set the total number of dates to calculate
      * @param DateTimeInterface|string $relativeTo Relative calculation date
      *
      * @throws CronError
@@ -95,5 +95,5 @@ interface CronScheduler
      *
      * @see Scheduler::yieldRunsForward
      */
-    public function yieldRunsBackward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator;
+    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator;
 }

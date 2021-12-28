@@ -44,7 +44,7 @@ $cron = Scheduler::fromUTC('3-59/15 6-12 */15 1 2-5');
 echo $cron->run()->format('Y-m-d H:i:s, e'), PHP_EOL;
 
 // Calculate a run date two iterations into the future
-$cron = Scheduler::fromSystemTimeZone('@daily');
+$cron = Scheduler::fromSystemTimezone('@daily');
 echo $cron->run(2)->format('Y-m-d H:i:s, e'), PHP_EOL;
 
 // Calculate a run date relative to a specific time
@@ -74,14 +74,14 @@ final class Scheduler implements CronScheduler
     public const INCLUDE_START_DATE = 1;
     
     /* CRON Expression Scheduler Constructors */
-    public function __construct(CronExpression|string $expression, DateTimeZone|string|null $timezone = null, int $maxIterationCount = 1000, int $options = self::EXCLUDE_START_DATE);
+    public function __construct(CronExpression|string $expression, DateTimeZone|string|null $timezone = null, int $startDatePresence = self::EXCLUDE_START_DATE, int $maxIterationCount = 1000);
     public static function fromUTC(CronExpression|string $expression): self;
     public static function fromSystemTimezone(CronExpression|string $expression): self;
 
     /* CRON Expression Scheduler API */
     public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable;
-    public function yieldRunsForward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator;
-    public function yieldRunsBackward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator;
+    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator;
+    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator;
     public function isDue(DateTimeInterface|string $dateTime = 'now'): bool;
     
      /* CRON Expression Scheduler Configuration API */

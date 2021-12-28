@@ -204,7 +204,7 @@ final class SchedulerTest extends TestCase
 
     public function testProvidesMultipleRunDates(): void
     {
-        $cron = new Scheduler(expression:new Expression('*/2 * * * *'), options: Scheduler::INCLUDE_START_DATE);
+        $cron = new Scheduler(expression: new Expression('*/2 * * * *'), startDatePresence: Scheduler::INCLUDE_START_DATE);
         $result = $cron->yieldRunsForward(4, '2008-11-09 00:00:00');
 
         self::assertEquals([
@@ -353,7 +353,7 @@ final class SchedulerTest extends TestCase
     {
         $this->expectException(SyntaxError::class);
 
-        new Scheduler(new Expression('* * * * *'), 'Africa/Nairobi', -1);
+        new Scheduler(new Expression('* * * * *'), 'Africa/Nairobi', Scheduler::EXCLUDE_START_DATE, -1);
     }
     /**
      * Makes sure that 00 is considered a valid value for 0-based fields
@@ -400,7 +400,7 @@ final class SchedulerTest extends TestCase
      */
     public function testMakeDayOfWeekAnOrSometimes(): void
     {
-        $cron = new Scheduler(expression: new Expression('30 0 1 * 1'), options: Scheduler::INCLUDE_START_DATE);
+        $cron = new Scheduler(expression: new Expression('30 0 1 * 1'), startDatePresence: Scheduler::INCLUDE_START_DATE);
         $runs = $cron->yieldRunsForward(5, new DateTime('2019-10-10 23:20:00'));
         $runs = iterator_to_array($runs, false);
         self::assertSame('2019-10-14 00:30:00', $runs[0]->format('Y-m-d H:i:s'));
@@ -414,7 +414,7 @@ final class SchedulerTest extends TestCase
     {
         $tzCron = 'America/New_York';
         $tzServer = new DateTimeZone('Europe/London');
-        $scheduler = new Scheduler(expression: '0 7 * * *', timezone: $tzCron, options: Scheduler::INCLUDE_START_DATE);
+        $scheduler = new Scheduler(expression: '0 7 * * *', timezone: $tzCron, startDatePresence: Scheduler::EXCLUDE_START_DATE);
 
         /** @var DateTime $dtCurrent */
         $dtCurrent = DateTime::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);

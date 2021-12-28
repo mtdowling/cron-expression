@@ -18,18 +18,18 @@ final class Scheduler implements CronScheduler
     private CronExpression $expression;
     private DateTimeZone $timezone;
     private int $maxIterationCount;
-    private int $options;
+    private int $startDatePresence;
 
     public function __construct(
-        CronExpression|string    $expression,
+        CronExpression|string $expression,
         DateTimeZone|string|null $timezone = null,
-        int                      $maxIterationCount = 1000,
-        int                      $options = self::EXCLUDE_START_DATE
+        int $startDatePresence = Scheduler::EXCLUDE_START_DATE,
+        int $maxIterationCount = 1000
     ) {
         $this->expression = $this->filterExpression($expression);
         $this->timezone = $this->filterTimezone($timezone);
         $this->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
-        $this->options = $this->filterOptions($options);
+        $this->startDatePresence = $this->filterOptions($startDatePresence);
     }
 
     private function filterExpression(CronExpression|string $expression): CronExpression
@@ -74,7 +74,7 @@ final class Scheduler implements CronScheduler
         return new self($expression, new DateTimeZone('UTC'));
     }
 
-    public static function fromSystemTimeZone(CronExpression|string $expression): self
+    public static function fromSystemTimezone(CronExpression|string $expression): self
     {
         return new self($expression, date_default_timezone_get());
     }
@@ -96,7 +96,7 @@ final class Scheduler implements CronScheduler
 
     public function isStartDateExcluded(): bool
     {
-        return self::EXCLUDE_START_DATE === $this->options;
+        return self::EXCLUDE_START_DATE === $this->startDatePresence;
     }
 
     public function withExpression(CronExpression|string $expression): self
@@ -106,7 +106,7 @@ final class Scheduler implements CronScheduler
             return $this;
         }
 
-        return new self($expression, $this->timezone, $this->maxIterationCount, $this->options);
+        return new self($expression, $this->timezone, $this->startDatePresence, $this->maxIterationCount);
     }
 
     public function withTimezone(DateTimeZone|string $timezone): self
@@ -116,7 +116,7 @@ final class Scheduler implements CronScheduler
             return $this;
         }
 
-        return new self($this->expression, $timezone, $this->maxIterationCount, $this->options);
+        return new self($this->expression, $timezone, $this->startDatePresence, $this->maxIterationCount);
     }
 
     public function withMaxIterationCount(int $maxIterationCount): self
@@ -125,25 +125,25 @@ final class Scheduler implements CronScheduler
             return $this;
         }
 
-        return new self($this->expression, $this->timezone, $maxIterationCount, $this->options);
+        return new self($this->expression, $this->timezone, $this->startDatePresence, $maxIterationCount);
     }
 
     public function includeStartDate(): self
     {
-        if (self::INCLUDE_START_DATE === $this->options) {
+        if (self::INCLUDE_START_DATE === $this->startDatePresence) {
             return $this;
         }
 
-        return new self($this->expression, $this->timezone, $this->maxIterationCount, self::INCLUDE_START_DATE);
+        return new self($this->expression, $this->timezone, self::INCLUDE_START_DATE, $this->maxIterationCount);
     }
 
     public function excludeStartDate(): self
     {
-        if (self::EXCLUDE_START_DATE === $this->options) {
+        if (self::EXCLUDE_START_DATE === $this->startDatePresence) {
             return $this;
         }
 
-        return new self($this->expression, $this->timezone, $this->maxIterationCount, self::EXCLUDE_START_DATE);
+        return new self($this->expression, $this->timezone, self::EXCLUDE_START_DATE, $this->maxIterationCount);
     }
 
     public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable
@@ -155,7 +155,7 @@ final class Scheduler implements CronScheduler
             --$nth;
         }
 
-        return $this->calculateRun($nth, $relativeTo, $this->options, $invert);
+        return $this->calculateRun($nth, $relativeTo, $this->startDatePresence, $invert);
     }
 
     public function isDue(DateTimeInterface|string $dateTime = 'now'): bool
@@ -167,22 +167,22 @@ final class Scheduler implements CronScheduler
         }
     }
 
-    public function yieldRunsForward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator
+    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator
     {
-        for ($i = 0; $i < max(0, $total); $i++) {
+        for ($i = 0; $i < max(0, $recurrences); $i++) {
             try {
-                yield $this->calculateRun($i, $relativeTo, $this->options, false);
+                yield $this->calculateRun($i, $relativeTo, $this->startDatePresence, false);
             } catch (RuntimeException) {
                 break;
             }
         }
     }
 
-    public function yieldRunsBackward(int $total, DateTimeInterface|string $relativeTo = 'now'): Generator
+    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator
     {
-        for ($i = 0; $i < max(0, $total); $i++) {
+        for ($i = 0; $i < max(0, $recurrences); $i++) {
             try {
-                yield $this->calculateRun($i, $relativeTo, $this->options, true);
+                yield $this->calculateRun($i, $relativeTo, $this->startDatePresence, true);
             } catch (RuntimeException) {
                 break;
             }
