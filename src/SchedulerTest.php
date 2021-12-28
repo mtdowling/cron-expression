@@ -9,9 +9,6 @@ use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass \Bakame\Cron\Scheduler
- */
 final class SchedulerTest extends TestCase
 {
     /**
@@ -99,12 +96,6 @@ final class SchedulerTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\DayOfMonthValidator
-     * @covers \Bakame\Cron\DayOfWeekValidator
-     * @covers \Bakame\Cron\MinuteValidator
-     * @covers \Bakame\Cron\HourValidator
-     * @covers \Bakame\Cron\MonthValidator
-     *
      * @dataProvider scheduleProvider
      */
     public function testDeterminesIfCronIsDue(string $expression, string|int $relativeTime, string $nextRun, bool $isDue): void
@@ -215,11 +206,6 @@ final class SchedulerTest extends TestCase
         ], iterator_to_array($result, false));
     }
 
-    /**
-     * @covers \Bakame\Cron\Scheduler::yieldRunsForward
-     * @covers \Bakame\Cron\Scheduler::maxIterationCount
-     * @covers \Bakame\Cron\Scheduler::withMaxIterationCount
-     */
     public function testProvidesMultipleRunDatesForTheFarFuture(): void
     {
         // Fails with the default 1000 iteration limit
@@ -297,20 +283,20 @@ final class SchedulerTest extends TestCase
 
     public function testIssue20(): void
     {
-        $e = new Scheduler(new Expression('* * * * MON#1'));
-        self::assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
-        self::assertFalse($e->isDue(new DateTime('2014-04-14 00:00:00')));
-        self::assertFalse($e->isDue(new DateTime('2014-04-21 00:00:00')));
+        $scheduler = new Scheduler(new Expression('* * * * MON#1'));
+        self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:00:00')));
+        self::assertFalse($scheduler->isDue(new DateTime('2014-04-14 00:00:00')));
+        self::assertFalse($scheduler->isDue(new DateTime('2014-04-21 00:00:00')));
 
-        $e = new Scheduler(new Expression('* * * * SAT#2'));
-        self::assertFalse($e->isDue(new DateTime('2014-04-05 00:00:00')));
-        self::assertTrue($e->isDue(new DateTime('2014-04-12 00:00:00')));
-        self::assertFalse($e->isDue(new DateTime('2014-04-19 00:00:00')));
+        $scheduler = new Scheduler(new Expression('* * * * SAT#2'));
+        self::assertFalse($scheduler->isDue(new DateTime('2014-04-05 00:00:00')));
+        self::assertTrue($scheduler->isDue(new DateTime('2014-04-12 00:00:00')));
+        self::assertFalse($scheduler->isDue(new DateTime('2014-04-19 00:00:00')));
 
-        $e = new Scheduler(new Expression('* * * * SUN#3'));
-        self::assertFalse($e->isDue(new DateTime('2014-04-13 00:00:00')));
-        self::assertTrue($e->isDue(new DateTime('2014-04-20 00:00:00')));
-        self::assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
+        $scheduler = new Scheduler(new Expression('* * * * SUN#3'));
+        self::assertFalse($scheduler->isDue(new DateTime('2014-04-13 00:00:00')));
+        self::assertTrue($scheduler->isDue(new DateTime('2014-04-20 00:00:00')));
+        self::assertFalse($scheduler->isDue(new DateTime('2014-04-27 00:00:00')));
     }
 
     public function testKeepOriginalTime(): void
@@ -336,9 +322,6 @@ final class SchedulerTest extends TestCase
         self::assertNotEquals($cron, $cron->withTimezone('Africa/Kinshasa'));
     }
 
-    /**
-     * @covers \Bakame\Cron\SyntaxError
-     */
     public function testThrowsIfTheDateCanNotBeInstantiated(): void
     {
         $this->expectException(SyntaxError::class);
@@ -346,15 +329,13 @@ final class SchedulerTest extends TestCase
         $cron->run(0, 'foobar');
     }
 
-    /**
-     * @covers \Bakame\Cron\SyntaxError
-     */
     public function testThrowsIfMaxIterationCountIsNegative(): void
     {
         $this->expectException(SyntaxError::class);
 
         new Scheduler(new Expression('* * * * *'), 'Africa/Nairobi', Scheduler::EXCLUDE_START_DATE, -1);
     }
+
     /**
      * Makes sure that 00 is considered a valid value for 0-based fields
      * cronie allows numbers with a leading 0, so adding support for this as well.
@@ -435,5 +416,65 @@ final class SchedulerTest extends TestCase
         $dtCurrent = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
         $dtPrev = $scheduler->run(-1, $dtCurrent->format('\\@U'));
         self::assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
+    }
+
+    public function testChangingTheSchedulerProperties(): void
+    {
+        $initial = new Scheduler('0 7 * * *', 'Africa/Nairobi', Scheduler::EXCLUDE_START_DATE, 2000);
+
+        self::assertSame($initial, $initial->withExpression($initial->expression()));
+        self::assertSame($initial, $initial->withTimezone($initial->timezone()));
+        self::assertSame($initial, $initial->excludeStartDate());
+        self::assertSame($initial, $initial->withMaxIterationCount($initial->maxIterationCount()));
+        self::assertTrue($initial->isStartDateExcluded());
+
+        $includeStartDate = $initial->includeStartDate();
+
+        self::assertNotEquals($initial, $initial->withExpression(new Expression('0 5 * * *')));
+        self::assertNotEquals($initial, $initial->withTimezone(new DateTimeZone('Africa/Dakar')));
+        self::assertNotEquals($initial, $includeStartDate);
+        self::assertNotEquals($initial, $initial->withMaxIterationCount(1000));
+        self::assertFalse($includeStartDate->isStartDateExcluded());
+        self::assertSame($includeStartDate, $includeStartDate->includeStartDate());
+        self::assertEquals($initial, $includeStartDate->excludeStartDate());
+    }
+
+    public function testInvalidStartDatePresence(): void
+    {
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage(SyntaxError::dueToInvalidStartDatePresence()->getMessage());
+
+        new Scheduler('0 7 * * *', 'Africa/Nairobi', 3);
+    }
+
+    public function testIsDueReturnsFalseWithBrokenInput(): void
+    {
+        $scheduler = new Scheduler('0 7 * * *', 'Africa/Nairobi', Scheduler::EXCLUDE_START_DATE, 2000);
+
+        self::assertFalse($scheduler->isDue('foobar'));
+    }
+
+    public function testNewUTCInstance(): void
+    {
+        $scheduler = Scheduler::fromUTC('0 7 * * *');
+
+        self::assertEquals('0 7 * * *', $scheduler->expression()->toString());
+        self::assertEquals('UTC', $scheduler->timezone()->getName());
+        self::assertEquals(1000, $scheduler->maxIterationCount());
+        self::assertTrue($scheduler->isStartDateExcluded());
+    }
+
+    public function testNewCurrentTimezoneInstance(): void
+    {
+        $currentTimezone = date_default_timezone_get();
+        date_default_timezone_set('Africa/Lagos');
+        $scheduler = Scheduler::fromSystemTimezone('0 7 * * *');
+
+        self::assertEquals('0 7 * * *', $scheduler->expression()->toString());
+        self::assertEquals('Africa/Lagos', $scheduler->timezone()->getName());
+        self::assertEquals(1000, $scheduler->maxIterationCount());
+        self::assertTrue($scheduler->isStartDateExcluded());
+
+        date_default_timezone_set($currentTimezone);
     }
 }

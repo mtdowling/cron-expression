@@ -3,6 +3,7 @@
 namespace Bakame\Cron;
 
 use DateTime;
+use DateTimeInterface;
 use InvalidArgumentException;
 use Throwable;
 
@@ -23,9 +24,18 @@ final class SyntaxError extends InvalidArgumentException implements CronError
         return new self('Invalid CRON field value '.$value.' at position '.$position);
     }
 
-    public static function dueToInvalidDate(Throwable $exception): self
+    public static function dueToInvalidDate(DateTimeInterface|string $date, Throwable $exception): self
     {
-        return new self('Invalid DateTime expression to instantiate a `'.DateTime::class.'`.', 0, $exception);
+        if ($date instanceof DateTimeInterface) {
+            $date = $date->format('c');
+        }
+
+        return new self('Invalid DateTime expression `'.$date.'` to instantiate a `'.DateTime::class.'`.', 0, $exception);
+    }
+
+    public static function dueToInvalidStartDatePresence(): self
+    {
+        return new self('Unsupported or invalid start date presence value.');
     }
 
     public static function dueToInvalidWeekday(int|string $nth): self

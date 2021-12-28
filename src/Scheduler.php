@@ -28,8 +28,8 @@ final class Scheduler implements CronScheduler
     ) {
         $this->expression = $this->filterExpression($expression);
         $this->timezone = $this->filterTimezone($timezone);
+        $this->startDatePresence = $this->filterStartDatePresence($startDatePresence);
         $this->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
-        $this->startDatePresence = $this->filterOptions($startDatePresence);
     }
 
     private function filterExpression(CronExpression|string $expression): CronExpression
@@ -60,13 +60,13 @@ final class Scheduler implements CronScheduler
         return $maxIterationCount;
     }
 
-    private function filterOptions(int $options): int
+    private function filterStartDatePresence(int $startDatePresence): int
     {
-        if (!in_array($options, [self::EXCLUDE_START_DATE, self::INCLUDE_START_DATE], true)) {
-            throw new SyntaxError('Unsupported or invalid options value.');
+        if (!in_array($startDatePresence, [self::EXCLUDE_START_DATE, self::INCLUDE_START_DATE], true)) {
+            throw SyntaxError::dueToInvalidStartDatePresence();
         }
 
-        return $options;
+        return $startDatePresence;
     }
 
     public static function fromUTC(CronExpression|string $expression): self
@@ -278,7 +278,7 @@ final class Scheduler implements CronScheduler
 
             return $currentDate;
         } catch (Throwable $exception) {
-            throw SyntaxError::dueToInvalidDate($exception);
+            throw SyntaxError::dueToInvalidDate($date, $exception);
         }
     }
 

@@ -32,27 +32,6 @@ final class ExpressionParserTest extends TestCase
     }
 
     /**
-     * @covers \Bakame\Cron\SyntaxError
-     */
-    public function testInvalidCronsWillFail(): void
-    {
-        $this->expectException(SyntaxError::class);
-
-        ExpressionParser::parse('* * * 1');
-    }
-
-
-    /**
-     * @covers \Bakame\Cron\SyntaxError
-     */
-    public function testInvalidPartsWillFail(): void
-    {
-        $this->expectException(SyntaxError::class);
-
-        ExpressionParser::parse('* * abc * *');
-    }
-
-    /**
      * Makes sure that 00 is considered a valid value for 0-based fields
      * cronie allows numbers with a leading 0, so adding support for this as well.
      *
@@ -64,5 +43,28 @@ final class ExpressionParserTest extends TestCase
         self::assertTrue(ExpressionParser::isValid('01 * * * *'));
         self::assertTrue(ExpressionParser::isValid('* 00 * * *'));
         self::assertTrue(ExpressionParser::isValid('* 01 * * *'));
+    }
+
+    /**
+     * @dataProvider invalidCronExpression
+     */
+    public function testParsingFails(string $expression): void
+    {
+        $this->expectException(SyntaxError::class);
+
+        ExpressionParser::parse($expression);
+    }
+
+    public function invalidCronExpression(): array
+    {
+        return [
+            'less than 5 fields' => ['* * * 1'],
+            'more than 5 fields' => ['* * * * * *'],
+            'invalid monthday field' => ['* * abc * *'],
+            'invalid month field' => ['* * * 13 * '],
+            'invalid minute field' => ['90 * * * *'],
+            'invalid hour field value' => ['0 24 1 12 0'],
+            'invalid weekday' => ['* 14 * * mon-fri0345345'],
+        ];
     }
 }
