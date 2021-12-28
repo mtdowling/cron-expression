@@ -12,7 +12,7 @@ interface CronExpression
     /**
      * Returns the CRON expression fields as array.
      *
-     * @return array<int, string|int>
+     * @return array<int, string>
      */
     public function fields(): array;
 
@@ -49,8 +49,6 @@ interface CronExpression
     /**
      * Set the minute field of the CRON expression.
      *
-     * @param string $fieldExpression The value to set
-     *
      * @throws CronError if the value is not valid for the part
      *
      */
@@ -58,8 +56,6 @@ interface CronExpression
 
     /**
      * Set the hour field of the CRON expression.
-     *
-     * @param string $fieldExpression The value to set
      *
      * @throws CronError if the value is not valid for the part
      *
@@ -69,8 +65,6 @@ interface CronExpression
     /**
      * Set the day of month field of the CRON expression.
      *
-     * @param string $fieldExpression The value to set
-     *
      * @throws CronError if the value is not valid for the part
      *
      */
@@ -79,8 +73,6 @@ interface CronExpression
     /**
      * Set the month field of the CRON expression.
      *
-     * @param string $fieldExpression The value to set
-     *
      * @throws CronError if the value is not valid for the part
      *
      */
@@ -88,8 +80,6 @@ interface CronExpression
 
     /**
      * Set the day of the week field of the CRON expression.
-     *
-     * @param string $fieldExpression The value to set
      *
      * @throws CronError if the value is not valid for the part
      *

@@ -117,13 +117,15 @@ final class DayOfWeekValidator extends FieldValidator
 
         // Handle day of the week values
         if (str_contains($fieldExpression, '-')) {
-            $parts = explode('-', $fieldExpression);
-            if ($parts[0] === '7') {
-                $parts[0] = '0';
-            } elseif ($parts[1] === '0') {
-                $parts[1] = '7';
+            [$first, $last] = explode('-', $fieldExpression);
+            if ($first === '7') {
+                $first = '0';
             }
-            $fieldExpression = implode('-', $parts);
+
+            if ($last === '0') {
+                $last = '7';
+            }
+            $fieldExpression = $first.'-'.$last;
         }
 
         // Test to see which Sunday to use -- 0 == 7 == Sunday
@@ -143,27 +145,20 @@ final class DayOfWeekValidator extends FieldValidator
 
     public function validate(string $fieldExpression): bool
     {
-        if (true === parent::validate($fieldExpression)) {
-            return true;
-        }
+        return match (true) {
+            parent::validate($fieldExpression) => true,
+            '?' === $fieldExpression => true,
+            str_contains($fieldExpression, '#') => $this->handleSharpExpression($fieldExpression),
+            default => 1 === preg_match('/^(?<expression>.*)L$/', $fieldExpression, $matches) && $this->validate($matches['expression']),
+        };
+    }
 
-        if ('?' === $fieldExpression) {
-            return true;
-        }
+    private function handleSharpExpression(string $fieldExpression): bool
+    {
+        [$first, $last] = explode('#', $fieldExpression);
 
-        // Handle the # value
-        if (str_contains($fieldExpression, '#')) {
-            $chunks = explode('#', $fieldExpression);
-            $chunks[0] = $this->convertLiterals($chunks[0]);
-            if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && in_array((int) $chunks[1], $this->nthRange, true)) {
-                return true;
-            }
-        }
-
-        if (1 !== preg_match('/^(.*)L$/', $fieldExpression, $matches)) {
-            return false;
-        }
-
-        return $this->validate($matches[1]);
+        return parent::validate($this->convertLiterals($first))
+            && is_numeric($last)
+            && in_array((int) $last, $this->nthRange, true);
     }
 }

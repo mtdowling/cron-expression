@@ -7,7 +7,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Generator;
-use RuntimeException;
 use Throwable;
 
 final class Scheduler implements CronScheduler
@@ -146,44 +145,43 @@ final class Scheduler implements CronScheduler
         return new self($this->expression, $this->timezone, self::EXCLUDE_START_DATE, $this->maxIterationCount);
     }
 
-    public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable
+    public function run(int $nth = 0, DateTimeInterface|string $startDate = 'now'): DateTimeImmutable
     {
         $invert = false;
         if (0 > $nth) {
+            $nth = ($nth * -1) - 1;
             $invert = true;
-            $nth *= -1;
-            --$nth;
         }
 
-        return $this->calculateRun($nth, $relativeTo, $this->startDatePresence, $invert);
+        return $this->calculateRun($nth, $startDate, $this->startDatePresence, $invert);
     }
 
-    public function isDue(DateTimeInterface|string $dateTime = 'now'): bool
+    public function isDue(DateTimeInterface|string $when = 'now'): bool
     {
         try {
-            return $this->calculateRun(0, $dateTime, self::INCLUDE_START_DATE, false) == $this->filterInputDate($dateTime);
+            return $this->calculateRun(0, $when, self::INCLUDE_START_DATE, false) == $this->filterInputDate($when);
         } catch (Throwable) {
             return false;
         }
     }
 
-    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator
+    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator
     {
         for ($i = 0; $i < max(0, $recurrences); $i++) {
             try {
-                yield $this->calculateRun($i, $relativeTo, $this->startDatePresence, false);
-            } catch (RuntimeException) {
+                yield $this->calculateRun($i, $startDate, $this->startDatePresence, false);
+            } catch (UnableToProcessRun) {
                 break;
             }
         }
     }
 
-    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator
+    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator
     {
         for ($i = 0; $i < max(0, $recurrences); $i++) {
             try {
-                yield $this->calculateRun($i, $relativeTo, $this->startDatePresence, true);
-            } catch (RuntimeException) {
+                yield $this->calculateRun($i, $startDate, $this->startDatePresence, true);
+            } catch (UnableToProcessRun) {
                 break;
             }
         }
@@ -193,73 +191,76 @@ final class Scheduler implements CronScheduler
      * Get the next or previous run date of the expression relative to a date.
      *
      * @param int $nth Number of matches to skip before returning
-     * @param DateTimeInterface|string $relativeTo Relative calculation date
-     * @param int $options Set to self::INCLUDE_START_DATE to return the current date if it matches the cron expression
-     *                     Set to self::EXCLUDE_START_DATE to not return the current date if it matches the cron expression
+     * @param DateTimeInterface|string $startDate Relative calculation date
+     * @param int $startDatePresence Set to self::INCLUDE_START_DATE to return the start date if eligible
+     *                               Set to self::EXCLUDE_START_DATE to never return the start date
      * @param bool $invert Set to TRUE to go backwards in time
      *
      * @throws CronError on too many iterations
      */
-    private function calculateRun(int $nth, DateTimeInterface|string $relativeTo, int $options, bool $invert): DateTimeImmutable
+    private function calculateRun(int $nth, DateTimeInterface|string $startDate, int $startDatePresence, bool $invert): DateTimeImmutable
     {
-        $startDate = $this->filterInputDate($relativeTo);
-        $fields = $this->getOrderedFields();
+        $from = $this->filterInputDate($startDate);
+        $calculatedFields = $this->calculatedFields();
 
-        if (isset($fields[ExpressionParser::MONTHDAY], $fields[ExpressionParser::WEEKDAY])) {
-            return $this->combineRuns($nth, $startDate, $invert);
+        if (isset($calculatedFields[ExpressionParser::MONTHDAY], $calculatedFields[ExpressionParser::WEEKDAY])) {
+            return $this->combineRuns($nth, $from, $invert);
         }
 
         // Set a hard limit to bail on an impossible date
-        $nextRun = clone $startDate;
+        $nextRun = clone $from;
         for ($i = 0; $i < $this->maxIterationCount; $i++) {
             /**
-             * @var string $part
-             * @var CronFieldValidator $validator
+             * @var string $fieldExpression
+             * @var CronFieldValidator $fieldValidator
              */
-            foreach ($fields as [$part, $validator]) {
+            foreach ($calculatedFields as [$fieldExpression, $fieldValidator]) {
                 // If the field is not satisfied, then start over
-                if (!$this->isFieldSatisfiedBy($nextRun, $validator, $part)) {
-                    $nextRun = $validator->increment($nextRun, $invert, $part);
+                if (!$this->isFieldSatisfiedBy($nextRun, $fieldValidator, $fieldExpression)) {
+                    $nextRun = $fieldValidator->increment($nextRun, $invert, $fieldExpression);
 
                     continue 2;
                 }
             }
 
             // Skip this match if needed
-            if (($options === self::EXCLUDE_START_DATE && $nextRun == $startDate) || --$nth > -1) {
-                $nextRun = ExpressionParser::fieldValidator(0)->increment($nextRun, $invert, $fields[0][0] ?? null);
+            if (($startDatePresence === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
+                $nextRun = ExpressionParser::fieldValidator(ExpressionParser::MINUTE)
+                    ->increment($nextRun, $invert, $calculatedFields[ExpressionParser::MINUTE][0] ?? null);
 
                 continue;
             }
 
-            return $this->formatOutputDate($nextRun, $relativeTo);
+            return $this->formatOutputDate($nextRun, $startDate);
         }
 
+        // @codeCoverageIgnoreStart
         throw UnableToProcessRun::dueToMaxIterationCountReached($this->maxIterationCount);
+        // @codeCoverageIgnoreEnd
     }
 
     /**
      * @throws CronError
      */
-    private function combineRuns(int $nth, DateTime $relativeTo, bool $invert): DateTimeImmutable
+    private function combineRuns(int $nth, DateTime $startDate, bool $invert): DateTimeImmutable
     {
         $dayOfWeekScheduler = $this->withExpression($this->expression->withDayOfWeek('*'));
         $dayOfMonthScheduler = $this->withExpression($this->expression->withDayOfMonth('*'));
 
-        $combinedArray = match (true) {
+        $combinedRuns = match (true) {
             $invert === true => array_merge(
-                iterator_to_array($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $relativeTo), false),
-                iterator_to_array($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $relativeTo), false)
+                iterator_to_array($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $startDate), false),
+                iterator_to_array($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $startDate), false)
             ),
             default => array_merge(
-                iterator_to_array($dayOfMonthScheduler->yieldRunsForward($nth + 1, $relativeTo), false),
-                iterator_to_array($dayOfWeekScheduler->yieldRunsForward($nth + 1, $relativeTo), false)
+                iterator_to_array($dayOfMonthScheduler->yieldRunsForward($nth + 1, $startDate), false),
+                iterator_to_array($dayOfWeekScheduler->yieldRunsForward($nth + 1, $startDate), false)
             ),
         };
 
-        usort($combinedArray, fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
+        usort($combinedRuns, fn (DateTimeInterface $a, DateTimeInterface $b): int => $a <=> $b);
 
-        return $combinedArray[$nth];
+        return $combinedRuns[$nth];
     }
 
     /**
@@ -284,16 +285,18 @@ final class Scheduler implements CronScheduler
 
     private function formatOutputDate(DateTimeInterface $resultDate, DateTimeInterface|string $inputDate): DateTimeImmutable
     {
-        return match (true) {
-            $inputDate instanceof DateTimeImmutable => $inputDate::createFromInterface($resultDate)->setTimezone($this->timezone),
-            default => DateTimeImmutable::createFromInterface($resultDate)->setTimezone($this->timezone)
+        $date = match (true) {
+            $inputDate instanceof DateTimeImmutable => $inputDate::createFromInterface($resultDate),
+            default => DateTimeImmutable::createFromInterface($resultDate)
         };
+
+        return $date->setTimezone($this->timezone);
     }
 
-    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, CronFieldValidator $field, string $part): bool
+    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, CronFieldValidator $fieldValidator, string $fieldExpression): bool
     {
-        foreach (array_map('trim', explode(',', $part)) as $listPart) {
-            if ($field->isSatisfiedBy($dateTime, $listPart)) {
+        foreach (array_map('trim', explode(',', $fieldExpression)) as $expression) {
+            if ($fieldValidator->isSatisfiedBy($dateTime, $expression)) {
                 return true;
             }
         }
@@ -301,7 +304,7 @@ final class Scheduler implements CronScheduler
         return false;
     }
 
-    private function getOrderedFields(): array
+    private function calculatedFields(): array
     {
         // Order in which to test of cron parts.
         static $testOrderCronFields = [

@@ -49,7 +49,7 @@ echo $cron->run(2)->format('Y-m-d H:i:s, e'), PHP_EOL;
 
 // Calculate a run date relative to a specific time
 $cron = new Scheduler('@monthly');
-echo $cron->run(relativeTo:'2010-01-12 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $cron->run(startDate:'2010-01-12 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
 
 // Handle complex timezone
 $previousRun = Scheduler::fromUTC('0 7 * * *')
@@ -79,10 +79,10 @@ final class Scheduler implements CronScheduler
     public static function fromSystemTimezone(CronExpression|string $expression): self;
 
     /* CRON Expression Scheduler API */
-    public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable;
-    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator;
-    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator;
-    public function isDue(DateTimeInterface|string $dateTime = 'now'): bool;
+    public function run(int $nth = 0, DateTimeInterface|string $startDate = 'now'): DateTimeImmutable;
+    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator;
+    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator;
+    public function isDue(DateTimeInterface|string $when = 'now'): bool;
     
      /* CRON Expression Scheduler Configuration API */
     public function expression(): CronExpression;

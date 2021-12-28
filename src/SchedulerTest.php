@@ -232,7 +232,7 @@ final class SchedulerTest extends TestCase
     public function testCanIterateOverNextRuns(): void
     {
         $cron = new Scheduler(Expression::weekly());
-        $nextRun = $cron->run(relativeTo:'2008-11-09 08:00:00');
+        $nextRun = $cron->run(startDate:'2008-11-09 08:00:00');
         self::assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
         // true is cast to 1
@@ -369,10 +369,10 @@ final class SchedulerTest extends TestCase
         $scheduler = new Scheduler(new Expression('* * * */123 *'));
         self::assertTrue($scheduler->isDue(new DateTime('2014-04-07 00:00:00')));
 
-        $nextRunDate = $scheduler->run(relativeTo: new DateTime('2014-04-07 00:00:00'));
+        $nextRunDate = $scheduler->run(startDate: new DateTime('2014-04-07 00:00:00'));
         self::assertSame('2014-04-07 00:01:00', $nextRunDate->format('Y-m-d H:i:s'));
 
-        $nextRunDate = $scheduler->run(relativeTo: new DateTime('2014-05-07 00:00:00'));
+        $nextRunDate = $scheduler->run(startDate: new DateTime('2014-05-07 00:00:00'));
         self::assertSame('2015-04-01 00:00:00', $nextRunDate->format('Y-m-d H:i:s'));
     }
 

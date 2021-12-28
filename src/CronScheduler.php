@@ -61,39 +61,55 @@ interface CronScheduler
      *                 return the current date and time if the next run date falls on the current date and time.
      *                 Setting this value to 1 will skip the first match and go to the second match.
      *                 Setting this value to 2 will skip the first 2 matches and so on.
-     * @param DateTimeInterface|string $relativeTo Relative calculation date
+     *                 If the number is negative the skipping will be done backward.
+     *
+     * @param DateTimeInterface|string $startDate Relative calculation date
+     *                                            If the date is expressed with a string,
+     *                                            the scheduler will assume the date uses the Scheduler timezone
      *
      * @throws CronError on too many iterations
      */
-    public function run(int $nth = 0, DateTimeInterface|string $relativeTo = 'now'): DateTimeImmutable;
+    public function run(int $nth = 0, DateTimeInterface|string $startDate = 'now'): DateTimeImmutable;
 
     /**
      * Determine if the cron is due to run based on a specific date.
      * This method assumes that the current number of seconds are irrelevant, and should be called once per minute.
+     *
+     * @param DateTimeInterface|string $when Specific date
+     *                                       If the date is expressed with a string,
+     *                                       the scheduler will assume the date uses the Scheduler timezone
      */
-    public function isDue(DateTimeInterface|string $dateTime = 'now'): bool;
+    public function isDue(DateTimeInterface|string $when = 'now'): bool;
 
     /**
-     * Get multiple run dates starting at the current date or a specific date.
+     * Get multiple run dates starting at least at the current date or a specific date or after it.
+     * The last generated date will be after or equal to the specified date.
      *
      * @param int $recurrences Set the total number of dates to calculate
-     * @param DateTimeInterface|string $relativeTo Relative calculation date
-     *
-     *@throws CronError
-     *@return Generator<DateTimeImmutable>
-     */
-    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator;
-
-    /**
-     * Get multiple run dates ending at the current date or a specific date.
-     *
-     * @param int $recurrences Set the total number of dates to calculate
-     * @param DateTimeInterface|string $relativeTo Relative calculation date
+     * @param DateTimeInterface|string $startDate Relative calculation date
+     *                                            If the date is expressed with a string,
+     *                                            the scheduler will assume the date uses the Scheduler timezone
      *
      * @throws CronError
+     *
+     * @return Generator<DateTimeImmutable>
+     */
+    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator;
+
+    /**
+     * Get multiple run dates ending at most at the specified start date or before it.
+     * The last generated date will be before or equal to the specified date.
+     *
+     * @param int $recurrences Set the total number of dates to calculate
+     * @param DateTimeInterface|string $startDate Relative calculation date
+     *                                            If the date is expressed with a string,
+     *                                            the scheduler will assume the date uses the Scheduler timezone
+     *
+     * @throws CronError
+     *
      * @return Generator<DateTimeImmutable>
      *
      * @see Scheduler::yieldRunsForward
      */
-    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $relativeTo = 'now'): Generator;
+    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator;
 }

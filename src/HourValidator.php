@@ -38,11 +38,11 @@ final class HourValidator extends FieldValidator
             return $date->add(new DateInterval('PT1H'))->setTimezone($timezone)->setTime((int) $date->format('H'), 0);
         }
 
-        $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
-        $hours = [];
-        foreach ($parts as $part) {
-            $hours = array_merge($hours, $this->getRangeForExpression($part, 23));
-        }
+        $hours = array_reduce(
+            str_contains($parts, ',') ? explode(',', $parts) : [$parts],
+            fn (array $hours, string $part): array => array_merge($hours, $this->getRangeForExpression($part, 23)),
+            []
+        );
 
         $hour = $hours[$this->computePosition((int) $date->format('H'), $hours, $invert)];
         if ((!$invert && $date->format('H') >= $hour) || ($invert && $date->format('H') <= $hour)) {
@@ -54,9 +54,9 @@ final class HourValidator extends FieldValidator
         }
 
         if ($invert) {
-            return $date->setTime((int) $hour, 59);
+            return $date->setTime($hour, 59);
         }
 
-        return $date->setTime((int) $hour, 0);
+        return $date->setTime($hour, 0);
     }
 }

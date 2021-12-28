@@ -82,24 +82,22 @@ abstract class FieldValidator implements CronFieldValidator
      */
     protected function isInIncrementsOfRanges(int $dateValue, string $value): bool
     {
-        $chunks = array_map('trim', explode('/', $value, 2));
-        $range = $chunks[0];
-        $step = (int) ($chunks[1] ?? 0);
-
+        [$range, $step] = array_map('trim', explode('/', $value, 2)) + [1 => '0'];
         // No step or 0 steps aren't cool
-        if (in_array($step, ['0', 0], true)) {
+        if ('0' === $step) {
             return false;
         }
 
+        $step = (int) $step;
         // Expand the * to a full range
         if ('*' === $range) {
             $range = $this->rangeStart.'-'.$this->rangeEnd;
         }
 
         // Generate the requested small range
-        $rangeChunks = explode('-', $range, 2);
-        $rangeStart = (int) $rangeChunks[0];
-        $rangeEnd = (int) ($rangeChunks[1] ?? $rangeStart);
+        [$rangeStart, $rangeEnd] = explode('-', $range, 2) + [1 => null];
+        $rangeStart = (int) $rangeStart;
+        $rangeEnd = (int) ($rangeEnd ?? $rangeStart);
 
         if ($rangeStart < $this->rangeStart || $rangeStart > $this->rangeEnd || $rangeStart > $rangeEnd) {
             throw RangeError::dueToInvalidInput('start');
@@ -119,48 +117,39 @@ abstract class FieldValidator implements CronFieldValidator
 
     /**
      * Returns a range of values for the given cron expression.
+     *
+     * @return array<int>
      */
     protected function getRangeForExpression(string $expression, int $max): array
     {
-        $values = [];
         $expression = $this->convertLiterals($expression);
         if (str_contains($expression, ',')) {
-            $ranges = explode(',', $expression);
-            foreach ($ranges as $range) {
-                $values = array_merge($values, $this->getRangeForExpression($range, $this->rangeEnd));
-            }
-
-            return $values;
+            return array_reduce(
+                explode(',', $expression),
+                fn (array $values, string $range): array => array_merge($values, $this->getRangeForExpression($range, $this->rangeEnd)),
+                []
+            );
         }
 
-        if ($this->isRange($expression) || $this->isIncrementsOfRanges($expression)) {
-            if (!$this->isIncrementsOfRanges($expression)) {
-                [$offset, $to] = explode('-', $expression);
-                $offset = $this->convertLiterals($offset);
-                $to = $this->convertLiterals($to);
-                $stepSize = 1;
-            } else {
-                $range = explode('/', $expression, 2);
-                $stepSize = $range[1] ?? 0;
-                $range = $range[0];
-                $range = explode('-', $range, 2);
-                $offset = $range[0];
-                $to = $range[1] ?? $max;
-            }
-            $offset = $offset == '*' ? 0 : $offset;
-            if ($stepSize >= $this->rangeEnd) {
-                $values = [(int) $this->fullRange[$stepSize % count($this->fullRange)]];
-            } else {
-                for ($i = $offset; $i <= $to; $i += $stepSize) {
-                    $values[] = (int) $i;
-                }
-            }
-            sort($values);
+        if (!$this->isRange($expression) && !$this->isIncrementsOfRanges($expression)) {
+            return [(int) $expression];
+        }
+
+        if (!$this->isIncrementsOfRanges($expression)) {
+            [$offset, $to] = array_map([$this, 'convertLiterals'], explode('-', $expression));
+            $stepSize = 1;
         } else {
-            $values = [$expression];
+            [$range, $stepSize] = explode('/', $expression, 2) + [1 => 0];
+            [$offset, $to] = explode('-', (string) $range, 2) + [1 => $max];
         }
 
-        return $values;
+        $stepSize = (int) $stepSize;
+        $offset = $offset === '*' ? 0 : $offset;
+        if ($stepSize >= $this->rangeEnd) {
+            return [$this->fullRange[$stepSize % count($this->fullRange)]];
+        }
+
+        return range((int) $offset, (int) $to, $stepSize);
     }
 
     protected function convertLiterals(string $value): string
@@ -170,11 +159,11 @@ abstract class FieldValidator implements CronFieldValidator
         }
 
         $key = array_search(strtoupper($value), $this->literals, true);
-        if ($key !== false) {
-            return (string) $key;
+        if ($key === false) {
+            return $value;
         }
 
-        return $value;
+        return (string) $key;
     }
 
     public function validate(string $fieldExpression): bool
@@ -207,10 +196,7 @@ abstract class FieldValidator implements CronFieldValidator
                 return false;
             }
 
-            [$first, $last] = explode('-', $fieldExpression);
-            $first = $this->convertLiterals($first);
-            $last = $this->convertLiterals($last);
-
+            [$first, $last] = array_map([$this, 'convertLiterals'], explode('-', $fieldExpression));
             if (in_array('*', [$first, $last], true)) {
                 return false;
             }

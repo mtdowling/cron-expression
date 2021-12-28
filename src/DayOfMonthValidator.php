@@ -62,7 +62,7 @@ final class DayOfMonthValidator extends FieldValidator
         return $target;
     }
 
-    public function isSatisfiedBy(DateTimeInterface $date, $fieldExpression): bool
+    public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
     {
         // ? states that the field value is to be skipped
         if ($fieldExpression == '?') {

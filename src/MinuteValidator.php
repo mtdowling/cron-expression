@@ -32,16 +32,16 @@ final class MinuteValidator extends FieldValidator
             return $date->add(new DateInterval('PT1M'));
         }
 
-        $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
-        $minutes = [];
-        foreach ($parts as $part) {
-            $minutes = array_merge($minutes, $this->getRangeForExpression($part, 59));
-        }
+        $minutes = array_reduce(
+            str_contains($parts, ',') ? explode(',', $parts) : [$parts],
+            fn (array $minutes, string $part): array => array_merge($minutes, $this->getRangeForExpression($part, 59)),
+            []
+        );
 
         $currentMinute = (int) $date->format('i');
-        $position = $this->computePosition($currentMinute, $minutes, $invert);
+        $minute = $minutes[$this->computePosition($currentMinute, $minutes, $invert)];
 
-        if ((!$invert && $currentMinute >= $minutes[$position]) || ($invert && $currentMinute <= $minutes[$position])) {
+        if ((!$invert && $currentMinute >= $minute) || ($invert && $currentMinute <= $minute)) {
             if ($invert) {
                 return $date->sub(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 59);
             }
@@ -49,6 +49,6 @@ final class MinuteValidator extends FieldValidator
             return $date->add(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 0);
         }
 
-        return $date->setTime((int) $date->format('H'), (int) $minutes[$position]);
+        return $date->setTime((int) $date->format('H'), $minute);
     }
 }
