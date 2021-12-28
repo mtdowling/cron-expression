@@ -31,7 +31,7 @@ final class ExpressionTest extends TestCase
         self::assertSame('*/3', $cron->dayOfWeek());
         self::assertSame('1 2-4 * 4,5,6 */3', $cron->toString());
         self::assertSame('1 2-4 * 4,5,6 */3', (string) $cron);
-        self::assertSame(['1', '2-4', '*', '4,5,6', '*/3'], $cron->fields());
+        self::assertSame(['1', '2-4', '*', '4,5,6', '*/3'], array_values($cron->fields()));
         self::assertSame('"1 2-4 * 4,5,6 *\/3"', json_encode($cron));
     }
 
@@ -48,6 +48,7 @@ final class ExpressionTest extends TestCase
     public function testParsesCronScheduleWithAnySpaceCharsAsSeparators(string $schedule, array $expected): void
     {
         $cron = new Expression($schedule);
+
         self::assertSame($expected[0], $cron->minute());
         self::assertSame($expected[1], $cron->hour());
         self::assertSame($expected[2], $cron->dayOfMonth());

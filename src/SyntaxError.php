@@ -9,9 +9,23 @@ use Throwable;
 
 final class SyntaxError extends InvalidArgumentException implements CronError
 {
-    public static function dueToInvalidPosition(int $position): self
+    /** @var array<string, string> */
+    private array $errors;
+
+    public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null)
     {
-        return new self('`'.($position + 1).'` is not a valid CRON expression position.');
+        parent::__construct($message, $code, $previous);
+        $this->errors = [];
+    }
+
+    public function errors(): array
+    {
+        return $this->errors;
+    }
+
+    public static function dueToInvalidPosition(string|int $position): self
+    {
+        return new self('`'.((int) $position + 1).'` is not a valid CRON expression position.');
     }
 
     public static function dueToInvalidExpression(string $expression): self
@@ -19,18 +33,15 @@ final class SyntaxError extends InvalidArgumentException implements CronError
         return new self('`'.$expression.'` is not a valid CRON expression');
     }
 
-    public static function dueToInvalidFieldValue(string $value, int $position): self
+    /**
+     * @param array<string, string> $errors
+     */
+    public static function dueToInvalidFieldValue(array $errors): self
     {
-        $positionField = match (true) {
-            $position === ExpressionParser::MINUTE => 'for the minute field',
-            $position === ExpressionParser::HOUR => 'for the hour field',
-            $position === ExpressionParser::MONTHDAY => 'for the day of month field',
-            $position === ExpressionParser::MONTH => 'for the month field',
-            $position === ExpressionParser::WEEKDAY => 'for the day of week field',
-            default => 'at position `'.($position + 1).'`',
-        };
+        $exception = new self('Invalid CRON expression value');
+        $exception->errors = array_map(fn (string $invalidFieldValue): string => 'Invalid or unsupported value `'.$invalidFieldValue.'`.', $errors);
 
-        return new self('Invalid CRON expression value `'.$value.'` '.$positionField);
+        return $exception;
     }
 
     public static function dueToInvalidDate(DateTimeInterface|string $date, Throwable $exception): self

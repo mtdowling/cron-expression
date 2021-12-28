@@ -6,33 +6,33 @@ use Throwable;
 
 final class ExpressionParser
 {
-    public const MINUTE = 0;
-    public const HOUR = 1;
-    public const MONTHDAY = 2;
-    public const MONTH = 3;
-    public const WEEKDAY = 4;
+    public const MINUTE = 'minute';
+    public const HOUR = 'hour';
+    public const MONTHDAY = 'dayOfMonth';
+    public const MONTH = 'month';
+    public const WEEKDAY = 'dayOfWeek';
 
     /**
      * Get an instance of a field validator object for a cron expression position.
      *
-     * @param int $fieldOffset CRON expression position value to retrieve
+     * @param string|int $fieldName CRON expression position value to retrieve
      *
      * @throws SyntaxError if a position is not valid
      */
-    public static function fieldValidator(int $fieldOffset): CronFieldValidator
+    public static function fieldValidator(string|int $fieldName): CronFieldValidator
     {
         static $validators = [];
 
-        $validators[$fieldOffset] ??= match ($fieldOffset) {
+        $validators[$fieldName] ??= match ($fieldName) {
             self::MINUTE => new MinuteValidator(),
             self::HOUR => new HourValidator(),
             self::MONTHDAY => new DayOfMonthValidator(),
             self::MONTH => new MonthValidator(),
             self::WEEKDAY => new DayOfWeekValidator(),
-            default => throw SyntaxError::dueToInvalidPosition($fieldOffset),
+            default => throw SyntaxError::dueToInvalidPosition($fieldName),
         };
 
-        return $validators[$fieldOffset];
+        return $validators[$fieldName];
     }
 
     /**
@@ -46,11 +46,11 @@ final class ExpressionParser
      * var_export($fields);
      * //will display
      * array (
-     *   0 => "3-59/15", // CRON expression minute field
-     *   1 => "2,6-12",  // CRON expression hour field
-     *   2 => "*\/15",   // CRON expression day of month field
-     *   3 => "1",       // CRON expression month field
-     *   4 => "2-5",     // CRON expression day of week field
+     *   'minute' => "3-59/15",   // CRON expression minute field
+     *   'hour' => "2,6-12",      // CRON expression hour field
+     *   'dayOfMonth' => "*\/15", // CRON expression day of month field
+     *   'month' => "1",          // CRON expression month field
+     *   'dayOfWeek' => "2-5",    // CRON expression day of week field
      * )
      * </code>
      *
@@ -66,11 +66,11 @@ final class ExpressionParser
      *
      * @throws SyntaxError If the string is invalid or unsupported
      *
-     * @return array<int, string>
+     * @return array<string, string>
      */
     public static function parse(string $expression): array
     {
-        static $mappings = [
+        static $specialExpressions = [
             '@yearly' => '0 0 1 1 *',
             '@annually' => '0 0 1 1 *',
             '@monthly' => '0 0 1 * *',
@@ -80,21 +80,28 @@ final class ExpressionParser
             '@hourly' => '0 * * * *',
         ];
 
-        $expression = $mappings[strtolower($expression)] ?? $expression;
-
+        $expression = $specialExpressions[strtolower($expression)] ?? $expression;
         /** @var array<int, string> $fields */
         $fields = preg_split('/\s/', $expression, -1, PREG_SPLIT_NO_EMPTY);
-        if (count($fields) < 5) {
+        if (count($fields) !== 5) {
             throw SyntaxError::dueToInvalidExpression($expression);
         }
 
-        foreach ($fields as $position => $field) {
-            if (!self::fieldValidator($position)->isValid($field)) {
-                throw SyntaxError::dueToInvalidFieldValue($field, $position);
+        /** @var array<string> $offsets */
+        static $offsets = [self::MINUTE, self::HOUR, self::MONTHDAY, self::MONTH, self::WEEKDAY];
+
+        $errors = [];
+        foreach ($fields as $position => $fieldExpression) {
+            if (!self::fieldValidator($offsets[$position])->isValid($fieldExpression)) {
+                $errors[$offsets[$position]] = $fieldExpression;
             }
         }
 
-        return $fields;
+        if ([] !== $errors) {
+            throw SyntaxError::dueToInvalidFieldValue($errors);
+        }
+
+        return array_combine($offsets, $fields);
     }
 
     /**

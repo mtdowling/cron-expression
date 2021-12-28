@@ -47,11 +47,11 @@ require_once '/vendor/autoload.php';
 var_export(ExpressionParser::parse('3-59/15 6-12 */15 1 2-5'));
 // returns the following array
 // array(
-//   0 => '3-59/15',
-//   1 => '6-12',
-//   2 => '*/15',
-//   3 => '1',
-//   4 => '2-5',
+//   'minute' => '3-59/15',
+//   'hour' => '6-12',
+//   'dayOfMonth' => '*/15',
+//   'month' => '1',
+//   'dayOfWeek' => '2-5',
 // )
 ```
 
@@ -60,11 +60,11 @@ offsets via descriptive constants name, following the table below:
 
 | CRON field   | array offset |Expression Parser Constant   |
 |--------------|--------------|------------------------------|
-| minute       | `0`          | `ExpressionParser::MINUTE`   |
-| hour         | `1`          | `ExpressionParser::HOUR`     |
-| day of month | `2`          | `ExpressionParser::MONTHDAY` |
-| month        | `3`          | `ExpressionParser::MONTH`    |
-| day of week  | `4`          | `ExpressionParser::WEEKDAY`  |
+| minute       | `minute`     | `ExpressionParser::MINUTE`   |
+| hour         | `hour`       | `ExpressionParser::HOUR`     |
+| day of month | `dayOfMonth` | `ExpressionParser::MONTHDAY` |
+| month        | `month`      | `ExpressionParser::MONTH`    |
+| day of week  | `dayOfWeek`  | `ExpressionParser::WEEKDAY`  |
 
 ```php
 <?php
@@ -84,7 +84,7 @@ a valid CRON expression.
 <?php
 
 ExpressionParser::parse('not a real CRON expression');
-// throws a Bakame\Cron\SyntaxError with the following message 'Invalid CRON expression value `not` for the minute field'
+// throws a Bakame\Cron\SyntaxError with the following message 'Invalid CRON expression'
 ```
 
 ### Validating a CRON Expression
@@ -129,11 +129,11 @@ echo $cron->dayOfWeek();  //displays '2-5'
 var_export($cron->fields());
 //returns 
 //array (
-//  0 => '3-59/15',
-//  1 => '6-12',
-//  2 => '*/15',
-//  3 => '1',
-//  4 => '2-5',
+//  'minute' => '3-59/15',
+//  'hour' => '6-12',
+//  'dayOfMonth' => '*/15',
+//  'month' => '1',
+//  'dayOfWeek' => '2-5',
 //)
 ```
 

@@ -309,7 +309,7 @@ final class Scheduler implements CronScheduler
     private function calculatedFields(): array
     {
         // Order in which to test of cron parts.
-        static $testOrderCronFields = [
+        static $orderedCronFields = [
             ExpressionParser::MONTH,
             ExpressionParser::MONTHDAY,
             ExpressionParser::WEEKDAY,
@@ -320,10 +320,10 @@ final class Scheduler implements CronScheduler
         // We don't have to satisfy * or null fields
         $fields = [];
         $expressionFields = $this->expression->fields();
-        foreach ($testOrderCronFields as $position) {
-            $part = $expressionFields[$position];
-            if ('*' !== $part) {
-                $fields[$position] = [$part, ExpressionParser::fieldValidator($position)];
+        foreach ($orderedCronFields as $position) {
+            $fieldExpression = $expressionFields[$position];
+            if ('*' !== $fieldExpression) {
+                $fields[$position] = [$fieldExpression, ExpressionParser::fieldValidator($position)];
             }
         }
 

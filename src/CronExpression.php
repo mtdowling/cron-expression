@@ -12,7 +12,7 @@ interface CronExpression
     /**
      * Returns the CRON expression fields as array.
      *
-     * @return array<int, string>
+     * @return array<string, string>
      */
     public function fields(): array;
 
