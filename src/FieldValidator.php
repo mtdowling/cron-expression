@@ -40,15 +40,11 @@ abstract class FieldValidator implements CronFieldValidator
      */
     public function isSatisfied(int $dateValue, string $value): bool
     {
-        if ($this->isIncrementsOfRanges($value)) {
-            return $this->isInIncrementsOfRanges($dateValue, $value);
-        }
-
-        if ($this->isRange($value)) {
-            return $this->isInRange($dateValue, $value);
-        }
-
-        return $value === '*' || $dateValue === (int) $value;
+        return match (true) {
+            $this->isIncrementsOfRanges($value) => $this->isInIncrementsOfRanges($dateValue, $value),
+            $this->isRange($value) => $this->isInRange($dateValue, $value),
+            default => $value === '*' || $dateValue === (int) $value,
+        };
     }
 
     /**
