@@ -1,18 +1,16 @@
 Bakame Cron Expression Handler
 ==========================
 
-**NOTE** This is a fork/rewrite of:
-
-- [https://github.com/mtdowling/cron-expression](https://github.com/mtdowling/cron-expression).  
-- [https://github.com/dragonmantank/cron-expression](https://github.com/dragonmantank/cron-expression)
+**NOTE** This is a fork with a major rewrite of [https://github.com/dragonmantank/cron-expression](https://github.com/dragonmantank/cron-expression) which is in turned
+a fork of the original [https://github.com/mtdowling/cron-expression](https://github.com/mtdowling/cron-expression) package.  
 
 To know more about cron expression your can look at the [Unix documentation](https://www.unix.com/man-page/linux/5/crontab/)
 
 ## Motivation
 
-This package would not exist if the two listed packages did not exist and were not maintained as they are. 
-While those packages are well known and used throughout the community I wanted to see if I could present an 
-alternate way of dealing with cron expression.  
+This package would not exist if the two listed packages were not around. While those packages are well known and used 
+throughout the community I wanted to see if I could present an alternate way of dealing with cron expression.
+
 The reason a fork was created instead of submitting PRs is because the changes to the public API are 
 so important that it would have warranted multiples PR with some passing and other not. Hopefully, some ideas 
 develop here can be re-use in the source packages.
@@ -34,6 +32,18 @@ composer require bakame-php/cron-expression
 ### Parsing a CRON Expression
 
 This package resolves CRON Expression as they are described in the [CRONTAB documentation](https://www.unix.com/man-page/linux/5/crontab/)
+
+A CRON expression is a string representing the schedule for a particular command to execute.  The parts of a CRON schedule are as follows:
+
+    *    *    *    *    *
+    -    -    -    -    -
+    |    |    |    |    |
+    |    |    |    |    |
+    |    |    |    |    +----- day of week (0 - 7) (Sunday=0 or 7)
+    |    |    |    +---------- month (1 - 12)
+    |    |    +--------------- day of month (1 - 31)
+    |    +-------------------- hour (0 - 23)
+    +------------------------- min (0 - 59)
 
 The `Bakame\Cron\ExpressionParser` class is responsible for parsing a CRON expression and converting it into a PHP `array` list as shown below:
 
@@ -342,5 +352,42 @@ var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:
 //  4 => '2019-09-09 00:30:00',
 //)
 ```
+
+## Testing
+
+The package has a :
+
+- a [PHPUnit](https://phpunit.de) test suite
+- a coding style compliance test suite using [PHP CS Fixer](https://cs.symfony.com/).
+- a code analysis compliance test suite using [PHPStan](https://github.com/phpstan/phpstan).
+
+To run the tests, run the following command from the project folder.
+
+```bash
+composer test
+```
+
+## Contributing
+
+Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](.github/CONTRIBUTING.md) and [CONDUCT](.github/CODE_OF_CONDUCT.md) for details.
+
+## Security
+
+If you discover any security related issues, please email nyamsprod@gmail.com instead of using the issue tracker.
+
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
+## Credits
+
+- [Michael Dowling](https://github.com/mtdowling)
+- [Chris Tankersley](https://github.com/dragonmantank)
+- [Ignace Nyamagana Butera](https://github.com/nyamsprod)
+- [All Contributors](https://github.com/thephpleague/csv/graphs/contributors)
+
+## License
+
+The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
 
 **HAPPY CODING!**
