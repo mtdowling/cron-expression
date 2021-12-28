@@ -19,17 +19,17 @@ final class MinuteValidator extends FieldValidator
 
     public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
     {
-        return $this->isSatisfied((int) $date->format('i'), $fieldExpression);
+        return '?' === $fieldExpression
+            || $this->isSatisfied((int) $date->format('i'), $fieldExpression);
     }
 
     public function increment(DateTime|DateTimeImmutable $date, $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         if (null === $parts) {
-            if ($invert) {
-                return $date->sub(new DateInterval('PT1M'));
-            }
-
-            return $date->add(new DateInterval('PT1M'));
+            return match (true) {
+                true === $invert => $date->sub(new DateInterval('PT1M')),
+                default => $date->add(new DateInterval('PT1M')),
+            };
         }
 
         $minutes = array_reduce(
@@ -42,11 +42,10 @@ final class MinuteValidator extends FieldValidator
         $minute = $minutes[$this->computePosition($currentMinute, $minutes, $invert)];
 
         if ((!$invert && $currentMinute >= $minute) || ($invert && $currentMinute <= $minute)) {
-            if ($invert) {
-                return $date->sub(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 59);
-            }
-
-            return $date->add(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 0);
+            return match (true) {
+                true === $invert => $date->sub(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 59),
+                default => $date->add(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 0),
+            };
         }
 
         return $date->setTime((int) $date->format('H'), $minute);

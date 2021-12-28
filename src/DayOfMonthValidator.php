@@ -64,43 +64,30 @@ final class DayOfMonthValidator extends FieldValidator
 
     public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
     {
-        // ? states that the field value is to be skipped
-        if ($fieldExpression == '?') {
-            return true;
-        }
-
         $fieldValue = $date->format('d');
 
-        // Check to see if this is the last day of the month
-        if ($fieldExpression == 'L') {
-            return $fieldValue == $date->format('t');
-        }
-
-        // Check to see if this is the nearest weekday to a particular value
-        $pos = strpos($fieldExpression, 'W');
-        if (false !== $pos) {
-            // Find out if the current day is the nearest day of the week
-            return $date->format('j') == self::getNearestWeekday(
+        return match (true) {
+            '?' === $fieldExpression => true,
+            'L' === $fieldExpression => $fieldValue === $date->format('t'),
+            false !== ($pos = strpos($fieldExpression, 'W')) => $date->format('j') === self::getNearestWeekday(
                 (int) $date->format('Y'),
                 (int) $date->format('m'),
                 (int) substr($fieldExpression, 0, $pos) // Parse the target day
-            )->format('j');
-        }
-
-        return $this->isSatisfied((int) $date->format('d'), $fieldExpression);
+            )->format('j'),
+            default => $this->isSatisfied((int) $date->format('d'), $fieldExpression),
+        };
     }
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
-        if ($invert) {
-            return $date
+        return match (true) {
+            true === $invert => $date
                 ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') - 1)
-                ->setTime(23, 59);
-        }
-
-        return $date
-            ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') + 1)
-            ->setTime(0, 0);
+                ->setTime(23, 59),
+            default => $date
+                ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') + 1)
+                ->setTime(0, 0),
+        };
     }
 
     /**
@@ -112,7 +99,7 @@ final class DayOfMonthValidator extends FieldValidator
             str_contains($fieldExpression, ',') && (str_contains($fieldExpression, 'W') || str_contains($fieldExpression, 'L')) => false,
             true === parent::isValid($fieldExpression) => true,
             '?' === $fieldExpression => true,
-            $fieldExpression === 'L' => true,
+            'L' === $fieldExpression => true,
             default => (1 === preg_match('/^(.*)W$/', $fieldExpression, $matches)) && $this->isValid($matches[1]),
         };
     }

@@ -33,20 +33,20 @@ final class MonthValidator extends FieldValidator
 
     public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
     {
-        return $this->isSatisfied((int) $date->format('m'), $this->convertLiterals($fieldExpression));
+        return '?' === $fieldExpression
+            || $this->isSatisfied((int)$date->format('m'), $this->convertLiterals($fieldExpression));
     }
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
-        if ($invert) {
-            return $date
-                ->setDate((int) $date->format('Y'), (int) $date->format('n'), 1)
+        return match (true) {
+            true === $invert => $date
+                ->setDate((int) $date->format('Y'), (int)$date->format('n'), 1)
                 ->sub(new DateInterval('P1D'))
-                ->setTime(23, 59);
-        }
-
-        return $date
-            ->setDate((int) $date->format('Y'), (int) $date->format('n') + 1, 1)
-            ->setTime(0, 0);
+                ->setTime(23, 59),
+            default => $date
+                ->setDate((int) $date->format('Y'), (int)$date->format('n') + 1, 1)
+                ->setTime(0, 0)
+        };
     }
 }

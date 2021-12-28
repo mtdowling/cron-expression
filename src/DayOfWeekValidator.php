@@ -45,7 +45,7 @@ final class DayOfWeekValidator extends FieldValidator
 
     public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
     {
-        if ($fieldExpression == '?') {
+        if ('?' === $fieldExpression) {
             return true;
         }
 
@@ -136,11 +136,10 @@ final class DayOfWeekValidator extends FieldValidator
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
-        if ($invert) {
-            return $date->sub(new DateInterval('P1D'))->setTime(23, 59);
-        }
-
-        return $date->add(new DateInterval('P1D'))->setTime(0, 0);
+        return match (true) {
+            true === $invert => $date->sub(new DateInterval('P1D'))->setTime(23, 59),
+            default => $date->add(new DateInterval('P1D'))->setTime(0, 0),
+        };
     }
 
     public function isValid(string $fieldExpression): bool

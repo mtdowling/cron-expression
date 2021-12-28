@@ -200,15 +200,11 @@ abstract class FieldValidator implements CronFieldValidator
             return $this->isValid($first) && $this->isValid($last);
         }
 
-        if (!is_numeric($fieldExpression)) {
-            return false;
-        }
-
-        if (str_contains($fieldExpression, '.')) {
-            return false;
-        }
-
-        return in_array((int) $fieldExpression, $this->fullRange, true);
+        return match (true) {
+            !is_numeric($fieldExpression) => false,
+            str_contains($fieldExpression, '.') => false,
+            default => in_array((int) $fieldExpression, $this->fullRange, true),
+        };
     }
 
     protected function computePosition(int $currentValue, array $references, bool $invert): int
