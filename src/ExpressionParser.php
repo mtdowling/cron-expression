@@ -89,7 +89,7 @@ final class ExpressionParser
         }
 
         foreach ($fields as $position => $field) {
-            if (!self::fieldValidator($position)->validate($field)) {
+            if (!self::fieldValidator($position)->isValid($field)) {
                 throw SyntaxError::dueToInvalidFieldValue($field, $position);
             }
         }

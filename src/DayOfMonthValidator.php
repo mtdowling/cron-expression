@@ -106,14 +106,14 @@ final class DayOfMonthValidator extends FieldValidator
     /**
      * @inheritDoc
      */
-    public function validate(string $fieldExpression): bool
+    public function isValid(string $fieldExpression): bool
     {
         return match (true) {
             str_contains($fieldExpression, ',') && (str_contains($fieldExpression, 'W') || str_contains($fieldExpression, 'L')) => false,
-            true === parent::validate($fieldExpression) => true,
+            true === parent::isValid($fieldExpression) => true,
             '?' === $fieldExpression => true,
             $fieldExpression === 'L' => true,
-            default => (1 === preg_match('/^(.*)W$/', $fieldExpression, $matches)) && $this->validate($matches[1]),
+            default => (1 === preg_match('/^(.*)W$/', $fieldExpression, $matches)) && $this->isValid($matches[1]),
         };
     }
 }

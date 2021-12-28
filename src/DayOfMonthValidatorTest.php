@@ -15,12 +15,12 @@ final class DayOfMonthValidatorTest extends TestCase
     public function testValidatesField(): void
     {
         $f = new DayOfMonthValidator();
-        self::assertTrue($f->validate('1'));
-        self::assertTrue($f->validate('*'));
-        self::assertTrue($f->validate('L'));
-        self::assertTrue($f->validate('5W'));
-        self::assertFalse($f->validate('5W,L'));
-        self::assertFalse($f->validate('1.'));
+        self::assertTrue($f->isValid('1'));
+        self::assertTrue($f->isValid('*'));
+        self::assertTrue($f->isValid('L'));
+        self::assertTrue($f->isValid('5W'));
+        self::assertFalse($f->isValid('5W,L'));
+        self::assertFalse($f->isValid('1.'));
     }
 
     public function testChecksIfSatisfied(): void
@@ -52,6 +52,6 @@ final class DayOfMonthValidatorTest extends TestCase
     public function testDoesNotAccept0Date(): void
     {
         $f = new DayOfMonthValidator();
-        self::assertFalse($f->validate('0'));
+        self::assertFalse($f->isValid('0'));
     }
 }

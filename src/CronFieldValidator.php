@@ -28,5 +28,5 @@ interface CronFieldValidator
     /**
      * Validates a CRON expression for a given field.
      */
-    public function validate(string $fieldExpression): bool;
+    public function isValid(string $fieldExpression): bool;
 }

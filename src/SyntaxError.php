@@ -21,7 +21,16 @@ final class SyntaxError extends InvalidArgumentException implements CronError
 
     public static function dueToInvalidFieldValue(string $value, int $position): self
     {
-        return new self('Invalid CRON field value '.$value.' at position '.$position);
+        $positionField = match (true) {
+            $position === ExpressionParser::MINUTE => 'for the minute field',
+            $position === ExpressionParser::HOUR => 'for the hour field',
+            $position === ExpressionParser::MONTHDAY => 'for the day of month field',
+            $position === ExpressionParser::MONTH => 'for the month field',
+            $position === ExpressionParser::WEEKDAY => 'for the day of week field',
+            default => 'at position `'.($position + 1).'`',
+        };
+
+        return new self('Invalid CRON expression value `'.$value.'` '.$positionField);
     }
 
     public static function dueToInvalidDate(DateTimeInterface|string $date, Throwable $exception): self

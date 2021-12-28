@@ -15,10 +15,10 @@ final class MonthValidatorTest extends TestCase
     public function testValidatesField(): void
     {
         $f = new MonthValidator();
-        self::assertTrue($f->validate('12'));
-        self::assertTrue($f->validate('*'));
-        self::assertFalse($f->validate('*/10,2,1-12'));
-        self::assertFalse($f->validate('1.fix-regexp'));
+        self::assertTrue($f->isValid('12'));
+        self::assertTrue($f->isValid('*'));
+        self::assertFalse($f->isValid('*/10,2,1-12'));
+        self::assertFalse($f->isValid('1.fix-regexp'));
     }
 
     public function testIncrementsDate(): void

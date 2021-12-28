@@ -27,6 +27,6 @@ final class FieldValidatorTest extends TestCase
     {
         $expression = '5-7,11-13';
         $f = new HourValidator();
-        self::assertTrue($f->validate($expression));
+        self::assertTrue($f->isValid($expression));
     }
 }

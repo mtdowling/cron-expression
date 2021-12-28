@@ -143,13 +143,13 @@ final class DayOfWeekValidator extends FieldValidator
         return $date->add(new DateInterval('P1D'))->setTime(0, 0);
     }
 
-    public function validate(string $fieldExpression): bool
+    public function isValid(string $fieldExpression): bool
     {
         return match (true) {
-            parent::validate($fieldExpression) => true,
+            parent::isValid($fieldExpression) => true,
             '?' === $fieldExpression => true,
             str_contains($fieldExpression, '#') => $this->handleSharpExpression($fieldExpression),
-            default => 1 === preg_match('/^(?<expression>.*)L$/', $fieldExpression, $matches) && $this->validate($matches['expression']),
+            default => 1 === preg_match('/^(?<expression>.*)L$/', $fieldExpression, $matches) && $this->isValid($matches['expression']),
         };
     }
 
@@ -157,7 +157,7 @@ final class DayOfWeekValidator extends FieldValidator
     {
         [$first, $last] = explode('#', $fieldExpression);
 
-        return parent::validate($this->convertLiterals($first))
+        return parent::isValid($this->convertLiterals($first))
             && is_numeric($last)
             && in_array((int) $last, $this->nthRange, true);
     }

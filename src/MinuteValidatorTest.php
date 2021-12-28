@@ -15,9 +15,9 @@ final class MinuteValidatorTest extends TestCase
     public function testValidatesField(): void
     {
         $f = new MinuteValidator();
-        self::assertTrue($f->validate('1'));
-        self::assertTrue($f->validate('*'));
-        self::assertFalse($f->validate('*/3,1,1-12'));
+        self::assertTrue($f->isValid('1'));
+        self::assertTrue($f->isValid('*'));
+        self::assertFalse($f->isValid('*/3,1,1-12'));
     }
 
     public function testIncrementsDate(): void
@@ -32,8 +32,8 @@ final class MinuteValidatorTest extends TestCase
     public function testBadSyntaxesShouldNotValidate(): void
     {
         $f = new MinuteValidator();
-        self::assertFalse($f->validate('*-1'));
-        self::assertFalse($f->validate('1-2-3'));
-        self::assertFalse($f->validate('-1'));
+        self::assertFalse($f->isValid('*-1'));
+        self::assertFalse($f->isValid('1-2-3'));
+        self::assertFalse($f->isValid('-1'));
     }
 }

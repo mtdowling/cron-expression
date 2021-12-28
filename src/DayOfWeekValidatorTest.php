@@ -15,11 +15,11 @@ final class DayOfWeekValidatorTest extends TestCase
     public function testValidatesField(): void
     {
         $f = new DayOfWeekValidator();
-        self::assertTrue($f->validate('1'));
-        self::assertTrue($f->validate('*'));
-        self::assertFalse($f->validate('*/3,1,1-12'));
-        self::assertTrue($f->validate('SUN-2'));
-        self::assertFalse($f->validate('1.'));
+        self::assertTrue($f->isValid('1'));
+        self::assertTrue($f->isValid('*'));
+        self::assertFalse($f->isValid('*/3,1,1-12'));
+        self::assertTrue($f->isValid('SUN-2'));
+        self::assertFalse($f->isValid('1.'));
     }
 
     public function testChecksIfSatisfied(): void
@@ -60,14 +60,14 @@ final class DayOfWeekValidatorTest extends TestCase
     public function testValidateWeekendHash(): void
     {
         $f = new DayOfWeekValidator();
-        self::assertTrue($f->validate('MON#1'));
-        self::assertTrue($f->validate('TUE#2'));
-        self::assertTrue($f->validate('WED#3'));
-        self::assertTrue($f->validate('THU#4'));
-        self::assertTrue($f->validate('FRI#5'));
-        self::assertTrue($f->validate('SAT#1'));
-        self::assertTrue($f->validate('SUN#3'));
-        self::assertTrue($f->validate('MON#1,MON#3'));
+        self::assertTrue($f->isValid('MON#1'));
+        self::assertTrue($f->isValid('TUE#2'));
+        self::assertTrue($f->isValid('WED#3'));
+        self::assertTrue($f->isValid('THU#4'));
+        self::assertTrue($f->isValid('FRI#5'));
+        self::assertTrue($f->isValid('SAT#1'));
+        self::assertTrue($f->isValid('SUN#3'));
+        self::assertTrue($f->isValid('MON#1,MON#3'));
     }
 
     public function testHandlesZeroAndSevenDayOfTheWeekValues(): void
@@ -85,12 +85,12 @@ final class DayOfWeekValidatorTest extends TestCase
     public function testIssue47(): void
     {
         $f = new DayOfWeekValidator();
-        self::assertFalse($f->validate('mon,'));
-        self::assertFalse($f->validate('mon-'));
-        self::assertFalse($f->validate('*/2,'));
-        self::assertFalse($f->validate('-mon'));
-        self::assertFalse($f->validate(',1'));
-        self::assertFalse($f->validate('*-'));
-        self::assertFalse($f->validate(',-'));
+        self::assertFalse($f->isValid('mon,'));
+        self::assertFalse($f->isValid('mon-'));
+        self::assertFalse($f->isValid('*/2,'));
+        self::assertFalse($f->isValid('-mon'));
+        self::assertFalse($f->isValid(',1'));
+        self::assertFalse($f->isValid('*-'));
+        self::assertFalse($f->isValid(',-'));
     }
 }

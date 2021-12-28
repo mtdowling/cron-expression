@@ -166,7 +166,7 @@ abstract class FieldValidator implements CronFieldValidator
         return (string) $key;
     }
 
-    public function validate(string $fieldExpression): bool
+    public function isValid(string $fieldExpression): bool
     {
         $fieldExpression = $this->convertLiterals($fieldExpression);
 
@@ -178,13 +178,13 @@ abstract class FieldValidator implements CronFieldValidator
         if (str_contains($fieldExpression, '/')) {
             [$range, $step] = explode('/', $fieldExpression);
 
-            return $this->validate($range) && false !== filter_var($step, FILTER_VALIDATE_INT);
+            return $this->isValid($range) && false !== filter_var($step, FILTER_VALIDATE_INT);
         }
 
         // Validate each chunk of a list individually
         if (str_contains($fieldExpression, ',')) {
             foreach (explode(',', $fieldExpression) as $listItem) {
-                if (!$this->validate($listItem)) {
+                if (!$this->isValid($listItem)) {
                     return false;
                 }
             }
@@ -201,7 +201,7 @@ abstract class FieldValidator implements CronFieldValidator
                 return false;
             }
 
-            return $this->validate($first) && $this->validate($last);
+            return $this->isValid($first) && $this->isValid($last);
         }
 
         if (!is_numeric($fieldExpression)) {

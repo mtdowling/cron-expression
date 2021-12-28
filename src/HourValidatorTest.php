@@ -15,9 +15,9 @@ final class HourValidatorTest extends TestCase
     public function testValidatesField(): void
     {
         $f = new HourValidator();
-        self::assertTrue($f->validate('1'));
-        self::assertTrue($f->validate('*'));
-        self::assertFalse($f->validate('*/3,1,1-12'));
+        self::assertTrue($f->isValid('1'));
+        self::assertTrue($f->isValid('*'));
+        self::assertFalse($f->isValid('*/3,1,1-12'));
     }
 
     public function testIncrementsDate(): void
