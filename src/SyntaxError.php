@@ -34,7 +34,7 @@ final class SyntaxError extends InvalidArgumentException implements CronError
     }
 
     /**
-     * @param array<string, string> $errors
+     * @param array<string> $errors
      */
     public static function dueToInvalidFieldValue(array $errors): self
     {

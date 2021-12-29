@@ -62,7 +62,7 @@ final class ExpressionParser
         foreach ($fields as $position => $fieldExpression) {
             $offset = ExpressionField::fromOffset($position);
             if (!$offset->validator()->isValid($fieldExpression)) {
-                $errors[$offset->value()] = $fieldExpression;
+                $errors[$offset->value] = $fieldExpression;
             }
         }
 
@@ -70,7 +70,7 @@ final class ExpressionParser
             throw SyntaxError::dueToInvalidFieldValue($errors);
         }
 
-        return array_combine(array_map(fn (ExpressionField $field): string => $field->value(), ExpressionField::cases()), $fields);
+        return array_combine(array_map(fn (ExpressionField $field): string => $field->value, ExpressionField::cases()), $fields);
     }
 
     /**

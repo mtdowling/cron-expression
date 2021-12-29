@@ -205,7 +205,7 @@ final class Scheduler implements CronScheduler
         $from = $this->filterInputDate($startDate);
         $calculatedFields = $this->calculatedFields();
 
-        if (isset($calculatedFields[ExpressionField::MONTHDAY()->value()], $calculatedFields[ExpressionField::WEEKDAY()->value()])) {
+        if (isset($calculatedFields[ExpressionField::MONTHDAY->value], $calculatedFields[ExpressionField::WEEKDAY->value])) {
             return $this->combineRuns($nth, $from, $invert);
         }
 
@@ -227,8 +227,8 @@ final class Scheduler implements CronScheduler
 
             // Skip this match if needed
             if (($startDatePresence === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
-                $nextRun = ExpressionField::MINUTE()->validator()
-                    ->increment($nextRun, $invert, $calculatedFields[ExpressionField::MINUTE()->value()][0] ?? null);
+                $nextRun = ExpressionField::MINUTE->validator()
+                    ->increment($nextRun, $invert, $calculatedFields[ExpressionField::MINUTE->value][0] ?? null);
 
                 continue;
             }
@@ -312,9 +312,9 @@ final class Scheduler implements CronScheduler
         $fields = [];
         $expressionFields = $this->expression->fields();
         foreach (ExpressionField::orderedFields() as $field) {
-            $fieldExpression = $expressionFields[$field->value()];
+            $fieldExpression = $expressionFields[$field->value];
             if ('*' !== $fieldExpression) {
-                $fields[$field->value()] = [$fieldExpression, $field->validator()];
+                $fields[$field->value] = [$fieldExpression, $field->validator()];
             }
         }
 

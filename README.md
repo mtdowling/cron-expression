@@ -17,7 +17,7 @@ develop here can be re-use in the source packages.
 
 ## System Requirements
 
-You need **PHP >= 8.0** but the latest stable version of PHP is recommended.
+You need **PHP >= 8.1** but the latest stable version of PHP is recommended.
 
 ## Installing
 
