@@ -18,8 +18,7 @@
         {
             "name" : "Ignace Nyamagana Butera",
             "email" : "nyamsprod@gmail.com",
-            "homepage" : "https://github.com/nyamsprod/",
-            "role" : "Developer"
+            "homepage" : "https://github.com/nyamsprod"
         }
     ],
     "require": {
@@ -54,5 +53,11 @@
         "phpstan": "Runs complete codebase static analysis",
         "phpunit": "Runs unit and functional testing",
         "test": "Runs full test suite"
-    }
+    },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/nyamsprod"
+        }
+    ]
 }

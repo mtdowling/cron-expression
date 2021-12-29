@@ -77,7 +77,7 @@ final class ExpressionParser
      * Generate an CRON expression from its parsed representation returned by ExpressionParser::parse.
      *
      * If you supply your own array, you are responsible for providing
-     * valid fields. If a required field is missing it wiil be replaced by the special `*` character
+     * valid fields. If a required field is missing it will be replaced by the special `*` character
      *
      * @param array<string> $fields
      *

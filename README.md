@@ -1,4 +1,4 @@
-Bakame Cron Expression Handler
+Bakame Cron Expression
 ==========================
 
 **NOTE** This is a fork with a major rewrite of [https://github.com/dragonmantank/cron-expression](https://github.com/dragonmantank/cron-expression) which is in turned
@@ -266,6 +266,8 @@ $scheduler = Scheduler::fromUTC('0 7 * * *')
 
 #### Finding a running date for a CRON expression
 
+**The `Scheduler` public API methods accept `string`, `DateTime` or `DateTimeImmutable` object but will always return `DateTimeImmutable` objects with the Scheduler specified `DateTimeZone`.**
+
 Once instantiated you can use the `Scheduler` to find the run date according to a specific date.
 
 ```php
@@ -306,8 +308,8 @@ echo $scheduler->run(-2, '2022-01-01 00:00:00')->format('Y-m-d H:i:s, e'), PHP_E
 ```
 
 If you do not explicitly require it the start date will not be eligible to be added to the results.  
-Use the constructor to do so or the `includeStartDate` configuration method to add the settings.
-The `Scheduler` is an immutable object anytime a configuration settings is changed a new object is
+Use the constructor `$startDatePresence` variable or the `includeStartDate` configuration method to update the settings.
+Because the `Scheduler` is an immutable object anytime a configuration settings is changed a new object is
 returned instead of modifying the current object.
 
 ```php
@@ -319,8 +321,6 @@ echo $scheduler->run(0, $dateTime)->format('Y-m-d H:i:s, e'), PHP_EOL;
 echo $scheduler->includeStartDate()->run(0, $dateTime)->format('Y-m-d H:i:s, e'), PHP_EOL;
 //display 2022-01-01 00:04:00, Africa/Kigali
 ```
-
-**The `Scheduler` public API accepts `string`, `DateTime` or `DateTimeImmutable` object but will always return `DateTimeImmutable` objects with the Scheduler specified `DateTimeZone`.**
 
 #### Knowing if a CRON expression will run at a specific date
 
@@ -343,8 +343,7 @@ $hourValidator = ExpressionField::HOUR->validator();
 $hourValidator->isSatisfiedBy('*/3', new DateTime('2014-04-07 00:00:00')); // returns true
 ```
 
-**WARNING: Field validator are timezone independent**
-
+**NOTICE: Field validator do not take into account the `DateTimeInterface` object timezone**
 
 ### Iterating over multiple runs
 

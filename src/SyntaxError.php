@@ -30,7 +30,7 @@ final class SyntaxError extends InvalidArgumentException implements CronError
 
     public static function dueToInvalidExpression(string $expression): self
     {
-        return new self('`'.$expression.'` is not a valid CRON expression');
+        return new self('`'.$expression.'` is not a valid or a supported CRON expression');
     }
 
     /**
