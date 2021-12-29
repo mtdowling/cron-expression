@@ -21,7 +21,7 @@ final class Scheduler implements CronScheduler
 
     public function __construct(
         CronExpression|string $expression,
-        DateTimeZone|string|null $timezone = null,
+        DateTimeZone|string $timezone,
         int $startDatePresence = Scheduler::EXCLUDE_START_DATE,
         int $maxIterationCount = 1000
     ) {
@@ -40,9 +40,8 @@ final class Scheduler implements CronScheduler
         return $expression;
     }
 
-    private function filterTimezone(DateTimeZone|string|null $timezone): DateTimeZone
+    private function filterTimezone(DateTimeZone|string $timezone): DateTimeZone
     {
-        $timezone ??= date_default_timezone_get();
         if (!$timezone instanceof DateTimeZone) {
             return new DateTimeZone($timezone);
         }

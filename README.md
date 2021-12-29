@@ -327,7 +327,7 @@ echo $scheduler->includeStartDate()->run(0, $dateTime)->format('Y-m-d H:i:s, e')
 The `Scheduler` class can also tell whether a specific CRON is due to run on a specific date.
 
 ```php
-$scheduler = new Scheduler(new Expression('* * * * MON#1'));
+$scheduler = Scheduler::fromSystemTimezone(new Expression('* * * * MON#1'));
 $scheduler->isDue(new DateTime('2014-04-07 00:00:00')); // returns true
 $scheduler->isDue();      // returns false 
 // is the same as
@@ -356,7 +356,7 @@ The returning result is a generator containing `DateTimeImmutable` objects.
 #### Iterating forward
 
 ```php
-$scheduler = new Scheduler(expression: '30 0 1 * 1', startDatePresence: Scheduler::INCLUDE_START_DATE);
+$scheduler = Scheduler::fromSystemTimezone('30 0 1 * 1')->includeStartDate();
 $runs = $scheduler->yieldRunsForward(5, new DateTime('2019-10-10 23:20:00'));
 var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:s'), iterator_to_array($runs, false)));
 //returns
@@ -372,7 +372,7 @@ var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:
 #### Iterating backward
 
 ```php
-$scheduler = new Scheduler(expression: '30 0 1 * 1', startDatePresence: Scheduler::INCLUDE_START_DATE);
+$scheduler = Scheduler::fromSystemTimezone('30 0 1 * 1')->includeStartDate();
 $runs = $scheduler->yieldRunsBackward(5, new DateTime('2019-10-10 23:20:00'));
 var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:s'), iterator_to_array($runs, false)));
 //returns
