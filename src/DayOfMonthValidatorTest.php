@@ -42,7 +42,7 @@ final class DayOfMonthValidatorTest extends TestCase
         $date = '2011-03-15 11:15:00';
         self::assertSame(
             '2011-03-14 23:59:00',
-            $f->increment(new DateTime($date), true)->format('Y-m-d H:i:s')
+            $f->decrement(new DateTime($date))->format('Y-m-d H:i:s')
         );
     }
 
@@ -58,7 +58,7 @@ final class DayOfMonthValidatorTest extends TestCase
         $date = '2011-03-15 11:15:00';
         self::assertSame(
             '2011-03-14 23:59:00',
-            $f->increment(new DateTimeImmutable($date), true)->format('Y-m-d H:i:s')
+            $f->decrement(new DateTimeImmutable($date))->format('Y-m-d H:i:s')
         );
     }
 
@@ -68,7 +68,7 @@ final class DayOfMonthValidatorTest extends TestCase
         $date = '2011-03-15 11:15:00';
         self::assertSame(
             '2011-03-14 23:59:00',
-            $f->increment(new DateTime($date), true)->format('Y-m-d H:i:s')
+            $f->decrement(new DateTime($date))->format('Y-m-d H:i:s')
         );
     }
 

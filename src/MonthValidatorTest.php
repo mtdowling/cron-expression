@@ -30,7 +30,7 @@ final class MonthValidatorTest extends TestCase
         self::assertSame('2011-04-01 00:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d = new DateTime('2011-03-15 11:15:00');
-        self::assertSame('2011-02-28 23:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-02-28 23:59:00', $f->decrement($d)->format('Y-m-d H:i:s'));
     }
 
     public function testIncrementsDateImmutable(): void
@@ -41,7 +41,7 @@ final class MonthValidatorTest extends TestCase
         self::assertSame('2011-04-01 00:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d = new DateTimeImmutable('2011-03-15 11:15:00');
-        self::assertSame('2011-02-28 23:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-02-28 23:59:00', $f->decrement($d)->format('Y-m-d H:i:s'));
     }
 
     public function testIncrementsDateWithThirtyMinuteTimezone(): void
@@ -53,7 +53,7 @@ final class MonthValidatorTest extends TestCase
         self::assertSame('2011-04-01 00:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d = new DateTime('2011-03-15 11:15:00');
-        self::assertSame('2011-02-28 23:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-02-28 23:59:00', $f->decrement($d)->format('Y-m-d H:i:s'));
         date_default_timezone_set($tz);
     }
 
@@ -68,6 +68,6 @@ final class MonthValidatorTest extends TestCase
     {
         $f = new MonthValidator();
         $d = new DateTime('2011-01-15 00:00:00');
-        self::assertSame('2010-12-31 23:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
+        self::assertSame('2010-12-31 23:59:00', $f->decrement($d)->format('Y-m-d H:i:s'));
     }
 }

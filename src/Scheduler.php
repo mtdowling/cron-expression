@@ -218,7 +218,10 @@ final class Scheduler implements CronScheduler
             foreach ($calculatedFields as [$fieldExpression, $fieldValidator]) {
                 // If the field is not satisfied, then start over
                 if (!$this->isFieldSatisfiedBy($nextRun, $fieldValidator, $fieldExpression)) {
-                    $nextRun = $fieldValidator->increment($nextRun, $invert, $fieldExpression);
+                    $nextRun = match ($invert) {
+                        true => $fieldValidator->decrement($nextRun, $fieldExpression),
+                        default => $fieldValidator->increment($nextRun, $fieldExpression),
+                    };
 
                     continue 2;
                 }
@@ -226,8 +229,12 @@ final class Scheduler implements CronScheduler
 
             // Skip this match if needed
             if (($startDatePresence === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
-                $nextRun = ExpressionField::MINUTE->validator()
-                    ->increment($nextRun, $invert, $calculatedFields[ExpressionField::MINUTE->value][0] ?? null);
+                $fieldValidator = ExpressionField::MINUTE->validator();
+                $fieldExpression = $calculatedFields[ExpressionField::MINUTE->value][0] ?? null;
+                $nextRun = match ($invert) {
+                    true => $fieldValidator->decrement($nextRun, $fieldExpression),
+                    default => $fieldValidator->increment($nextRun, $fieldExpression),
+                };
 
                 continue;
             }

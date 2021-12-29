@@ -27,7 +27,7 @@ final class MinuteValidatorTest extends TestCase
         $f = new MinuteValidator();
         $res = $f->increment($d);
         self::assertSame('2011-03-15 11:16:00', $res->format('Y-m-d H:i:s'));
-        self::assertSame('2011-03-15 11:15:00', $f->increment($res, true)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 11:15:00', $f->decrement($res)->format('Y-m-d H:i:s'));
     }
 
     public function testIncrementsDateImmutable(): void
@@ -36,7 +36,7 @@ final class MinuteValidatorTest extends TestCase
         $f = new MinuteValidator();
         $res = $f->increment($d);
         self::assertSame('2011-03-15 11:16:00', $res->format('Y-m-d H:i:s'));
-        self::assertSame('2011-03-15 11:15:00', $f->increment($res, true)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 11:15:00', $f->decrement($res)->format('Y-m-d H:i:s'));
     }
 
     public function testBadSyntaxesShouldNotValidate(): void

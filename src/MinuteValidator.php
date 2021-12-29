@@ -23,13 +23,10 @@ final class MinuteValidator extends FieldValidator
             || $this->isSatisfied((int) $date->format('i'), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, $invert = false, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
     {
         if (null === $fieldExpression) {
-            return match ($invert) {
-                true => $date->sub(new DateInterval('PT1M')),
-                default => $date->add(new DateInterval('PT1M')),
-            };
+            return $date->add(new DateInterval('PT1M'));
         }
 
         $minutes = array_reduce(
@@ -39,18 +36,36 @@ final class MinuteValidator extends FieldValidator
         );
 
         $currentMinute = (int) $date->format('i');
-        $minute = $minutes[$this->computePosition($currentMinute, $minutes, $invert)];
+        $minute = $minutes[$this->computePosition($currentMinute, $minutes, false)];
 
-        if ((!$invert && $currentMinute >= $minute) || ($invert && $currentMinute <= $minute)) {
-            if ($invert) {
-                $date = $date->sub(new DateInterval('PT1H'));
-
-                return $date->setTime((int) $date->format('H'), 59);
-            }
-
+        if ($currentMinute >= $minute) {
             $date = $date->add(new DateInterval('PT1H'));
 
             return $date->setTime((int) $date->format('H'), 0);
+        }
+
+        return $date->setTime((int) $date->format('H'), $minute);
+    }
+
+    public function decrement(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    {
+        if (null === $fieldExpression) {
+            return $date->sub(new DateInterval('PT1M'));
+        }
+
+        $minutes = array_reduce(
+            str_contains($fieldExpression, ',') ? explode(',', $fieldExpression) : [$fieldExpression],
+            fn (array $minutes, string $part): array => array_merge($minutes, $this->getRangeForExpression($part, 59)),
+            []
+        );
+
+        $currentMinute = (int) $date->format('i');
+        $minute = $minutes[$this->computePosition($currentMinute, $minutes, true)];
+
+        if ($currentMinute <= $minute) {
+            $date = $date->sub(new DateInterval('PT1H'));
+
+            return $date->setTime((int) $date->format('H'), 59);
         }
 
         return $date->setTime((int) $date->format('H'), $minute);

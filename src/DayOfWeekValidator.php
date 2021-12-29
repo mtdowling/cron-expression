@@ -128,12 +128,14 @@ final class DayOfWeekValidator extends FieldValidator
         return $this->isSatisfied((int) $date->format($format), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
     {
-        return match ($invert) {
-            true => $date->sub(new DateInterval('P1D'))->setTime(23, 59),
-            default => $date->add(new DateInterval('P1D'))->setTime(0, 0),
-        };
+        return $date->add(new DateInterval('P1D'))->setTime(0, 0);
+    }
+
+    public function decrement(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    {
+        return $date->sub(new DateInterval('P1D'))->setTime(23, 59);
     }
 
     public function isValid(string $fieldExpression): bool

@@ -27,12 +27,10 @@ final class HourValidatorTest extends TestCase
     public function testIncrementsDate(DateTimeImmutable|DateTime $d, string $increment, string $decrement): void
     {
         $f = new HourValidator();
-        $res = $f->increment($d);
-        self::assertSame($increment, $res->format('Y-m-d H:i:s'));
+        self::assertSame($increment, $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d = $d->setTime(11, 15, 0);
-        $res = $f->increment($d, true);
-        self::assertSame($decrement, $res->format('Y-m-d H:i:s'));
+        self::assertSame($decrement, $f->decrement($d)->format('Y-m-d H:i:s'));
     }
 
     public function providesDateObjects(): array
@@ -60,7 +58,7 @@ final class HourValidatorTest extends TestCase
         self::assertSame('2011-03-15 12:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d->setTime(11, 15, 0);
-        self::assertSame('2011-03-15 10:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 10:59:00', $f->decrement($d)->format('Y-m-d H:i:s'));
         date_default_timezone_set($tz);
     }
 
@@ -73,7 +71,7 @@ final class HourValidatorTest extends TestCase
         self::assertSame('2011-03-15 12:00:00', $f->increment($d)->format('Y-m-d H:i:s'));
 
         $d->setTime(11, 15, 0);
-        self::assertSame('2011-03-15 10:59:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 10:59:00', $f->decrement($d)->format('Y-m-d H:i:s'));
         date_default_timezone_set($tz);
     }
 }
