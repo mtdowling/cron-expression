@@ -15,12 +15,12 @@ enum ExpressionField: string
      */
     public static function fromOffset(int $position): self
     {
-        return match (true) {
-            0 === $position => ExpressionField::MINUTE,
-            1 === $position => ExpressionField::HOUR,
-            2 === $position => ExpressionField::MONTHDAY,
-            3 === $position => ExpressionField::MONTH,
-            4 === $position => ExpressionField::WEEKDAY,
+        return match ($position) {
+            0 => ExpressionField::MINUTE,
+            1 => ExpressionField::HOUR,
+            2 => ExpressionField::MONTHDAY,
+            3 => ExpressionField::MONTH,
+            4 => ExpressionField::WEEKDAY,
             default => throw SyntaxError::dueToInvalidPosition($position),
         };
     }
@@ -46,12 +46,6 @@ enum ExpressionField: string
      */
     public static function orderedFields(): array
     {
-        return [
-            self::MONTH,
-            self::MONTHDAY,
-            self::WEEKDAY,
-            self::HOUR,
-            self::MINUTE,
-        ];
+        return [self::MONTH, self::MONTHDAY, self::WEEKDAY, self::HOUR, self::MINUTE];
     }
 }
