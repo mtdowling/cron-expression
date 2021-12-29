@@ -249,8 +249,8 @@ final class Scheduler implements CronScheduler
         $dayOfWeekScheduler = $this->withExpression($this->expression->withDayOfWeek('*'));
         $dayOfMonthScheduler = $this->withExpression($this->expression->withDayOfMonth('*'));
 
-        $combinedRuns = match (true) {
-            true === $invert => array_merge(
+        $combinedRuns = match ($invert) {
+            true => array_merge(
                 iterator_to_array($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $startDate), false),
                 iterator_to_array($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $startDate), false)
             ),

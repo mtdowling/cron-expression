@@ -39,8 +39,8 @@ final class MonthValidator extends FieldValidator
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
-        return match (true) {
-            true === $invert => $date
+        return match ($invert) {
+            true => $date
                 ->setDate((int) $date->format('Y'), (int)$date->format('n'), 1)
                 ->sub(new DateInterval('P1D'))
                 ->setTime(23, 59),

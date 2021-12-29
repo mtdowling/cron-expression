@@ -26,8 +26,8 @@ final class MinuteValidator extends FieldValidator
     public function increment(DateTime|DateTimeImmutable $date, $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
         if (null === $parts) {
-            return match (true) {
-                true === $invert => $date->sub(new DateInterval('PT1M')),
+            return match ($invert) {
+                true => $date->sub(new DateInterval('PT1M')),
                 default => $date->add(new DateInterval('PT1M')),
             };
         }
@@ -42,8 +42,8 @@ final class MinuteValidator extends FieldValidator
         $minute = $minutes[$this->computePosition($currentMinute, $minutes, $invert)];
 
         if ((!$invert && $currentMinute >= $minute) || ($invert && $currentMinute <= $minute)) {
-            return match (true) {
-                true === $invert => $date->sub(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 59),
+            return match ($invert) {
+                true => $date->sub(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 59),
                 default => $date->add(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 0),
             };
         }

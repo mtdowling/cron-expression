@@ -31,8 +31,8 @@ final class HourValidator extends FieldValidator
         if (null === $parts || $parts == '*') {
             $timezone = $date->getTimezone();
             $date = $date->setTimezone(new DateTimeZone('UTC'));
-            return match (true) {
-                true === $invert => $date->sub(new DateInterval('PT1H'))->setTimezone($timezone)->setTime((int) $date->format('H'), 59),
+            return match ($invert) {
+                true => $date->sub(new DateInterval('PT1H'))->setTimezone($timezone)->setTime((int) $date->format('H'), 59),
                 default => $date->add(new DateInterval('PT1H'))->setTimezone($timezone)->setTime((int) $date->format('H'), 0),
             };
         }
@@ -45,14 +45,14 @@ final class HourValidator extends FieldValidator
 
         $hour = $hours[$this->computePosition((int) $date->format('H'), $hours, $invert)];
         if ((!$invert && $date->format('H') >= $hour) || ($invert && $date->format('H') <= $hour)) {
-            return match (true) {
-                true === $invert => $date->sub(new DateInterval('P1D'))->setTime(23, 59),
+            return match ($invert) {
+                true => $date->sub(new DateInterval('P1D'))->setTime(23, 59),
                 default => $date->add(new DateInterval('P1D'))->setTime(0, 0),
             };
         }
 
-        return match (true) {
-            true === $invert => $date->setTime($hour, 59),
+        return match ($invert) {
+            true => $date->setTime($hour, 59),
             default => $date->setTime($hour, 0),
         };
     }

@@ -80,8 +80,8 @@ final class DayOfMonthValidator extends FieldValidator
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
-        return match (true) {
-            true === $invert => $date
+        return match ($invert) {
+            true => $date
                 ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') - 1)
                 ->setTime(23, 59),
             default => $date

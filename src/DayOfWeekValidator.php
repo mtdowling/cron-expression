@@ -136,8 +136,8 @@ final class DayOfWeekValidator extends FieldValidator
 
     public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
     {
-        return match (true) {
-            true === $invert => $date->sub(new DateInterval('P1D'))->setTime(23, 59),
+        return match ($invert) {
+            true => $date->sub(new DateInterval('P1D'))->setTime(23, 59),
             default => $date->add(new DateInterval('P1D'))->setTime(0, 0),
         };
     }
