@@ -17,6 +17,21 @@ final class Expression implements CronExpression, JsonSerializable, Stringable
         $this->fields = ExpressionParser::parse($expression);
     }
 
+    public static function __set_state(array $properties): object
+    {
+        return self::fromFields($properties['fields']);
+    }
+
+    /**
+     * Returns an instance from an associative array.
+     *
+     * @see ExpressionParser::build()
+     */
+    public static function fromFields(array $fields): self
+    {
+        return new self(ExpressionParser::build($fields));
+    }
+
     /**
      * Returns the Cron expression for running once a year, midnight, Jan. 1 - 0 0 1 1 *.
      */
@@ -112,14 +127,7 @@ final class Expression implements CronExpression, JsonSerializable, Stringable
      */
     private function newInstance(array $fields): self
     {
-        $newExpression = implode(' ', [
-            $fields[ExpressionField::MINUTE->value],
-            $fields[ExpressionField::HOUR->value],
-            $fields[ExpressionField::MONTHDAY->value],
-            $fields[ExpressionField::MONTH->value],
-            $fields[ExpressionField::WEEKDAY->value],
-        ]);
-
+        $newExpression = ExpressionParser::build($fields);
         if ($newExpression === $this->toString()) {
             return $this;
         }

@@ -91,11 +91,32 @@ final class ExpressionTest extends TestCase
         self::assertNotEquals($cron, $cron->withDayOfWeek('Fri'));
     }
 
-
     public function testInvalidPartsWillFail(): void
     {
         $this->expectException(SyntaxError::class);
 
         (new Expression('* * * * *'))->withDayOfWeek('abc');
+    }
+
+    public function testInstantiationFromFieldsList(): void
+    {
+        self::assertSame('* * * * *', Expression::fromFields([])->toString());
+        self::assertSame('7 * * * 5', Expression::fromFields(['minute' => 7, 'dayOfWeek' => '5'])->toString());
+    }
+
+    public function testInstantiationFromFieldsListWillFail(): void
+    {
+        $this->expectException(SyntaxError::class);
+
+        Expression::fromFields(['foo' => 'bar', 'minute' => '23']);
+    }
+
+    public function testExpressionInternalPhpMethod(): void
+    {
+        $cronOriginal = new Expression('5 4 3 2 1');
+        /** @var Expression $cron */
+        $cron = eval('return '.var_export($cronOriginal, true).';');
+
+        self::assertEquals($cronOriginal, $cron);
     }
 }

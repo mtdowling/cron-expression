@@ -11,19 +11,8 @@ enum ExpressionField: string
     case WEEKDAY = 'dayOfWeek';
 
     /**
-     * Get an instance of a field validator object for a cron expression position.
+     * Named constructor from Array parsing integer offset.
      */
-    public function validator(): CronFieldValidator
-    {
-        return match ($this) {
-            self::MINUTE => new MinuteValidator(),
-            self::HOUR => new HourValidator(),
-            self::MONTHDAY => new DayOfMonthValidator(),
-            self::MONTH => new MonthValidator(),
-            default => new DayOfWeekValidator(),
-        };
-    }
-
     public static function fromOffset(int $position): self
     {
         return match (true) {
@@ -37,7 +26,21 @@ enum ExpressionField: string
     }
 
     /**
-     * Order in which to test of cron parts.
+     * Returns the expression field validator.
+     */
+    public function validator(): CronFieldValidator
+    {
+        return match ($this) {
+            self::MINUTE => new MinuteValidator(),
+            self::HOUR => new HourValidator(),
+            self::MONTHDAY => new DayOfMonthValidator(),
+            self::MONTH => new MonthValidator(),
+            default => new DayOfWeekValidator(),
+        };
+    }
+
+    /**
+     * Returns the Order in which to test CRON expression field.
      *
      * @return array<ExpressionField>
      */

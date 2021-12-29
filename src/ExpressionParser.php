@@ -74,6 +74,41 @@ final class ExpressionParser
     }
 
     /**
+     * Generate an CRON expression from its parsed representation returned by ExpressionParser::parse.
+     *
+     * If you supply your own array, you are responsible for providing
+     * valid fields. If a required field is missing it wiil be replaced by the special `*` character
+     *
+     * @param array<string> $fields
+     *
+     * @throws SyntaxError If the fields array contains unknown or unsupported key fields
+     */
+    public static function build(array $fields): string
+    {
+        $defaultValues = [
+            ExpressionField::MINUTE->value => '*',
+            ExpressionField::HOUR->value => '*',
+            ExpressionField::MONTHDAY->value => '*',
+            ExpressionField::MONTH->value => '*',
+            ExpressionField::WEEKDAY->value => '*',
+        ];
+
+        if ([] !== array_diff_key($fields, $defaultValues)) {
+            throw new SyntaxError('The fields contain invalid offset names; expecting only the following fields: `'.implode('`, `', array_keys($defaultValues)).'`.');
+        }
+
+        $fields = $fields + $defaultValues;
+
+        return implode(' ', [
+            $fields[ExpressionField::MINUTE->value],
+            $fields[ExpressionField::HOUR->value],
+            $fields[ExpressionField::MONTHDAY->value],
+            $fields[ExpressionField::MONTH->value],
+            $fields[ExpressionField::WEEKDAY->value],
+        ]);
+    }
+
+    /**
      * Validate a CronExpression.
      *
      * @see ExpressionParser::parse
