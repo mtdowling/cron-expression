@@ -29,7 +29,6 @@ abstract class FieldValidator implements CronFieldValidator
      */
     protected int $rangeEnd;
 
-
     public function __construct()
     {
         $this->fullRange = range($this->rangeStart, $this->rangeEnd);

@@ -37,7 +37,7 @@ final class MonthValidator extends FieldValidator
             || $this->isSatisfied((int)$date->format('m'), $this->convertLiterals($fieldExpression));
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $fieldExpression = null): DateTime|DateTimeImmutable
     {
         return match ($invert) {
             true => $date

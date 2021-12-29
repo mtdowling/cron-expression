@@ -23,9 +23,9 @@ final class MinuteValidator extends FieldValidator
             || $this->isSatisfied((int) $date->format('i'), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, $invert = false, string $parts = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, $invert = false, string $fieldExpression = null): DateTime|DateTimeImmutable
     {
-        if (null === $parts) {
+        if (null === $fieldExpression) {
             return match ($invert) {
                 true => $date->sub(new DateInterval('PT1M')),
                 default => $date->add(new DateInterval('PT1M')),
@@ -33,7 +33,7 @@ final class MinuteValidator extends FieldValidator
         }
 
         $minutes = array_reduce(
-            str_contains($parts, ',') ? explode(',', $parts) : [$parts],
+            str_contains($fieldExpression, ',') ? explode(',', $fieldExpression) : [$fieldExpression],
             fn (array $minutes, string $part): array => array_merge($minutes, $this->getRangeForExpression($part, 59)),
             []
         );

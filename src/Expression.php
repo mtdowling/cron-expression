@@ -9,7 +9,7 @@ use Stringable;
 
 final class Expression implements CronExpression, JsonSerializable, Stringable
 {
-    /** @var array<string, string> CRON expression fields */
+    /** @var array<string, string> */
     private array $fields;
 
     public function __construct(string $expression)
@@ -123,16 +123,16 @@ final class Expression implements CronExpression, JsonSerializable, Stringable
     }
 
     /**
-     * @param array<string> $fields
+     * @param array<string, string> $fields
      */
     private function newInstance(array $fields): self
     {
-        $newExpression = ExpressionParser::build($fields);
-        if ($newExpression === $this->toString()) {
+        $expression = ExpressionParser::build($fields);
+        if ($expression === $this->toString()) {
             return $this;
         }
 
-        return new self($newExpression);
+        return new self($expression);
     }
 
     public function withHour(string $fieldExpression): self

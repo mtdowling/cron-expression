@@ -23,12 +23,12 @@ final class HourValidator extends FieldValidator
         return $this->isSatisfied((int) $date->format('H'), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $fieldExpression = null): DateTime|DateTimeImmutable
     {
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
-        if (null === $parts || $parts == '*') {
+        if (null === $fieldExpression || $fieldExpression == '*') {
             $timezone = $date->getTimezone();
             $date = $date->setTimezone(new DateTimeZone('UTC'));
             return match ($invert) {
@@ -38,7 +38,7 @@ final class HourValidator extends FieldValidator
         }
 
         $hours = array_reduce(
-            str_contains($parts, ',') ? explode(',', $parts) : [$parts],
+            str_contains($fieldExpression, ',') ? explode(',', $fieldExpression) : [$fieldExpression],
             fn (array $hours, string $part): array => array_merge($hours, $this->getRangeForExpression($part, 23)),
             []
         );

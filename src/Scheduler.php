@@ -75,7 +75,7 @@ final class Scheduler implements CronScheduler
 
     public static function fromSystemTimezone(CronExpression|string $expression): self
     {
-        return new self($expression, date_default_timezone_get());
+        return new self($expression, new DateTimeZone(date_default_timezone_get()));
     }
 
     public function expression(): CronExpression
@@ -101,7 +101,7 @@ final class Scheduler implements CronScheduler
     public function withExpression(CronExpression|string $expression): self
     {
         $expression = $this->filterExpression($expression);
-        if ($expression->toString() == $this->expression->toString()) {
+        if ($expression->toString() === $this->expression->toString()) {
             return $this;
         }
 

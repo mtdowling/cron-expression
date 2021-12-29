@@ -74,11 +74,11 @@ final class DayOfMonthValidator extends FieldValidator
                 (int) $date->format('m'),
                 (int) substr($fieldExpression, 0, $pos) // Parse the target day
             )->format('j'),
-            default => $this->isSatisfied((int) $date->format('d'), $fieldExpression),
+            default => $this->isSatisfied((int) $fieldValue, $fieldExpression),
         };
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $fieldExpression = null): DateTime|DateTimeImmutable
     {
         return match ($invert) {
             true => $date
@@ -100,7 +100,7 @@ final class DayOfMonthValidator extends FieldValidator
             true === parent::isValid($fieldExpression) => true,
             '?' === $fieldExpression => true,
             'L' === $fieldExpression => true,
-            default => (1 === preg_match('/^(.*)W$/', $fieldExpression, $matches)) && $this->isValid($matches[1]),
+            default => 1 === preg_match('/^(.*)W$/', $fieldExpression, $matches) && $this->isValid($matches[1]),
         };
     }
 }

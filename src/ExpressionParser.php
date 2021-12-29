@@ -97,7 +97,7 @@ final class ExpressionParser
             throw new SyntaxError('The fields contain invalid offset names; expecting only the following fields: `'.implode('`, `', array_keys($defaultValues)).'`.');
         }
 
-        $fields = $fields + $defaultValues;
+        $fields += $defaultValues;
 
         return implode(' ', [
             $fields[ExpressionField::MINUTE->value],

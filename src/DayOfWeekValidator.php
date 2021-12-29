@@ -26,7 +26,6 @@ final class DayOfWeekValidator extends FieldValidator
 {
     protected int $rangeStart = 0;
     protected int $rangeEnd = 7;
-    protected array $nthRange;
     protected array $literals = [
         '1' => 'MON',
         '2' => 'TUE',
@@ -36,12 +35,7 @@ final class DayOfWeekValidator extends FieldValidator
         '6' => 'SAT',
         '7' => 'SUN',
     ];
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->nthRange = range(1, 5);
-    }
+    private array $nthRange = [1, 2, 3, 4, 5];
 
     public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
     {
@@ -134,7 +128,7 @@ final class DayOfWeekValidator extends FieldValidator
         return $this->isSatisfied((int) $date->format($format), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $parts = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string $fieldExpression = null): DateTime|DateTimeImmutable
     {
         return match ($invert) {
             true => $date->sub(new DateInterval('P1D'))->setTime(23, 59),

@@ -21,9 +21,9 @@ interface CronFieldValidator
      * or decrement a DateTime or a DateTimeImmutable object by the unit of the cron field.
      *
      * @param bool $invert Set to TRUE to decrement
-     * @param string|null $parts Set parts to use
+     * @param string|null $fieldExpression Set parts to use
      */
-    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string|null $parts = null): DateTime|DateTimeImmutable;
+    public function increment(DateTime|DateTimeImmutable $date, bool $invert = false, string|null $fieldExpression = null): DateTime|DateTimeImmutable;
 
     /**
      * Validates a CRON expression for a given field.
