@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bakame\Cron;
 
 use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,9 +25,18 @@ final class MinuteValidatorTest extends TestCase
     {
         $d = new DateTime('2011-03-15 11:15:00');
         $f = new MinuteValidator();
+        $res = $f->increment($d);
+        self::assertSame('2011-03-15 11:16:00', $res->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 11:15:00', $f->increment($res, true)->format('Y-m-d H:i:s'));
+    }
 
-        self::assertSame('2011-03-15 11:16:00', $f->increment($d)->format('Y-m-d H:i:s'));
-        self::assertSame('2011-03-15 11:15:00', $f->increment($d, true)->format('Y-m-d H:i:s'));
+    public function testIncrementsDateImmutable(): void
+    {
+        $d = new DateTimeImmutable('2011-03-15 11:15:00');
+        $f = new MinuteValidator();
+        $res = $f->increment($d);
+        self::assertSame('2011-03-15 11:16:00', $res->format('Y-m-d H:i:s'));
+        self::assertSame('2011-03-15 11:15:00', $f->increment($res, true)->format('Y-m-d H:i:s'));
     }
 
     public function testBadSyntaxesShouldNotValidate(): void

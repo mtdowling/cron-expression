@@ -42,10 +42,15 @@ final class MinuteValidator extends FieldValidator
         $minute = $minutes[$this->computePosition($currentMinute, $minutes, $invert)];
 
         if ((!$invert && $currentMinute >= $minute) || ($invert && $currentMinute <= $minute)) {
-            return match ($invert) {
-                true => $date->sub(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 59),
-                default => $date->add(new DateInterval('PT1H'))->setTime((int) $date->format('H'), 0),
-            };
+            if ($invert) {
+                $date = $date->sub(new DateInterval('PT1H'));
+
+                return $date->setTime((int) $date->format('H'), 59);
+            }
+
+            $date = $date->add(new DateInterval('PT1H'));
+
+            return $date->setTime((int) $date->format('H'), 0);
         }
 
         return $date->setTime((int) $date->format('H'), $minute);

@@ -244,7 +244,7 @@ final class Scheduler implements CronScheduler
     /**
      * @throws CronError
      */
-    private function combineRuns(int $nth, DateTime $startDate, bool $invert): DateTimeImmutable
+    private function combineRuns(int $nth, DateTimeImmutable $startDate, bool $invert): DateTimeImmutable
     {
         $dayOfWeekScheduler = $this->withExpression($this->expression->withDayOfWeek('*'));
         $dayOfMonthScheduler = $this->withExpression($this->expression->withDayOfMonth('*'));
@@ -268,18 +268,17 @@ final class Scheduler implements CronScheduler
     /**
      * @throws SyntaxError
      */
-    private function filterInputDate(DateTimeInterface|string $date): DateTime
+    private function filterInputDate(DateTimeInterface|string $date): DateTimeImmutable
     {
         try {
             $currentDate = match (true) {
-                $date instanceof DateTimeImmutable => DateTime::createFromInterface($date),
-                $date instanceof DateTime => clone $date,
-                default => new DateTime($date),
+                $date instanceof DateTimeImmutable => $date,
+                $date instanceof DateTime => DateTimeImmutable::createFromInterface($date),
+                default => new DateTimeImmutable($date),
             };
-            $currentDate->setTimezone($this->timezone);
-            $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
+            $currentDate = $currentDate->setTimezone($this->timezone);
 
-            return $currentDate;
+            return $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'));
         } catch (Throwable $exception) {
             throw SyntaxError::dueToInvalidDate($date, $exception);
         }

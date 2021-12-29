@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bakame\Cron;
 
 use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -36,6 +37,28 @@ final class DayOfMonthValidatorTest extends TestCase
         self::assertSame(
             '2011-03-16 00:00:00',
             $f->increment(new DateTime($date))->format('Y-m-d H:i:s')
+        );
+
+        $date = '2011-03-15 11:15:00';
+        self::assertSame(
+            '2011-03-14 23:59:00',
+            $f->increment(new DateTime($date), true)->format('Y-m-d H:i:s')
+        );
+    }
+
+    public function testIncrementsDateImmutable(): void
+    {
+        $f = new DayOfMonthValidator();
+        $date = '2011-03-15 11:15:00';
+        self::assertSame(
+            '2011-03-16 00:00:00',
+            $f->increment(new DateTimeImmutable($date))->format('Y-m-d H:i:s')
+        );
+
+        $date = '2011-03-15 11:15:00';
+        self::assertSame(
+            '2011-03-14 23:59:00',
+            $f->increment(new DateTimeImmutable($date), true)->format('Y-m-d H:i:s')
         );
     }
 

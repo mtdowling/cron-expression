@@ -29,12 +29,18 @@ final class HourValidator extends FieldValidator
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
         if (null === $fieldExpression || $fieldExpression == '*') {
+            $interval = new DateInterval('PT1H');
             $timezone = $date->getTimezone();
             $date = $date->setTimezone(new DateTimeZone('UTC'));
-            return match ($invert) {
-                true => $date->sub(new DateInterval('PT1H'))->setTimezone($timezone)->setTime((int) $date->format('H'), 59),
-                default => $date->add(new DateInterval('PT1H'))->setTimezone($timezone)->setTime((int) $date->format('H'), 0),
-            };
+            if ($invert) {
+                $date = $date->sub($interval)->setTimezone($timezone);
+
+                return $date->setTime((int) $date->format('H'), 59);
+            }
+
+            $date = $date->add($interval)->setTimezone($timezone);
+
+            return $date->setTime((int) $date->format('H'), 0);
         }
 
         $hours = array_reduce(
