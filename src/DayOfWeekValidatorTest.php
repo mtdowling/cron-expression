@@ -25,7 +25,7 @@ final class DayOfWeekValidatorTest extends TestCase
     public function testChecksIfSatisfied(): void
     {
         $f = new DayOfWeekValidator();
-        self::assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
+        self::assertTrue($f->isSatisfiedBy('?', new DateTime()));
     }
 
     public function testIncrementsDate(): void
@@ -44,7 +44,7 @@ final class DayOfWeekValidatorTest extends TestCase
         $this->expectException(SyntaxError::class);
 
         $f = new DayOfWeekValidator();
-        self::assertTrue($f->isSatisfiedBy(new DateTime(), '12#1'));
+        self::assertTrue($f->isSatisfiedBy('12#1', new DateTime()));
     }
 
     /**
@@ -54,7 +54,7 @@ final class DayOfWeekValidatorTest extends TestCase
     {
         $this->expectException(SyntaxError::class);
         $f = new DayOfWeekValidator();
-        self::assertTrue($f->isSatisfiedBy(new DateTime(), '3#6'));
+        self::assertTrue($f->isSatisfiedBy('3#6', new DateTime()));
     }
 
     public function testValidateWeekendHash(): void
@@ -73,13 +73,13 @@ final class DayOfWeekValidatorTest extends TestCase
     public function testHandlesZeroAndSevenDayOfTheWeekValues(): void
     {
         $f = new DayOfWeekValidator();
-        self::assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '0-2'));
-        self::assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '6-0'));
+        self::assertTrue($f->isSatisfiedBy('0-2', new DateTime('2011-09-04 00:00:00')));
+        self::assertTrue($f->isSatisfiedBy('6-0', new DateTime('2011-09-04 00:00:00')));
 
-        self::assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), 'SUN'));
-        self::assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), 'SUN#3'));
-        self::assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), '0#3'));
-        self::assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), '7#3'));
+        self::assertTrue($f->isSatisfiedBy('SUN', new DateTime('2014-04-20 00:00:00')));
+        self::assertTrue($f->isSatisfiedBy('SUN#3', new DateTime('2014-04-20 00:00:00')));
+        self::assertTrue($f->isSatisfiedBy('0#3', new DateTime('2014-04-20 00:00:00')));
+        self::assertTrue($f->isSatisfiedBy('7#3', new DateTime('2014-04-20 00:00:00')));
     }
 
     public function testIssue47(): void

@@ -298,7 +298,7 @@ final class Scheduler implements CronScheduler
     private function isFieldSatisfiedBy(DateTimeInterface $dateTime, CronFieldValidator $fieldValidator, string $fieldExpression): bool
     {
         foreach (array_map('trim', explode(',', $fieldExpression)) as $expression) {
-            if ($fieldValidator->isSatisfiedBy($dateTime, $expression)) {
+            if ($fieldValidator->isSatisfiedBy($expression, $dateTime)) {
                 return true;
             }
         }

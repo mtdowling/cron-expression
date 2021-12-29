@@ -45,7 +45,7 @@ A CRON expression is a string representing the schedule for a particular command
     |    +-------------------- hour (0 - 23)
     +------------------------- min (0 - 59)
 
-The `Bakame\Cron\ExpressionParser` class is responsible for parsing a CRON expression and converting it into a PHP `array` list as shown below:
+The `Bakame\Cron\ExpressionParser` class is responsible for parsing a CRON expression and converting it into a PHP associative `array` as shown below:
 
 ```php
 <?php
@@ -65,16 +65,16 @@ var_export(ExpressionParser::parse('3-59/15 6-12 */15 1 2-5'));
 // )
 ```
 
-Each array offset is representative of a cron expression field, The `Bakame\Cron\ExpressionParser` exposes those 
-offsets via descriptive constants name, following the table below:
+Each array offset is representative of a cron expression field, The `Bakame\Cron\ExpressionField` backed enum exposes those 
+offsets via descriptive cases, following the table below:
 
-| CRON field   | array offset | ExpressionField Enum          |
-|--------------|--------------|-------------------------------|
-| minute       | `minute`     | `ExpressionField::MINUTE()`   |
-| hour         | `hour`       | `ExpressionField::HOUR()`     |
-| day of month | `dayOfMonth` | `ExpressionField::MONTHDAY()` |
-| month        | `month`      | `ExpressionField::MONTH()`    |
-| day of week  | `dayOfWeek`  | `ExpressionField::WEEKDAY()`  |
+| CRON field   | array offset | ExpressionField Enum        |
+|--------------|--------------|-----------------------------|
+| minute       | `minute`     | `ExpressionField::MINUTE`   |
+| hour         | `hour`       | `ExpressionField::HOUR`     |
+| day of month | `dayOfMonth` | `ExpressionField::MONTHDAY` |
+| month        | `month`      | `ExpressionField::MONTH`    |
+| day of week  | `dayOfWeek`  | `ExpressionField::WEEKDAY`  |
 
 ```php
 <?php
@@ -83,7 +83,7 @@ use Bakame\Cron\ExpressionParser;
 
 require_once '/vendor/autoload.php';
 
-echo ExpressionParser::parse('3-59/15 6-12 */15 1 2-5')[ExpressionField::MONTHDAY()->value()];
+echo ExpressionParser::parse('3-59/15 6-12 */15 1 2-5')[ExpressionField::MONTHDAY->value];
 // display '*/15'
 ```
 
@@ -95,6 +95,7 @@ a valid CRON expression.
 
 ExpressionParser::parse('not a real CRON expression');
 // throws a Bakame\Cron\SyntaxError with the following message 'Invalid CRON expression'
+// calling SyntaxError::errors method will list the errors and the fields where it occurred.
 ```
 
 ### Validating a CRON Expression
@@ -113,7 +114,7 @@ the requested field:
 
 ```php
 <?php
-$fieldValidator = ExpressionField::MONTH(); 
+$fieldValidator = ExpressionField::MONTH->validator(); 
 $fieldValidator->isValid('JAN'); //return true `JAN` is a valid month field value
 $fieldValidator->isValid(23);    //return false `23` is invalid for the month field
 ```
@@ -146,6 +147,24 @@ var_export($cron->fields());
 //  'dayOfWeek' => '2-5',
 //)
 ```
+
+It is possible to also use an associative array using the same index as the one returned by `ExpressionParser::parse` method
+
+```php
+<?php
+
+use Bakame\Cron\Expression;
+
+$cron = Expression::fromFields(['minute' => 7, 'dayOfWeek' => '5']);
+echo $cron->minute();     //displays '7'
+echo $cron->hour();       //displays '*'
+echo $cron->dayOfMonth(); //displays '*'
+echo $cron->month();      //displays '*'
+echo $cron->dayOfWeek();  //displays '5'
+```
+
+**If a field is not provided it will be replaced by the `*` character.**
+**If unknown field are provided a `SyntaxError` exception will be thrown.**
 
 #### Special expressions
 
@@ -206,7 +225,7 @@ echo json_encode($cron); //display '"3-59\/15 6-12 *\/15 1 2-5"'
 
 ### Calculating the running time
 
-#### Instantiating the Scheduler object
+#### Instantiating the Scheduler immutable Value Object
 
 To determine the next running time for a CRON expression the package uses the `Bakame\Cron\Scheduler` class.  
 To work as expected this class needs:
@@ -314,6 +333,20 @@ $scheduler->isDue();      // returns false
 // is the same as
 $scheduler->isDue('NOW'); // returns false 
 ```
+
+It is possible to validate a Date against a specific field expression using a `CronFieldValidator` object.
+
+```php
+use Bakame\Cron\ExpressionField;
+
+$hourValidator = ExpressionField::HOUR->validator();
+$hourValidator->isSatisfiedBy('*/3', new DateTime('2014-04-07 00:00:00')); // returns true
+```
+
+**WARNING: Field validator are timezone independent**
+
+
+### Iterating over multiple runs
 
 Last but not least you can iterate over a set of recurrent date where the cron is supposed to run.
 The iteration can be done forward to list all occurrences from the start date up to the total of recurrences

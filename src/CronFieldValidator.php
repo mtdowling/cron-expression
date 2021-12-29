@@ -14,7 +14,7 @@ interface CronFieldValidator
     /**
      * Check if the respective value of a DateTimeInterface object satisfies a CRON exp. field.
      */
-    public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool;
+    public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool;
 
     /**
      * When a CRON expression is not satisfied, this method is used to increment

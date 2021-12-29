@@ -26,7 +26,7 @@ final class DayOfMonthValidatorTest extends TestCase
     public function testChecksIfSatisfied(): void
     {
         $f = new DayOfMonthValidator();
-        self::assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
+        self::assertTrue($f->isSatisfiedBy('?', new DateTime()));
     }
 
     public function testIncrementsDate(): void

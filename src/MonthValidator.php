@@ -31,7 +31,7 @@ final class MonthValidator extends FieldValidator
         '12' => 'DEC',
     ];
 
-    public function isSatisfiedBy(DateTimeInterface $date, string $fieldExpression): bool
+    public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
     {
         return '?' === $fieldExpression
             || $this->isSatisfied((int)$date->format('m'), $this->convertLiterals($fieldExpression));
