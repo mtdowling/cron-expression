@@ -6,35 +6,6 @@ use Throwable;
 
 final class ExpressionParser
 {
-    public const MINUTE = 'minute';
-    public const HOUR = 'hour';
-    public const MONTHDAY = 'dayOfMonth';
-    public const MONTH = 'month';
-    public const WEEKDAY = 'dayOfWeek';
-
-    /**
-     * Get an instance of a field validator object for a cron expression position.
-     *
-     * @param string|int $fieldName CRON expression position value to retrieve
-     *
-     * @throws SyntaxError if a position is not valid
-     */
-    public static function fieldValidator(string|int $fieldName): CronFieldValidator
-    {
-        static $validators = [];
-
-        $validators[$fieldName] ??= match ($fieldName) {
-            self::MINUTE => new MinuteValidator(),
-            self::HOUR => new HourValidator(),
-            self::MONTHDAY => new DayOfMonthValidator(),
-            self::MONTH => new MonthValidator(),
-            self::WEEKDAY => new DayOfWeekValidator(),
-            default => throw SyntaxError::dueToInvalidPosition($fieldName),
-        };
-
-        return $validators[$fieldName];
-    }
-
     /**
      * Parse a CRON expression string into its components.
      *
@@ -87,13 +58,11 @@ final class ExpressionParser
             throw SyntaxError::dueToInvalidExpression($expression);
         }
 
-        /** @var array<string> $offsets */
-        static $offsets = [self::MINUTE, self::HOUR, self::MONTHDAY, self::MONTH, self::WEEKDAY];
-
         $errors = [];
         foreach ($fields as $position => $fieldExpression) {
-            if (!self::fieldValidator($offsets[$position])->isValid($fieldExpression)) {
-                $errors[$offsets[$position]] = $fieldExpression;
+            $offset = ExpressionField::fromOffset($position);
+            if (!$offset->validator()->isValid($fieldExpression)) {
+                $errors[$offset->value()] = $fieldExpression;
             }
         }
 
@@ -101,7 +70,7 @@ final class ExpressionParser
             throw SyntaxError::dueToInvalidFieldValue($errors);
         }
 
-        return array_combine($offsets, $fields);
+        return array_combine(array_map(fn (ExpressionField $field): string => $field->value(), ExpressionField::cases()), $fields);
     }
 
     /**

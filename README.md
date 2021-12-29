@@ -68,13 +68,13 @@ var_export(ExpressionParser::parse('3-59/15 6-12 */15 1 2-5'));
 Each array offset is representative of a cron expression field, The `Bakame\Cron\ExpressionParser` exposes those 
 offsets via descriptive constants name, following the table below:
 
-| CRON field   | array offset |Expression Parser Constant   |
-|--------------|--------------|------------------------------|
-| minute       | `minute`     | `ExpressionParser::MINUTE`   |
-| hour         | `hour`       | `ExpressionParser::HOUR`     |
-| day of month | `dayOfMonth` | `ExpressionParser::MONTHDAY` |
-| month        | `month`      | `ExpressionParser::MONTH`    |
-| day of week  | `dayOfWeek`  | `ExpressionParser::WEEKDAY`  |
+| CRON field   | array offset | ExpressionField Enum          |
+|--------------|--------------|-------------------------------|
+| minute       | `minute`     | `ExpressionField::MINUTE()`   |
+| hour         | `hour`       | `ExpressionField::HOUR()`     |
+| day of month | `dayOfMonth` | `ExpressionField::MONTHDAY()` |
+| month        | `month`      | `ExpressionField::MONTH()`    |
+| day of week  | `dayOfWeek`  | `ExpressionField::WEEKDAY()`  |
 
 ```php
 <?php
@@ -83,7 +83,7 @@ use Bakame\Cron\ExpressionParser;
 
 require_once '/vendor/autoload.php';
 
-echo ExpressionParser::parse('3-59/15 6-12 */15 1 2-5')[ExpressionParser::MONTHDAY];
+echo ExpressionParser::parse('3-59/15 6-12 */15 1 2-5')[ExpressionField::MONTHDAY()->value()];
 // display '*/15'
 ```
 
@@ -107,13 +107,13 @@ Validating a CRON Expression is done using the `Bakame\Cron\ExpressionParser::is
 ExpressionParser::isValid('not a real CRON expression'); // will return false
 ```
 
-Validation of a specific CRON expression field can be done using the `ExpressionParser::fieldValidator` method.  
-This method accept a cron field offset and returns its corresponding `CronFieldValidator` object which validates 
+Validation of a specific CRON expression field can be done using the `ExpressionField::validator` method.  
+This method returns the corresponding `CronFieldValidator` object for a given `ExpressionField` enum which validates 
 the requested field:
 
 ```php
 <?php
-$fieldValidator = ExpressionParser::fieldValidator(ExpressionParser::MONTH); 
+$fieldValidator = ExpressionField::MONTH(); 
 $fieldValidator->isValid('JAN'); //return true `JAN` is a valid month field value
 $fieldValidator->isValid(23);    //return false `23` is invalid for the month field
 ```

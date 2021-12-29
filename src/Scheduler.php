@@ -205,7 +205,7 @@ final class Scheduler implements CronScheduler
         $from = $this->filterInputDate($startDate);
         $calculatedFields = $this->calculatedFields();
 
-        if (isset($calculatedFields[ExpressionParser::MONTHDAY], $calculatedFields[ExpressionParser::WEEKDAY])) {
+        if (isset($calculatedFields[ExpressionField::MONTHDAY()->value()], $calculatedFields[ExpressionField::WEEKDAY()->value()])) {
             return $this->combineRuns($nth, $from, $invert);
         }
 
@@ -227,8 +227,8 @@ final class Scheduler implements CronScheduler
 
             // Skip this match if needed
             if (($startDatePresence === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
-                $nextRun = ExpressionParser::fieldValidator(ExpressionParser::MINUTE)
-                    ->increment($nextRun, $invert, $calculatedFields[ExpressionParser::MINUTE][0] ?? null);
+                $nextRun = ExpressionField::MINUTE()->validator()
+                    ->increment($nextRun, $invert, $calculatedFields[ExpressionField::MINUTE()->value()][0] ?? null);
 
                 continue;
             }
@@ -308,22 +308,13 @@ final class Scheduler implements CronScheduler
 
     private function calculatedFields(): array
     {
-        // Order in which to test of cron parts.
-        static $orderedCronFields = [
-            ExpressionParser::MONTH,
-            ExpressionParser::MONTHDAY,
-            ExpressionParser::WEEKDAY,
-            ExpressionParser::HOUR,
-            ExpressionParser::MINUTE,
-        ];
-
         // We don't have to satisfy * or null fields
         $fields = [];
         $expressionFields = $this->expression->fields();
-        foreach ($orderedCronFields as $position) {
-            $fieldExpression = $expressionFields[$position];
+        foreach (ExpressionField::orderedFields() as $field) {
+            $fieldExpression = $expressionFields[$field->value()];
             if ('*' !== $fieldExpression) {
-                $fields[$position] = [$fieldExpression, ExpressionParser::fieldValidator($position)];
+                $fields[$field->value()] = [$fieldExpression, $field->validator()];
             }
         }
 
