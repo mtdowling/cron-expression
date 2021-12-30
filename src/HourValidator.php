@@ -23,7 +23,7 @@ final class HourValidator extends FieldValidator
         return $this->isSatisfied((int) $date->format('H'), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
     {
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
@@ -51,7 +51,7 @@ final class HourValidator extends FieldValidator
         return $date->setTime($hour, 0);
     }
 
-    public function decrement(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function decrement(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
     {
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even

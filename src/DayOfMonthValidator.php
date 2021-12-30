@@ -78,14 +78,14 @@ final class DayOfMonthValidator extends FieldValidator
         };
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
     {
         return $date
             ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') + 1)
             ->setTime(0, 0);
     }
 
-    public function decrement(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function decrement(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
     {
         return $date
             ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') - 1)

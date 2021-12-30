@@ -23,7 +23,7 @@ final class MinuteValidator extends FieldValidator
             || $this->isSatisfied((int) $date->format('i'), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
     {
         if (null === $fieldExpression) {
             return $date->add(new DateInterval('PT1M'));
@@ -47,7 +47,7 @@ final class MinuteValidator extends FieldValidator
         return $date->setTime((int) $date->format('H'), $minute);
     }
 
-    public function decrement(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function decrement(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
     {
         if (null === $fieldExpression) {
             return $date->sub(new DateInterval('PT1M'));

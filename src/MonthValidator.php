@@ -37,14 +37,14 @@ final class MonthValidator extends FieldValidator
             || $this->isSatisfied((int)$date->format('m'), $this->convertLiterals($fieldExpression));
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
     {
         return $date
             ->setDate((int) $date->format('Y'), (int)$date->format('n') + 1, 1)
             ->setTime(0, 0);
     }
 
-    public function decrement(DateTime|DateTimeImmutable $date, string $fieldExpression = null): DateTime|DateTimeImmutable
+    public function decrement(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
     {
         return $date
             ->setDate((int) $date->format('Y'), (int)$date->format('n'), 1)
