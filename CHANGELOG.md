@@ -2,15 +2,26 @@
 
 All Notable changes to `cron` will be documented in this file
 
-## Next - TBD
+## 0.2.0 - 2021-12-30
 
-### Changes
+### Added
 
-- `Scheduler` constructor variable `$timezone` MUST be provided. If you do not want to supply it use the class named constructors instead.
-- Internal changes in run resolution, internally only `DateTimeImmutable` objects are used instead of the `DateTime` class.
-- split the `CronFieldValidator::increment` method into two methods to remove boolean arguments from the public API. 
-- If the `$startDate` value is a string, the `Scheduler` will assume that the value has the same timezone as the underlying system.
+- `CronFieldValidator::decrement` to allow a field validator to decrement a `DateTimeInterface` object if it fails validation.
 
-## 0.1.0 - 2021-12-28
+### Fixed
+
+- **[BC Break]** `Scheduler` constructor variable `$timezone` MUST be provided. If you do not want to supply it use the class named constructors instead.
+- Internal optimization of `Scheduler::calculateRun`, internally only `DateTimeImmutable` objects are used instead of the `DateTime` class.
+- If the `$startDate` value is a string, the `Scheduler` will assume that the value has the same timezone as the underlying system. (Wording fix on the `CronScheduler` interface)
+
+### Deprecated
+
+- None
+
+### Removed
+
+- `CronFieldValidator::increment` no longer has a `$invert` boolean argument. It is dropped and a `CronFieldValidator::decrement` method is introduced instead.
+
+## 0.1.0 - 2021-12-29
 
 Initial Release of `cron`

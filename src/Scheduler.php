@@ -18,6 +18,9 @@ final class Scheduler implements CronScheduler
     private DateTimeZone $timezone;
     private int $maxIterationCount;
     private int $startDatePresence;
+    /** @var array<string, array{0:string, 1:CronFieldValidator}>  */
+    private array $calculatedFields;
+    private bool $combineRuns = false;
 
     public function __construct(
         CronExpression|string $expression,
@@ -29,6 +32,7 @@ final class Scheduler implements CronScheduler
         $this->timezone = $this->filterTimezone($timezone);
         $this->startDatePresence = $this->filterStartDatePresence($startDatePresence);
         $this->maxIterationCount = $this->filterMaxIterationCount($maxIterationCount);
+        $this->setCalculatedFields();
     }
 
     private function filterExpression(CronExpression|string $expression): CronExpression
@@ -65,6 +69,21 @@ final class Scheduler implements CronScheduler
         }
 
         return $startDatePresence;
+    }
+
+    private function setCalculatedFields(): void
+    {
+        // We don't have to satisfy * or null fields
+        $this->calculatedFields = [];
+        $expressionFields = $this->expression->fields();
+        foreach (ExpressionField::orderedFields() as $field) {
+            $fieldExpression = $expressionFields[$field->value];
+            if ('*' !== $fieldExpression) {
+                $this->calculatedFields[$field->value] = [$fieldExpression, $field->validator()];
+            }
+        }
+
+        $this->combineRuns = isset($this->calculatedFields[ExpressionField::MONTHDAY->value], $this->calculatedFields[ExpressionField::WEEKDAY->value]);
     }
 
     public static function fromUTC(CronExpression|string $expression): self
@@ -202,47 +221,39 @@ final class Scheduler implements CronScheduler
     private function calculateRun(int $nth, DateTimeInterface|string $startDate, int $startDatePresence, bool $invert): DateTimeImmutable
     {
         $startDate = $this->toDateTimeImmutable($startDate);
-        $calculatedFields = $this->calculatedFields();
-
-        if (isset($calculatedFields[ExpressionField::MONTHDAY->value], $calculatedFields[ExpressionField::WEEKDAY->value])) {
+        if ($this->combineRuns) {
             return $this->combineRuns($nth, $startDate, $invert);
         }
 
-        // Set a hard limit to bail on an impossible date
         $nextRun = $startDate;
-        for ($i = 0; $i < $this->maxIterationCount; $i++) {
-            /**
-             * @var string $fieldExpression
-             * @var CronFieldValidator $fieldValidator
-             */
-            foreach ($calculatedFields as [$fieldExpression, $fieldValidator]) {
-                // If the field is not satisfied, then start over
+        $i = 0;
+        do {
+            foreach ($this->calculatedFields as [$fieldExpression, $fieldValidator]) {
+                // If the field is not satisfied we start over
                 if (!$this->isFieldSatisfiedBy($nextRun, $fieldValidator, $fieldExpression)) {
                     /** @var DateTimeImmutable $nextRun */
                     $nextRun = match ($invert) {
                         true => $fieldValidator->decrement($nextRun, $fieldExpression),
                         default => $fieldValidator->increment($nextRun, $fieldExpression),
                     };
-
+                    ++$i;
                     continue 2;
                 }
             }
 
-            // Skip this match if needed
-            if (($startDatePresence === self::EXCLUDE_START_DATE && $nextRun == $startDate) || --$nth > -1) {
-                $fieldValidator = ExpressionField::MINUTE->validator();
-                $fieldExpression = $calculatedFields[ExpressionField::MINUTE->value][0] ?? null;
-                /** @var DateTimeImmutable $nextRun */
-                $nextRun = match ($invert) {
-                    true => $fieldValidator->decrement($nextRun, $fieldExpression),
-                    default => $fieldValidator->increment($nextRun, $fieldExpression),
-                };
-
-                continue;
+            if (($startDatePresence === self::INCLUDE_START_DATE || $nextRun != $startDate) && 0 > --$nth) {
+                return $nextRun;
             }
 
-            return $nextRun;
-        }
+            ++$i;
+            $fieldValidator = ExpressionField::MINUTE->validator();
+            $fieldExpression = $this->calculatedFields[ExpressionField::MINUTE->value][0] ?? null;
+            /** @var DateTimeImmutable $nextRun */
+            $nextRun = match ($invert) {
+                true => $fieldValidator->decrement($nextRun, $fieldExpression),
+                default => $fieldValidator->increment($nextRun, $fieldExpression),
+            };
+        } while ($i < $this->maxIterationCount);
 
         // @codeCoverageIgnoreStart
         throw UnableToProcessRun::dueToMaxIterationCountReached($this->maxIterationCount);
@@ -301,20 +312,5 @@ final class Scheduler implements CronScheduler
         }
 
         return false;
-    }
-
-    private function calculatedFields(): array
-    {
-        // We don't have to satisfy * or null fields
-        $fields = [];
-        $expressionFields = $this->expression->fields();
-        foreach (ExpressionField::orderedFields() as $field) {
-            $fieldExpression = $expressionFields[$field->value];
-            if ('*' !== $fieldExpression) {
-                $fields[$field->value] = [$fieldExpression, $field->validator()];
-            }
-        }
-
-        return $fields;
     }
 }
