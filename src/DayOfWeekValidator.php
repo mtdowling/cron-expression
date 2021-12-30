@@ -24,8 +24,9 @@ use DateTimeInterface;
  */
 final class DayOfWeekValidator extends FieldValidator
 {
-    protected int $rangeStart = 0;
-    protected int $rangeEnd = 7;
+    protected const RANGE_START = 0;
+    protected const RANGE_END = 7;
+
     protected array $literals = [
         '1' => 'MON',
         '2' => 'TUE',
@@ -35,6 +36,7 @@ final class DayOfWeekValidator extends FieldValidator
         '6' => 'SAT',
         '7' => 'SUN',
     ];
+    /** @var array<int> */
     private array $nthRange = [1, 2, 3, 4, 5];
 
     public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
@@ -54,8 +56,7 @@ final class DayOfWeekValidator extends FieldValidator
         $pos = strpos($fieldExpression, 'L');
         if (false !== $pos) {
             $weekday = str_replace('7', '0', substr($fieldExpression, 0, $pos));
-            $tempDate = DateTime::createFromInterface($date);
-            $tempDate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
+            $tempDate = DateTime::createFromInterface($date)->setDate($currentYear, $currentMonth, $lastDayOfMonth);
             while ($tempDate->format('w') !== $weekday) {
                 $tempDate->setDate($currentYear, $currentMonth, --$lastDayOfMonth);
             }
@@ -93,8 +94,7 @@ final class DayOfWeekValidator extends FieldValidator
                 return false;
             }
 
-            $tempDate = DateTime::createFromInterface($date);
-            $tempDate->setDate($currentYear, $currentMonth, 1);
+            $tempDate = DateTime::createFromInterface($date)->setDate($currentYear, $currentMonth, 1);
             $dayCount = 0;
             $currentDay = 1;
             while ($currentDay < $lastDayOfMonth + 1) {

@@ -230,9 +230,7 @@ final class Scheduler implements CronScheduler
         while ($i < $this->maxIterationCount) {
             start:
             foreach ($this->calculatedFields as [$fieldExpression, $fieldValidator]) {
-                // If the field is not satisfied we start over
-                if (!$this->isFieldSatisfiedBy($nextRun, $fieldValidator, $fieldExpression)) {
-                    /** @var DateTimeImmutable $nextRun */
+                if (!$this->isFieldSatisfiedBy($fieldExpression, $fieldValidator, $nextRun)) {
                     $nextRun = match ($invert) {
                         true => $fieldValidator->decrement($nextRun, $fieldExpression),
                         default => $fieldValidator->increment($nextRun, $fieldExpression),
@@ -248,7 +246,6 @@ final class Scheduler implements CronScheduler
 
             $fieldValidator = ExpressionField::MINUTE->validator();
             $fieldExpression = $this->calculatedFields[ExpressionField::MINUTE->value][0] ?? null;
-            /** @var DateTimeImmutable $nextRun */
             $nextRun = match ($invert) {
                 true => $fieldValidator->decrement($nextRun, $fieldExpression),
                 default => $fieldValidator->increment($nextRun, $fieldExpression),
@@ -304,10 +301,10 @@ final class Scheduler implements CronScheduler
         }
     }
 
-    private function isFieldSatisfiedBy(DateTimeInterface $dateTime, CronFieldValidator $fieldValidator, string $fieldExpression): bool
+    private function isFieldSatisfiedBy(string $fieldExpression, CronFieldValidator $fieldValidator, DateTimeInterface $date): bool
     {
         foreach (array_map('trim', explode(',', $fieldExpression)) as $expression) {
-            if ($fieldValidator->isSatisfiedBy($expression, $dateTime)) {
+            if ($fieldValidator->isSatisfiedBy($expression, $date)) {
                 return true;
             }
         }

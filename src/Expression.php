@@ -17,13 +17,15 @@ final class Expression implements CronExpression, JsonSerializable, Stringable
         $this->fields = ExpressionParser::parse($expression);
     }
 
-    public static function __set_state(array $properties): object
+    public static function __set_state(array $properties): self
     {
         return self::fromFields($properties['fields']);
     }
 
     /**
      * Returns an instance from an associative array.
+     *
+     * @param array<string, string|int> $fields
      *
      * @see ExpressionParser::build()
      */

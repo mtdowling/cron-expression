@@ -14,8 +14,8 @@ use DateTimeZone;
  */
 final class HourValidator extends FieldValidator
 {
-    protected int $rangeStart = 0;
-    protected int $rangeEnd = 23;
+    protected const RANGE_START = 0;
+    protected const RANGE_END = 23;
 
     public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
     {

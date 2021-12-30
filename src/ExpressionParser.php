@@ -79,7 +79,7 @@ final class ExpressionParser
      * If you supply your own array, you are responsible for providing
      * valid fields. If a required field is missing it will be replaced by the special `*` character
      *
-     * @param array<string> $fields
+     * @param array<string, string|int> $fields
      *
      * @throws SyntaxError If the fields array contains unknown or unsupported key fields
      */

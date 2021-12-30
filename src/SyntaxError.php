@@ -17,6 +17,9 @@ final class SyntaxError extends InvalidArgumentException implements CronError
         $this->errors = [];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function errors(): array
     {
         return $this->errors;

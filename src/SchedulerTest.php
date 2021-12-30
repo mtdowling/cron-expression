@@ -13,6 +13,8 @@ final class SchedulerTest extends TestCase
 {
     /**
      * Data provider for cron schedule.
+     *
+     * @return array<array{0:string, 1:string|int, 2:string, 3:bool}>
      */
     public function scheduleProvider(): array
     {

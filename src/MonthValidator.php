@@ -13,8 +13,8 @@ use DateTimeInterface;
  */
 final class MonthValidator extends FieldValidator
 {
-    protected int $rangeStart = 1;
-    protected int $rangeEnd = 12;
+    protected const RANGE_START = 1;
+    protected const RANGE_END = 12;
     protected array $literals = [
         '1' => 'JAN',
         '2' => 'FEB',
@@ -33,7 +33,7 @@ final class MonthValidator extends FieldValidator
     public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
     {
         return '?' === $fieldExpression
-            || $this->isSatisfied((int)$date->format('m'), $this->convertLiterals($fieldExpression));
+            || $this->isSatisfied((int) $date->format('m'), $this->convertLiterals($fieldExpression));
     }
 
     public function increment(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable

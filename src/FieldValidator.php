@@ -12,29 +12,18 @@ use DateTimeInterface;
  */
 abstract class FieldValidator implements CronFieldValidator
 {
-    /**
-     * Full range of values that are allowed for this field type.
-     */
-    protected array $fullRange = [];
+    protected const RANGE_START = 0;
+    protected const RANGE_END = 0;
 
-    /**
-     * Literal values we need to convert to integers.
-     */
+    /** Literal values we need to convert to integers. */
     protected array $literals = [];
 
     /**
-     * Start value of the full range.
+     * @return array<int>
      */
-    protected int $rangeStart;
-
-    /**
-     * End value of the full range.
-     */
-    protected int $rangeEnd;
-
-    public function __construct()
+    final protected function fullRanges(): array
     {
-        $this->fullRange = range($this->rangeStart, $this->rangeEnd);
+        return range(static::RANGE_START, static::RANGE_END);
     }
 
     /**
@@ -89,7 +78,7 @@ abstract class FieldValidator implements CronFieldValidator
         $step = (int) $step;
         // Expand the * to a full range
         if ('*' === $range) {
-            $range = $this->rangeStart.'-'.$this->rangeEnd;
+            $range = static::RANGE_START.'-'.static::RANGE_END;
         }
 
         // Generate the requested small range
@@ -97,17 +86,19 @@ abstract class FieldValidator implements CronFieldValidator
         $rangeStart = (int) $rangeStart;
         $rangeEnd = (int) ($rangeEnd ?? $rangeStart);
 
-        if ($rangeStart < $this->rangeStart || $rangeStart > $this->rangeEnd || $rangeStart > $rangeEnd) {
+        if ($rangeStart < static::RANGE_START || $rangeStart > static::RANGE_END || $rangeStart > $rangeEnd) {
             throw RangeError::dueToInvalidInput('start');
         }
 
-        if ($rangeEnd < $this->rangeStart || $rangeEnd > $this->rangeEnd || $rangeEnd < $rangeStart) {
+        if ($rangeEnd < static::RANGE_START || $rangeEnd > static::RANGE_END || $rangeEnd < $rangeStart) {
             throw RangeError::dueToInvalidInput('end');
         }
 
         // Steps larger than the range need to wrap around and be handled slightly differently than smaller steps
-        if ($step >= $this->rangeEnd) {
-            return $dateValue === $this->fullRange[$step % count($this->fullRange)];
+        if ($step >= static::RANGE_END) {
+            $fullRange = $this->fullRanges();
+
+            return $dateValue === $fullRange[$step % count($fullRange)];
         }
 
         return in_array($dateValue, range($rangeStart, $rangeEnd, $step), true);
@@ -124,7 +115,7 @@ abstract class FieldValidator implements CronFieldValidator
         if (str_contains($expression, ',')) {
             return array_reduce(
                 explode(',', $expression),
-                fn (array $values, string $range): array => array_merge($values, $this->getRangeForExpression($range, $this->rangeEnd)),
+                fn (array $values, string $range): array => array_merge($values, $this->getRangeForExpression($range, static::RANGE_END)),
                 []
             );
         }
@@ -135,19 +126,21 @@ abstract class FieldValidator implements CronFieldValidator
 
         if (!$this->isIncrementsOfRanges($expression)) {
             [$offset, $to] = array_map([$this, 'convertLiterals'], explode('-', $expression));
-            $stepSize = 1;
+            $step = 1;
         } else {
-            [$range, $stepSize] = explode('/', $expression, 2) + [1 => 0];
+            [$range, $step] = explode('/', $expression, 2) + [1 => 0];
             [$offset, $to] = explode('-', (string) $range, 2) + [1 => $max];
         }
 
-        $stepSize = (int) $stepSize;
+        $step = (int) $step;
         $offset = $offset === '*' ? 0 : $offset;
-        if ($stepSize >= $this->rangeEnd) {
-            return [$this->fullRange[$stepSize % count($this->fullRange)]];
+        if ($step >= static::RANGE_END) {
+            $fullRange = $this->fullRanges();
+
+            return [$fullRange[$step % count($fullRange)]];
         }
 
-        return range((int) $offset, (int) $to, $stepSize);
+        return range((int) $offset, (int) $to, $step);
     }
 
     protected function convertLiterals(string $value): string
@@ -205,7 +198,7 @@ abstract class FieldValidator implements CronFieldValidator
         return match (true) {
             !is_numeric($fieldExpression) => false,
             str_contains($fieldExpression, '.') => false,
-            default => in_array((int) $fieldExpression, $this->fullRange, true),
+            default => in_array((int) $fieldExpression, $this->fullRanges(), true),
         };
     }
 

@@ -28,8 +28,8 @@ use DateTimeInterface;
  */
 final class DayOfMonthValidator extends FieldValidator
 {
-    protected int $rangeStart = 1;
-    protected int $rangeEnd = 31;
+    protected const RANGE_START = 1;
+    protected const RANGE_END = 31;
 
     /**
      * Get the nearest day of the week for a given day in a month.
@@ -102,7 +102,7 @@ final class DayOfMonthValidator extends FieldValidator
             true === parent::isValid($fieldExpression) => true,
             '?' === $fieldExpression => true,
             'L' === $fieldExpression => true,
-            default => 1 === preg_match('/^(.*)W$/', $fieldExpression, $matches) && $this->isValid($matches[1]),
+            default => 1 === preg_match('/^(?<expression>.*)W$/', $fieldExpression, $matches) && $this->isValid($matches['expression']),
         };
     }
 }
