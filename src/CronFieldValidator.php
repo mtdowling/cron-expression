@@ -2,7 +2,6 @@
 
 namespace Bakame\Cron;
 
-use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
@@ -22,7 +21,7 @@ interface CronFieldValidator
      *
      * @param string|null $fieldExpression the field expression value if available
      */
-    public function increment(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable;
+    public function increment(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable;
 
     /**
      * When a CRON expression is not satisfied, this method is used to decrement
@@ -30,7 +29,7 @@ interface CronFieldValidator
      *
      * @param string|null $fieldExpression the field expression value if available
      */
-    public function decrement(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable;
+    public function decrement(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable;
 
     /**
      * Validates a CRON expression for a given field.

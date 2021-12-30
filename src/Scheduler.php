@@ -214,7 +214,7 @@ final class Scheduler implements CronScheduler
      * @param DateTimeInterface|string $startDate Relative calculation date
      * @param int $startDatePresence Set to self::INCLUDE_START_DATE to return the start date if eligible
      *                               Set to self::EXCLUDE_START_DATE to never return the start date
-     * @param bool $invert Set to TRUE to go backwards in time
+     * @param bool $invert Set to TRUE to go backwards
      *
      * @throws CronError on too many iterations
      */
@@ -227,7 +227,7 @@ final class Scheduler implements CronScheduler
 
         $nextRun = $startDate;
         $i = 0;
-        do {
+        while ($i < $this->maxIterationCount) {
             foreach ($this->calculatedFields as [$fieldExpression, $fieldValidator]) {
                 // If the field is not satisfied we start over
                 if (!$this->isFieldSatisfiedBy($nextRun, $fieldValidator, $fieldExpression)) {
@@ -245,7 +245,6 @@ final class Scheduler implements CronScheduler
                 return $nextRun;
             }
 
-            ++$i;
             $fieldValidator = ExpressionField::MINUTE->validator();
             $fieldExpression = $this->calculatedFields[ExpressionField::MINUTE->value][0] ?? null;
             /** @var DateTimeImmutable $nextRun */
@@ -253,7 +252,8 @@ final class Scheduler implements CronScheduler
                 true => $fieldValidator->decrement($nextRun, $fieldExpression),
                 default => $fieldValidator->increment($nextRun, $fieldExpression),
             };
-        } while ($i < $this->maxIterationCount);
+            ++$i;
+        };
 
         // @codeCoverageIgnoreStart
         throw UnableToProcessRun::dueToMaxIterationCountReached($this->maxIterationCount);

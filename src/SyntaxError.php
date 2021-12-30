@@ -2,7 +2,6 @@
 
 namespace Bakame\Cron;
 
-use DateTime;
 use DateTimeInterface;
 use InvalidArgumentException;
 use Throwable;
@@ -50,7 +49,7 @@ final class SyntaxError extends InvalidArgumentException implements CronError
             $date = $date->format('c');
         }
 
-        return new self('Invalid DateTime expression `'.$date.'` to instantiate a `'.DateTime::class.'`.', 0, $exception);
+        return new self('Invalid DateTime expression `'.$date.'` to instantiate a `'.DateTimeInterface::class.'` implementing object.', 0, $exception);
     }
 
     public static function dueToInvalidStartDatePresence(): self

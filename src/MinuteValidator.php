@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Bakame\Cron;
 
 use DateInterval;
-use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
@@ -23,8 +22,10 @@ final class MinuteValidator extends FieldValidator
             || $this->isSatisfied((int) $date->format('i'), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable
     {
+        $date = $this->toDateTimeImmutable($date);
+
         if (null === $fieldExpression) {
             return $date->add(new DateInterval('PT1M'));
         }
@@ -47,8 +48,10 @@ final class MinuteValidator extends FieldValidator
         return $date->setTime((int) $date->format('H'), $minute);
     }
 
-    public function decrement(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
+    public function decrement(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable
     {
+        $date = $this->toDateTimeImmutable($date);
+
         if (null === $fieldExpression) {
             return $date->sub(new DateInterval('PT1M'));
         }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Bakame\Cron;
 
 use DateInterval;
-use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -23,16 +22,19 @@ final class HourValidator extends FieldValidator
         return $this->isSatisfied((int) $date->format('H'), $fieldExpression);
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable
     {
+        $date = $this->toDateTimeImmutable($date);
+
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
         if (null === $fieldExpression || $fieldExpression == '*') {
-            $interval = new DateInterval('PT1H');
             $timezone = $date->getTimezone();
-            $date = $date->setTimezone(new DateTimeZone('UTC'));
-            $date = $date->add($interval)->setTimezone($timezone);
+            $date = $date
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->add(new DateInterval('PT1H'))
+                ->setTimezone($timezone);
 
             return $date->setTime((int) $date->format('H'), 0);
         }
@@ -51,16 +53,19 @@ final class HourValidator extends FieldValidator
         return $date->setTime($hour, 0);
     }
 
-    public function decrement(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
+    public function decrement(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable
     {
+        $date = $this->toDateTimeImmutable($date);
+
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
         if (null === $fieldExpression || $fieldExpression == '*') {
-            $interval = new DateInterval('PT1H');
             $timezone = $date->getTimezone();
-            $date = $date->setTimezone(new DateTimeZone('UTC'));
-            $date = $date->sub($interval)->setTimezone($timezone);
+            $date = $date
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->sub(new DateInterval('PT1H'))
+                ->setTimezone($timezone);
 
             return $date->setTime((int) $date->format('H'), 59);
         }

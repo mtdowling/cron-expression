@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Bakame\Cron;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+
 /**
  * Abstract CRON expression field.
  */
@@ -222,5 +225,14 @@ abstract class FieldValidator implements CronFieldValidator
         }
 
         return $position;
+    }
+
+    final protected function toDateTimeImmutable(DateTimeInterface $date): DateTimeImmutable
+    {
+        if (!$date instanceof DateTimeImmutable) {
+            return DateTimeImmutable::createFromInterface($date);
+        }
+
+        return $date;
     }
 }

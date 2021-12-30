@@ -40,7 +40,7 @@ final class DayOfMonthValidator extends FieldValidator
      *
      * @return DateTime Returns the nearest date
      */
-    private static function getNearestWeekday(int $currentYear, int $currentMonth, int $targetDay): DateTime
+    private static function getNearestWeekday(int $currentYear, int $currentMonth, int $targetDay): DateTimeInterface
     {
         /** @var DateTime $target */
         $target = DateTime::createFromFormat('Y-n-j', "$currentYear-$currentMonth-$targetDay");
@@ -48,7 +48,7 @@ final class DayOfMonthValidator extends FieldValidator
             return $target;
         }
 
-        $lastDayOfMonth = $target->format('t');
+        $lastDayOfMonth = (int) $target->format('t');
         foreach ([-1, 1, -2, 2] as $i) {
             $adjusted = $targetDay + $i;
             if ($adjusted > 0 && $adjusted <= $lastDayOfMonth) {
@@ -78,16 +78,16 @@ final class DayOfMonthValidator extends FieldValidator
         };
     }
 
-    public function increment(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
+    public function increment(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable
     {
-        return $date
+        return $this->toDateTimeImmutable($date)
             ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') + 1)
             ->setTime(0, 0);
     }
 
-    public function decrement(DateTime|DateTimeImmutable $date, string|null $fieldExpression = null): DateTime|DateTimeImmutable
+    public function decrement(DateTimeInterface $date, string|null $fieldExpression = null): DateTimeImmutable
     {
-        return $date
+        return $this->toDateTimeImmutable($date)
             ->setDate((int) $date->format('Y'), (int) $date->format('n'), (int) $date->format('j') - 1)
             ->setTime(23, 59);
     }
