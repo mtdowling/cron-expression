@@ -141,8 +141,7 @@ final class DayOfWeekValidator extends FieldValidator
     public function isValid(string $fieldExpression): bool
     {
         return match (true) {
-            parent::isValid($fieldExpression) => true,
-            '?' === $fieldExpression => true,
+            parent::isValid($fieldExpression) || '?' === $fieldExpression => true,
             str_contains($fieldExpression, '#') => $this->handleSharpExpression($fieldExpression),
             default => 1 === preg_match('/^(?<expression>.*)L$/', $fieldExpression, $matches) && $this->isValid($matches['expression']),
         };
