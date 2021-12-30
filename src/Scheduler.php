@@ -73,7 +73,7 @@ final class Scheduler implements CronScheduler
 
     private function setCalculatedFields(): void
     {
-        // We don't have to satisfy * or null fields
+        // We don't have to satisfy * fields
         $this->calculatedFields = [];
         $expressionFields = $this->expression->fields();
         foreach (ExpressionField::orderedFields() as $field) {
@@ -251,7 +251,7 @@ final class Scheduler implements CronScheduler
                 default => $fieldValidator->increment($nextRun, $fieldExpression),
             };
             ++$i;
-        };
+        }
 
         // @codeCoverageIgnoreStart
         throw UnableToProcessRun::dueToMaxIterationCountReached($this->maxIterationCount);

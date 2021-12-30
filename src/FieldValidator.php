@@ -90,7 +90,7 @@ abstract class FieldValidator implements CronFieldValidator
             throw RangeError::dueToInvalidInput('start');
         }
 
-        if ($rangeEnd < static::RANGE_START || $rangeEnd > static::RANGE_END || $rangeEnd < $rangeStart) {
+        if ($rangeEnd < static::RANGE_START || $rangeEnd > static::RANGE_END) {
             throw RangeError::dueToInvalidInput('end');
         }
 
@@ -195,11 +195,8 @@ abstract class FieldValidator implements CronFieldValidator
             return $this->isValid($first) && $this->isValid($last);
         }
 
-        return match (true) {
-            !is_numeric($fieldExpression) => false,
-            str_contains($fieldExpression, '.') => false,
-            default => in_array((int) $fieldExpression, $this->fullRanges(), true),
-        };
+        return 1 === preg_match('/^\d+$/', $fieldExpression)
+            && in_array((int) $fieldExpression, $this->fullRanges(), true);
     }
 
     protected function computePosition(int $currentValue, array $references, bool $invert): int

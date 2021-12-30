@@ -29,7 +29,7 @@ final class HourValidator extends FieldValidator
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
-        if (null === $fieldExpression || $fieldExpression == '*') {
+        if (in_array($fieldExpression, [null, '*'], true)) {
             $timezone = $date->getTimezone();
             $date = $date
                 ->setTimezone(new DateTimeZone('UTC'))
@@ -60,7 +60,7 @@ final class HourValidator extends FieldValidator
         // Change timezone to UTC temporarily. This will
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
-        if (null === $fieldExpression || $fieldExpression == '*') {
+        if (in_array($fieldExpression, [null, '*'], true)) {
             $timezone = $date->getTimezone();
             $date = $date
                 ->setTimezone(new DateTimeZone('UTC'))
@@ -70,6 +70,7 @@ final class HourValidator extends FieldValidator
             return $date->setTime((int) $date->format('H'), 59);
         }
 
+        /** @var array<int> $hours */
         $hours = array_reduce(
             str_contains($fieldExpression, ',') ? explode(',', $fieldExpression) : [$fieldExpression],
             fn (array $hours, string $part): array => array_merge($hours, $this->getRangeForExpression($part, 23)),
@@ -77,7 +78,7 @@ final class HourValidator extends FieldValidator
         );
 
         $hour = $hours[$this->computePosition((int) $date->format('H'), $hours, true)];
-        if ($date->format('H') <= $hour) {
+        if ((int) $date->format('H') <= $hour) {
             return $date->sub(new DateInterval('P1D'))->setTime(23, 59);
         }
 

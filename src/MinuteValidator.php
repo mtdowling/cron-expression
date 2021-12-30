@@ -30,6 +30,7 @@ final class MinuteValidator extends FieldValidator
             return $date->add(new DateInterval('PT1M'));
         }
 
+        /** @var array<int> $minutes */
         $minutes = array_reduce(
             str_contains($fieldExpression, ',') ? explode(',', $fieldExpression) : [$fieldExpression],
             fn (array $minutes, string $part): array => array_merge($minutes, $this->getRangeForExpression($part, 59)),
@@ -56,6 +57,7 @@ final class MinuteValidator extends FieldValidator
             return $date->sub(new DateInterval('PT1M'));
         }
 
+        /** @var array<int> $minutes */
         $minutes = array_reduce(
             str_contains($fieldExpression, ',') ? explode(',', $fieldExpression) : [$fieldExpression],
             fn (array $minutes, string $part): array => array_merge($minutes, $this->getRangeForExpression($part, 59)),
