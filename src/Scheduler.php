@@ -230,7 +230,7 @@ final class Scheduler implements CronScheduler
         while ($i < $this->maxIterationCount) {
             start:
             foreach ($this->calculatedFields as [$fieldExpression, $fieldValidator]) {
-                if (!$this->isFieldSatisfiedBy($fieldExpression, $fieldValidator, $nextRun)) {
+                if (!$fieldValidator->isSatisfiedBy($fieldExpression, $nextRun)) {
                     $nextRun = match ($invert) {
                         true => $fieldValidator->decrement($nextRun, $fieldExpression),
                         default => $fieldValidator->increment($nextRun, $fieldExpression),
@@ -299,16 +299,5 @@ final class Scheduler implements CronScheduler
         } catch (Throwable $exception) {
             throw SyntaxError::dueToInvalidDate($date, $exception);
         }
-    }
-
-    private function isFieldSatisfiedBy(string $fieldExpression, CronFieldValidator $fieldValidator, DateTimeInterface $date): bool
-    {
-        foreach (array_map('trim', explode(',', $fieldExpression)) as $expression) {
-            if ($fieldValidator->isSatisfiedBy($expression, $date)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

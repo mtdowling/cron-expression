@@ -16,7 +16,7 @@ final class MinuteValidator extends FieldValidator
     protected const RANGE_START = 0;
     protected const RANGE_END = 59;
 
-    public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
+    protected function isSatisfiedExpression(string $fieldExpression, DateTimeInterface $date): bool
     {
         return '?' === $fieldExpression
             || $this->isSatisfied((int) $date->format('i'), $fieldExpression);

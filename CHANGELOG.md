@@ -10,7 +10,7 @@ All Notable changes to `cron` will be documented in this file
 
 ### Fixed
 
-- **[BC Break]** `FieldValidator::increment` and `FieldValidator::decrement` accept any `DateTimeInterface` implementing object but will always return a `DateTimeImmutable` object.
+- **[BC Break]** `CronFieldValidator::increment` and `CronFieldValidator::decrement` accept any `DateTimeInterface` implementing object but will always return a `DateTimeImmutable` object.
 
 ### Deprecated
 
@@ -18,7 +18,7 @@ All Notable changes to `cron` will be documented in this file
 
 ### Removed
 
-- None
+- **[BC Break]** The not documented public API `FieldValidator::isSatisfied` is removed from public API.
 
 ## 0.2.0 - 2021-12-30
 

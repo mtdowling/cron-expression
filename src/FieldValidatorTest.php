@@ -11,18 +11,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class FieldValidatorTest extends TestCase
 {
-    public function testTestsIfSatisfied(): void
-    {
-        $f = new DayOfWeekValidator();
-        self::assertTrue($f->isSatisfied(12, '3-13'));
-        self::assertFalse($f->isSatisfied(15, '3-7/2'));
-        self::assertTrue($f->isSatisfied(12, '*'));
-        self::assertTrue($f->isSatisfied(12, '12'));
-        self::assertFalse($f->isSatisfied(12, '3-11'));
-        self::assertFalse($f->isSatisfied(12, '3-7/2'));
-        self::assertFalse($f->isSatisfied(12, '11'));
-    }
-
     public function testAllowRangesAndLists(): void
     {
         $expression = '5-7,11-13';

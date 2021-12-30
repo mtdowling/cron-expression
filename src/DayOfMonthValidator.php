@@ -62,7 +62,7 @@ final class DayOfMonthValidator extends FieldValidator
         return $target;
     }
 
-    public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
+    protected function isSatisfiedExpression(string $fieldExpression, DateTimeInterface $date): bool
     {
         $fieldValue = $date->format('d');
 

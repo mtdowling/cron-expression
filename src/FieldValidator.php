@@ -29,7 +29,7 @@ abstract class FieldValidator implements CronFieldValidator
     /**
      * Check to see if a field is satisfied by a value.
      */
-    public function isSatisfied(int $dateValue, string $value): bool
+    protected function isSatisfied(int $dateValue, string $value): bool
     {
         return match (true) {
             $this->isIncrementsOfRanges($value) => $this->isInIncrementsOfRanges($dateValue, $value),
@@ -225,4 +225,17 @@ abstract class FieldValidator implements CronFieldValidator
 
         return $date;
     }
+
+    public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
+    {
+        foreach (array_map('trim', explode(',', $fieldExpression)) as $expression) {
+            if ($this->isSatisfiedExpression($expression, $date)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    abstract protected function isSatisfiedExpression(string $fieldExpression, DateTimeInterface $date): bool;
 }

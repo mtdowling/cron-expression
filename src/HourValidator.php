@@ -17,7 +17,7 @@ final class HourValidator extends FieldValidator
     protected const RANGE_START = 0;
     protected const RANGE_END = 23;
 
-    public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
+    protected function isSatisfiedExpression(string $fieldExpression, DateTimeInterface $date): bool
     {
         return $this->isSatisfied((int) $date->format('H'), $fieldExpression);
     }

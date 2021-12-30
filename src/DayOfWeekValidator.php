@@ -39,7 +39,7 @@ final class DayOfWeekValidator extends FieldValidator
     /** @var array<int> */
     private array $nthRange = [1, 2, 3, 4, 5];
 
-    public function isSatisfiedBy(string $fieldExpression, DateTimeInterface $date): bool
+    protected function isSatisfiedExpression(string $fieldExpression, DateTimeInterface $date): bool
     {
         if ('?' === $fieldExpression) {
             return true;
