@@ -1,6 +1,10 @@
 Bakame Cron Expression
 ==========================
 
+[![Latest Version](https://img.shields.io/github/release/bakame-php/cron-expression.svg?style=flat-square)](https://github.com/bakame-php/cron-expression/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
+[![Build](https://github.com/bakame-php/cron-expression/workflows/build/badge.svg)](https://github.com/bakame-php/cron-expression/actions?query=workflow%3A%22build%22)
+
 **NOTE** This is a fork with a major rewrite of [https://github.com/dragonmantank/cron-expression](https://github.com/dragonmantank/cron-expression) which is in turned
 a fork of the original [https://github.com/mtdowling/cron-expression](https://github.com/mtdowling/cron-expression) package.  
 
@@ -24,7 +28,7 @@ You need **PHP >= 8.1** but the latest stable version of PHP is recommended.
 Add the dependency to your project:
 
 ```bash
-composer require bakame-php/cron-expression
+composer require bakame-php/cron
 ```
 
 ## Usage

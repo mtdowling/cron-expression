@@ -2,6 +2,24 @@
 
 All Notable changes to `cron` will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- None
+
+### Fixed
+
+- None
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 0.2.0 - 2021-12-30
 
 ### Added
