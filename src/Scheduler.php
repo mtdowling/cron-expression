@@ -158,7 +158,7 @@ final class Scheduler implements CronScheduler
     public function isDue(DateTimeInterface|string $when = 'now'): bool
     {
         try {
-            return $this->calculateRun(0, $when, self::INCLUDE_START_DATE, false) == $this->filterInputDate($when);
+            return $this->calculateRun(0, $when, self::INCLUDE_START_DATE, false) == $this->toDateTimeImmutable($when);
         } catch (Throwable) {
             return false;
         }
@@ -201,15 +201,15 @@ final class Scheduler implements CronScheduler
      */
     private function calculateRun(int $nth, DateTimeInterface|string $startDate, int $startDatePresence, bool $invert): DateTimeImmutable
     {
-        $from = $this->filterInputDate($startDate);
+        $startDate = $this->toDateTimeImmutable($startDate);
         $calculatedFields = $this->calculatedFields();
 
         if (isset($calculatedFields[ExpressionField::MONTHDAY->value], $calculatedFields[ExpressionField::WEEKDAY->value])) {
-            return $this->combineRuns($nth, $from, $invert);
+            return $this->combineRuns($nth, $startDate, $invert);
         }
 
         // Set a hard limit to bail on an impossible date
-        $nextRun = clone $from;
+        $nextRun = $startDate;
         for ($i = 0; $i < $this->maxIterationCount; $i++) {
             /**
              * @var string $fieldExpression
@@ -218,6 +218,7 @@ final class Scheduler implements CronScheduler
             foreach ($calculatedFields as [$fieldExpression, $fieldValidator]) {
                 // If the field is not satisfied, then start over
                 if (!$this->isFieldSatisfiedBy($nextRun, $fieldValidator, $fieldExpression)) {
+                    /** @var DateTimeImmutable $nextRun */
                     $nextRun = match ($invert) {
                         true => $fieldValidator->decrement($nextRun, $fieldExpression),
                         default => $fieldValidator->increment($nextRun, $fieldExpression),
@@ -228,9 +229,10 @@ final class Scheduler implements CronScheduler
             }
 
             // Skip this match if needed
-            if (($startDatePresence === self::EXCLUDE_START_DATE && $nextRun == $from) || --$nth > -1) {
+            if (($startDatePresence === self::EXCLUDE_START_DATE && $nextRun == $startDate) || --$nth > -1) {
                 $fieldValidator = ExpressionField::MINUTE->validator();
                 $fieldExpression = $calculatedFields[ExpressionField::MINUTE->value][0] ?? null;
+                /** @var DateTimeImmutable $nextRun */
                 $nextRun = match ($invert) {
                     true => $fieldValidator->decrement($nextRun, $fieldExpression),
                     default => $fieldValidator->increment($nextRun, $fieldExpression),
@@ -239,7 +241,7 @@ final class Scheduler implements CronScheduler
                 continue;
             }
 
-            return $this->formatOutputDate($nextRun, $startDate);
+            return $nextRun;
         }
 
         // @codeCoverageIgnoreStart
@@ -274,7 +276,7 @@ final class Scheduler implements CronScheduler
     /**
      * @throws SyntaxError
      */
-    private function filterInputDate(DateTimeInterface|string $date): DateTimeImmutable
+    private function toDateTimeImmutable(DateTimeInterface|string $date): DateTimeImmutable
     {
         try {
             $currentDate = match (true) {
@@ -288,16 +290,6 @@ final class Scheduler implements CronScheduler
         } catch (Throwable $exception) {
             throw SyntaxError::dueToInvalidDate($date, $exception);
         }
-    }
-
-    private function formatOutputDate(DateTimeInterface $resultDate, DateTimeInterface|string $inputDate): DateTimeImmutable
-    {
-        $date = match (true) {
-            $inputDate instanceof DateTimeImmutable => $inputDate::createFromInterface($resultDate),
-            default => DateTimeImmutable::createFromInterface($resultDate)
-        };
-
-        return $date->setTimezone($this->timezone);
     }
 
     private function isFieldSatisfiedBy(DateTimeInterface $dateTime, CronFieldValidator $fieldValidator, string $fieldExpression): bool

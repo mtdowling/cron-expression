@@ -65,7 +65,7 @@ interface CronScheduler
      *
      * @param DateTimeInterface|string $startDate Relative calculation date
      *                                            If the date is expressed with a string,
-     *                                            the scheduler will assume the date uses the Scheduler timezone
+     *                                            the scheduler will assume the date uses the underlying system timezone
      *
      * @throws CronError on too many iterations
      */
@@ -77,7 +77,7 @@ interface CronScheduler
      *
      * @param DateTimeInterface|string $when Specific date
      *                                       If the date is expressed with a string,
-     *                                       the scheduler will assume the date uses the Scheduler timezone
+     *                                       the scheduler will assume the date uses the underlying system timezone
      */
     public function isDue(DateTimeInterface|string $when = 'now'): bool;
 
@@ -88,7 +88,7 @@ interface CronScheduler
      * @param int $recurrences Set the total number of dates to calculate
      * @param DateTimeInterface|string $startDate Relative calculation date
      *                                            If the date is expressed with a string,
-     *                                            the scheduler will assume the date uses the Scheduler timezone
+     *                                            the scheduler will assume the date uses the underlying system timezone
      *
      * @throws CronError
      *
@@ -103,7 +103,7 @@ interface CronScheduler
      * @param int $recurrences Set the total number of dates to calculate
      * @param DateTimeInterface|string $startDate Relative calculation date
      *                                            If the date is expressed with a string,
-     *                                            the scheduler will assume the date uses the Scheduler timezone
+     *                                            the scheduler will assume the date uses the underlying system timezone
      *
      * @throws CronError
      *

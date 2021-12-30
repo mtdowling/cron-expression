@@ -477,4 +477,15 @@ final class SchedulerTest extends TestCase
 
         date_default_timezone_set($currentTimezone);
     }
+
+    public function testRunReturnsADateTimeImmutableObject(): void
+    {
+        $inputDate = new /** @psalm-immutable */ class('2014-01-01 15:00') extends DateTimeImmutable {
+        };
+        $scheduler = new Scheduler('0 15 * * 3', 'Africa/Kampala');
+        $outputDate = $scheduler->run(startDate: $inputDate);
+
+        self::assertSame(get_class($inputDate), get_class($outputDate));
+        self::assertEquals($scheduler->timezone(), $outputDate->getTimezone());
+    }
 }
