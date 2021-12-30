@@ -228,6 +228,7 @@ final class Scheduler implements CronScheduler
         $nextRun = $startDate;
         $i = 0;
         while ($i < $this->maxIterationCount) {
+            start:
             foreach ($this->calculatedFields as [$fieldExpression, $fieldValidator]) {
                 // If the field is not satisfied we start over
                 if (!$this->isFieldSatisfiedBy($nextRun, $fieldValidator, $fieldExpression)) {
@@ -237,7 +238,7 @@ final class Scheduler implements CronScheduler
                         default => $fieldValidator->increment($nextRun, $fieldExpression),
                     };
                     ++$i;
-                    continue 2;
+                    goto start;
                 }
             }
 
