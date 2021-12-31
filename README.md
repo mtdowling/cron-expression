@@ -283,7 +283,7 @@ use Bakame\Cron\Scheduler;
 require_once '/vendor/autoload.php';
 
 $scheduler = new Scheduler(Expression::daily(), 'Africa/Kigali');
-echo $scheduler->run()->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $scheduler->run('now')->format('Y-m-d H:i:s, e'), PHP_EOL;
 //display 2021-12-29 00:00:00, Africa/Kigali
 ```
 
@@ -291,7 +291,7 @@ You can specify the number of matches to skip before calculating the next run.
 
 ```php
 $scheduler = new Scheduler(Expression::daily(), 'Africa/Kigali');
-echo $scheduler->run(3)->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $scheduler->run('now', 3)->format('Y-m-d H:i:s, e'), PHP_EOL;
 //display 2022-01-01 00:00:00, Africa/Kigali
 ```
 
@@ -299,7 +299,7 @@ You can specify the starting date for calculating the next run.
 
 ```php
 $scheduler = new Scheduler(Expression::daily(), 'Africa/Kigali');
-echo $scheduler->run(startDate: '2022-01-01 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $scheduler->run('2022-01-01 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
 //display 2022-01-02 00:00:00, Africa/Kigali
 ```
 
@@ -307,7 +307,7 @@ If you want to get a date in the past just use a negative number.
 
 ```php
 $scheduler = new Scheduler(Expression::daily(), 'Africa/Kigali');
-echo $scheduler->run(-2, '2022-01-01 00:00:00')->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $scheduler->run('2022-01-01 00:00:00', -2)->format('Y-m-d H:i:s, e'), PHP_EOL;
 //display 2021-12-31 00:00:00, Africa/Kigali
 ```
 
@@ -320,9 +320,9 @@ returned instead of modifying the current object.
 $dateTime = new DateTime('2022-01-01 00:04:00', new DateTimeZone('Africa/Kigali'));
 $dateTimeImmutable = DateTimeImmutable::createFromInterface($dateTime);
 $scheduler = new Scheduler('4-59/2 * * * *', 'Africa/Kigali');
-echo $scheduler->run(0, $dateTime)->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $scheduler->run($dateTime)->format('Y-m-d H:i:s, e'), PHP_EOL;
 //display 2022-01-01 00:06:00, Africa/Kigali
-echo $scheduler->includeStartDate()->run(0, $dateTime)->format('Y-m-d H:i:s, e'), PHP_EOL;
+echo $scheduler->includeStartDate()->run($dateTime)->format('Y-m-d H:i:s, e'), PHP_EOL;
 //display 2022-01-01 00:04:00, Africa/Kigali
 ```
 
@@ -333,8 +333,6 @@ The `Scheduler` class can also tell whether a specific CRON is due to run on a s
 ```php
 $scheduler = Scheduler::fromSystemTimezone(new Expression('* * * * MON#1'));
 $scheduler->isDue(new DateTime('2014-04-07 00:00:00')); // returns true
-$scheduler->isDue();      // returns false 
-// is the same as
 $scheduler->isDue('NOW'); // returns false 
 ```
 
@@ -351,17 +349,17 @@ $hourValidator->isSatisfiedBy('*/3', new DateTime('2014-04-07 00:00:00')); // re
 
 ### Iterating over multiple runs
 
-Last but not least you can iterate over a set of recurrent date where the cron is supposed to run.
-The iteration can be done forward to list all occurrences from the start date up to the total of recurrences
-or you can iterate backward from the start date down to a past run date depending on the total recurrence value.
+You can iterate over a set of recurrent date where the cron is supposed to run.
+The iteration can be done forward or backward depending on the endpoints provided.
+Like for other methods, the inclusion of the start date still depends on the scheduler configuration.
 
-The returning result is a generator containing `DateTimeImmutable` objects.
+All listed methods returns a generator containing `DateTimeImmutable` objects.
 
-#### Iterating forward
+#### Iterating forward using recurrences
 
 ```php
 $scheduler = Scheduler::fromSystemTimezone('30 0 1 * 1')->includeStartDate();
-$runs = $scheduler->yieldRunsForward(5, new DateTime('2019-10-10 23:20:00'));
+$runs = $scheduler->yieldRunsForward(new DateTime('2019-10-10 23:20:00'), 5);
 var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:s'), iterator_to_array($runs, false)));
 //returns
 //array (
@@ -373,20 +371,34 @@ var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:
 //)
 ```
 
-#### Iterating backward
+#### Iterating backward using recurrences
 
 ```php
 $scheduler = Scheduler::fromSystemTimezone('30 0 1 * 1')->includeStartDate();
-$runs = $scheduler->yieldRunsBackward(5, new DateTime('2019-10-10 23:20:00'));
-var_export(array_map(fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:s'), iterator_to_array($runs, false)));
-//returns
-//array (
-//  0 => '2019-10-01 00:30:00',
-//  1 => '2019-09-30 00:30:00',
-//  2 => '2019-09-23 00:30:00',
-//  3 => '2019-09-16 00:30:00',
-//  4 => '2019-09-09 00:30:00',
-//)
+$runs = $scheduler->yieldRunsBackward(new DateTime('2019-10-10 23:20:00'), 5);
+```
+
+#### Iterating using a starting date and an end date
+
+```php
+$scheduler = Scheduler::fromSystemTimezone('30 0 1 * 1')->includeStartDate();
+$runs = $scheduler->yieldRuns('2019-10-10 23:20:00', '2019-09-09 00:30:00');
+```
+
+**NOTICE:** If the end date is lower than the start date then the iteration will be backward.
+
+#### Iterating using a starting date and an interval
+
+```php
+$scheduler = Scheduler::fromSystemTimezone('30 0 1 * 1')->includeStartDate();
+$runs = $scheduler->yieldRunsAfter('2019-10-10 23:20:00', new DateInterval('P1D'));
+```
+
+#### Iterating using an end date and an interval
+
+```php
+$scheduler = Scheduler::fromSystemTimezone('30 0 1 * 1')->includeStartDate();
+$runs = $scheduler->yieldRunsBefore('2019-10-10 23:20:00', '1 DAY');
 ```
 
 ## Testing

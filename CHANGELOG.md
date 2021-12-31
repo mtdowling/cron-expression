@@ -6,11 +6,14 @@ All Notable changes to `cron` will be documented in this file
 
 ### Added
 
-- None
+- `CronScheduler::yieldRuns` to returns runs between specified dates
+- `CronScheduler::yieldRunsBefore` to returns runs between a specified end date and an interval
+- `CronScheduler::yieldRunsAfter` to returns runs between a specified start date and an interval
 
 ### Fixed
 
 - **[BC Break]** `CronFieldValidator::increment` and `CronFieldValidator::decrement` accept any `DateTimeInterface` implementing object but will always return a `DateTimeImmutable` object.
+- **[BC Break]** `CronScheduler::run`, `CronScheduler::yieldRunsForward`, `CronScheduler::yieldRunsBackward` signature is changed to have the start date as first argument and mandatory
 
 ### Deprecated
 

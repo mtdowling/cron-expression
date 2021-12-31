@@ -8,3 +8,5 @@ parameters:
     checkMissingIterableValueType: false
     reportUnmatchedIgnoredErrors: true
     ignoreErrors:
+        - message: '#Strict comparison using === between false and DateInterval will always evaluate to false.#'
+          path: 'src/Scheduler.php'

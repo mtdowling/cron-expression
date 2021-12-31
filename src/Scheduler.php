@@ -2,6 +2,7 @@
 
 namespace Bakame\Cron;
 
+use DateInterval;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -163,7 +164,7 @@ final class Scheduler implements CronScheduler
         return new self($this->expression, $this->timezone, self::EXCLUDE_START_DATE, $this->maxIterationCount);
     }
 
-    public function run(int $nth = 0, DateTimeInterface|string $startDate = 'now'): DateTimeImmutable
+    public function run(DateTimeInterface|string $startDate, int $nth = 0): DateTimeImmutable
     {
         $invert = false;
         if (0 > $nth) {
@@ -174,7 +175,7 @@ final class Scheduler implements CronScheduler
         return $this->calculateRun($nth, $startDate, $this->startDatePresence, $invert);
     }
 
-    public function isDue(DateTimeInterface|string $when = 'now'): bool
+    public function isDue(DateTimeInterface|string $when): bool
     {
         try {
             return $this->calculateRun(0, $when, self::INCLUDE_START_DATE, false) == $this->toDateTimeImmutable($when);
@@ -183,7 +184,19 @@ final class Scheduler implements CronScheduler
         }
     }
 
-    public function yieldRunsForward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator
+    public function yieldRuns(DateTimeInterface|string $startDate, DateTimeInterface|string $endDate): Generator
+    {
+        $startDate = $this->toDateTimeImmutable($startDate);
+        $endDate = $startDate::createFromInterface($this->toDateTimeImmutable($endDate));
+
+        if ($endDate >= $startDate) {
+            return $this->yieldRunsAfter($startDate, $startDate->diff($endDate));
+        }
+
+        return $this->yieldRunsBefore($startDate, $endDate->diff($startDate));
+    }
+
+    public function yieldRunsForward(DateTimeInterface|string $startDate, int $recurrences): Generator
     {
         $max = max(0, $recurrences);
         for ($i = 0; $i < $max; $i++) {
@@ -195,15 +208,69 @@ final class Scheduler implements CronScheduler
         }
     }
 
-    public function yieldRunsBackward(int $recurrences, DateTimeInterface|string $startDate = 'now'): Generator
+    public function yieldRunsBackward(DateTimeInterface|string $endDate, int $recurrences): Generator
     {
         $max = max(0, $recurrences);
         for ($i = 0; $i < $max; $i++) {
             try {
-                yield $this->calculateRun($i, $startDate, $this->startDatePresence, true);
+                yield $this->calculateRun($i, $endDate, $this->startDatePresence, true);
             } catch (UnableToProcessRun) {
                 break;
             }
+        }
+    }
+
+    public function yieldRunsAfter(DateTimeInterface|string $startDate, DateInterval|string $interval): Generator
+    {
+        $startDate = $this->toDateTimeImmutable($startDate);
+        $endDate = $startDate->add($this->toDateInterval($interval));
+        if ($endDate < $startDate) {
+            throw new SyntaxError('The start date MUST be lower or equal to the end date.');
+        }
+
+        $i = 0;
+        $nextRun = $startDate;
+        while ($endDate > $nextRun) {
+            try {
+                $nextRun = $this->calculateRun($i, $startDate, $this->startDatePresence, false);
+            } catch (UnableToProcessRun) {
+                break;
+            }
+
+            if ($endDate < $nextRun) {
+                break;
+            }
+
+            yield $nextRun;
+
+            ++$i;
+        }
+    }
+
+    public function yieldRunsBefore(DateTimeInterface|string $endDate, DateInterval|string $interval): Generator
+    {
+        $endDate = $this->toDateTimeImmutable($endDate);
+        $startDate = $endDate->sub($this->toDateInterval($interval));
+        if ($endDate < $startDate) {
+            throw new SyntaxError('The start date MUST be lower or equal to the end date.');
+        }
+
+        $i = 0;
+        $nextRun = $endDate;
+        while ($startDate < $nextRun) {
+            try {
+                $nextRun = $this->calculateRun($i, $endDate, $this->startDatePresence, true);
+            } catch (UnableToProcessRun) {
+                break;
+            }
+
+            if ($startDate > $nextRun) {
+                break;
+            }
+
+            yield $nextRun;
+
+            ++$i;
         }
     }
 
@@ -268,12 +335,12 @@ final class Scheduler implements CronScheduler
 
         $combinedRuns = match ($invert) {
             true => array_merge(
-                iterator_to_array($dayOfMonthScheduler->yieldRunsBackward($nth + 1, $startDate), false),
-                iterator_to_array($dayOfWeekScheduler->yieldRunsBackward($nth + 1, $startDate), false)
+                iterator_to_array($dayOfMonthScheduler->yieldRunsBackward($startDate, $nth + 1), false),
+                iterator_to_array($dayOfWeekScheduler->yieldRunsBackward($startDate, $nth + 1), false)
             ),
             default => array_merge(
-                iterator_to_array($dayOfMonthScheduler->yieldRunsForward($nth + 1, $startDate), false),
-                iterator_to_array($dayOfWeekScheduler->yieldRunsForward($nth + 1, $startDate), false)
+                iterator_to_array($dayOfMonthScheduler->yieldRunsForward($startDate, $nth + 1), false),
+                iterator_to_array($dayOfWeekScheduler->yieldRunsForward($startDate, $nth + 1), false)
             ),
         };
 
@@ -299,5 +366,18 @@ final class Scheduler implements CronScheduler
         } catch (Throwable $exception) {
             throw SyntaxError::dueToInvalidDate($date, $exception);
         }
+    }
+
+    private function toDateInterval(DateInterval|string $interval): DateInterval
+    {
+        if ($interval instanceof DateInterval) {
+            return $interval;
+        }
+
+        if (false === ($res = DateInterval::createFromDateString($interval))) {
+            throw new SyntaxError('The string is not a valid `DateInterval::createFromDateString` input.');
+        }
+
+        return $res;
     }
 }
