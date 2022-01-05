@@ -240,14 +240,32 @@ class CronExpression
      */
     public function getMultipleRunDates(int $total, $currentTime = 'now', bool $invert = false, bool $allowCurrentDate = false, $timeZone = null): array
     {
+        $timeZone = $this->determineTimeZone($currentTime, $timeZone);
+
+        if ('now' === $currentTime) {
+            $currentTime = new DateTime();
+        } elseif ($currentTime instanceof DateTime) {
+            $currentTime = clone $currentTime;
+        } elseif ($currentTime instanceof DateTimeImmutable) {
+            $currentTime = DateTime::createFromFormat('U', $currentTime->format('U'));
+        } elseif (\is_string($currentTime)) {
+            $currentTime = new DateTime($currentTime);
+        }
+
+        Assert::isInstanceOf($currentTime, DateTime::class);
+        $currentTime->setTimezone(new DateTimeZone($timeZone));
+
         $matches = [];
         for ($i = 0; $i < $total; ++$i) {
             try {
-                $currentTime = $this->getRunDate($currentTime, 0, $invert, $i === 0 ? $allowCurrentDate : false, $timeZone);
-                $matches[] = $currentTime;
+                $result = $this->getRunDate($currentTime, 0, $invert, $allowCurrentDate, $timeZone);
             } catch (RuntimeException $e) {
                 break;
             }
+
+            $allowCurrentDate = false;
+            $currentTime = clone $result;
+            $matches[] = $result;
         }
 
         return $matches;
@@ -364,7 +382,9 @@ class CronExpression
 
         Assert::isInstanceOf($currentDate, DateTime::class);
         $currentDate->setTimezone(new DateTimeZone($timeZone));
-        $currentDate->setTime((int) $currentDate->format('H'), (int) $currentDate->format('i'), 0);
+        // Workaround for setTime causing an offset change: https://bugs.php.net/bug.php?id=81074
+        $currentDate = DateTime::createFromFormat("!Y-m-d H:iO", $currentDate->format("Y-m-d H:iP"), $currentDate->getTimezone());
+        $currentDate->setTimezone(new DateTimeZone($timeZone));
 
         $nextRun = clone $currentDate;
 
@@ -380,7 +400,7 @@ class CronExpression
             $fields[$position] = $this->fieldFactory->getField($position);
         }
 
-        if (isset($parts[2]) && isset($parts[4])) {
+        if (isset($parts[self::DAY]) && isset($parts[self::WEEKDAY])) {
             $domExpression = sprintf('%s %s %s %s *', $this->getExpression(0), $this->getExpression(1), $this->getExpression(2), $this->getExpression(3));
             $dowExpression = sprintf('%s %s * %s %s', $this->getExpression(0), $this->getExpression(1), $this->getExpression(3), $this->getExpression(4));
 
@@ -409,10 +429,10 @@ class CronExpression
                 $field = $fields[$position];
                 // Check if this is singular or a list
                 if (false === strpos($part, ',')) {
-                    $satisfied = $field->isSatisfiedBy($nextRun, $part);
+                    $satisfied = $field->isSatisfiedBy($nextRun, $part, $invert);
                 } else {
                     foreach (array_map('trim', explode(',', $part)) as $listPart) {
-                        if ($field->isSatisfiedBy($nextRun, $listPart)) {
+                        if ($field->isSatisfiedBy($nextRun, $listPart, $invert)) {
                             $satisfied = true;
 
                             break;
@@ -430,8 +450,7 @@ class CronExpression
 
             // Skip this match if needed
             if ((!$allowCurrentDate && $nextRun == $currentDate) || --$nth > -1) {
-                $this->fieldFactory->getField(0)->increment($nextRun, $invert, $parts[0] ?? null);
-
+                $this->fieldFactory->getField(self::MINUTE)->increment($nextRun, $invert, $parts[self::MINUTE] ?? null);
                 continue;
             }
 
@@ -458,7 +477,7 @@ class CronExpression
         }
 
         if ($currentTime instanceof DateTimeInterface) {
-            return $currentTime->getTimeZone()->getName();
+            return $currentTime->getTimezone()->getName();
         }
 
         return date_default_timezone_get();

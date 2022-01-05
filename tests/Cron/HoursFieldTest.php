@@ -89,4 +89,27 @@ class HoursFieldTest extends TestCase
         $this->assertSame('2011-03-15 10:59:00', $d->format('Y-m-d H:i:s'));
         date_default_timezone_set($tz);
     }
+
+    /**
+     * @covers \Cron\HoursField::increment
+     */
+    public function testIncrementAcrossDstChange(): void
+    {
+        $tz = new \DateTimeZone("Europe/London");
+        $d = \DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", "2021-03-27 23:00:00", $tz);
+        $f = new HoursField();
+        $f->increment($d);
+        $this->assertSame("2021-03-28 00:00:00", $d->format("Y-m-d H:i:s"));
+        $f->increment($d);
+        $this->assertSame("2021-03-28 02:00:00", $d->format("Y-m-d H:i:s"));
+        $f->increment($d);
+        $this->assertSame("2021-03-28 03:00:00", $d->format("Y-m-d H:i:s"));
+
+        $f->increment($d, true);
+        $this->assertSame("2021-03-28 02:59:00", $d->format("Y-m-d H:i:s"));
+        $f->increment($d, true);
+        $this->assertSame("2021-03-28 00:59:00", $d->format("Y-m-d H:i:s"));
+        $f->increment($d, true);
+        $this->assertSame("2021-03-27 23:59:00", $d->format("Y-m-d H:i:s"));
+    }
 }

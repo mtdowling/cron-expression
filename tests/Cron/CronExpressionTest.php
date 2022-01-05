@@ -644,7 +644,9 @@ class CronExpressionTest extends TestCase
     public function testNextRunDateShouldNotAddMinutes(): void
     {
         $e = new CronExpression('* 19 * * *');
-        $nextRunDate = $e->getNextRunDate();
+        $tz = new \DateTimeZone("Europe/London");
+        $dt = new \DateTimeImmutable("2021-05-31 18:15:00", $tz);
+        $nextRunDate = $e->getNextRunDate($dt);
 
         $this->assertSame("00", $nextRunDate->format("i"));
     }

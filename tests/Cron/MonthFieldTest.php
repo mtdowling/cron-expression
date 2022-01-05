@@ -33,8 +33,8 @@ class MonthFieldTest extends TestCase
     public function testChecksIfSatisfied(): void
     {
         $f = new MonthField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
-        $this->assertTrue($f->isSatisfiedBy(new DateTimeImmutable(), '?'));
+        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?', false));
+        $this->assertTrue($f->isSatisfiedBy(new DateTimeImmutable(), '?', false));
     }
 
     /**

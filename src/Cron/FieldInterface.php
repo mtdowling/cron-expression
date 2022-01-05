@@ -19,7 +19,7 @@ interface FieldInterface
      *
      * @return bool Returns TRUE if satisfied, FALSE otherwise
      */
-    public function isSatisfiedBy(DateTimeInterface $date, $value): bool;
+    public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert): bool;
 
     /**
      * When a CRON expression is not satisfied, this method is used to increment
