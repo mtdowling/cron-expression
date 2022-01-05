@@ -1,5 +1,19 @@
 # Change Log
 
+## [3.2.1] - 2022-01-04
+
+### Added
+- N/A
+
+### Changed
+- Added PHP 8.1 to testing (#125)
+
+### Fixed
+- Allow better mixture of ranges, steps, and lists (#122)
+- Fixed return order when multiple dates are requested and inverted (#121)
+- Better handling over DST (#115)
+- Fixed PHPStan tests (#130)
+
 ## [3.2.0] - 2022-01-04
 
 ### Added
