@@ -137,5 +137,7 @@ class AbstractFieldTest extends TestCase
         $this->assertSame(['5', '6', '7', '11', '12', '13'], $f->getRangeForExpression('5,6,7,11,12,13', 23));
         $this->assertSame([0, 6, 12, 18], $f->getRangeForExpression('*/6', 23));
         $this->assertSame([5, 11], $f->getRangeForExpression('5-13/6', 23));
+        $this->assertSame([1, 2, 3, 4, 11, 13, 21, 24, 27, 40, 50], $f->getRangeForExpression('1-4,11-14/2,21-27/3,40-59/10', 59));
+        $this->assertSame(['1', '3', 5, 6, 7, 11, 12, 13, 14, 15, 17, 19, 21, '23'], $f->getRangeForExpression('1,3,5-7,11-15/1,17-22/2,23', 23));
     }
 }

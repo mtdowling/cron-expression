@@ -22,7 +22,7 @@ class MonthFieldTest extends TestCase
         $f = new MonthField();
         $this->assertTrue($f->validate('12'));
         $this->assertTrue($f->validate('*'));
-        $this->assertFalse($f->validate('*/10,2,1-12'));
+        $this->assertTrue($f->validate('*/10,2,1-12'));
         $this->assertFalse($f->validate('1.fix-regexp'));
         $this->assertFalse($f->validate('1/10'));
     }
