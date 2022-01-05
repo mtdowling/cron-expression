@@ -652,7 +652,7 @@ class CronExpressionTest extends TestCase
     /**
      * Tests the getParts function.
      */
-    public function testGetParts()
+    public function testGetParts(): void
     {
         $e = CronExpression::factory('0 22 * * 1-5');
         $parts = $e->getParts();

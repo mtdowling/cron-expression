@@ -22,10 +22,17 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v2
 
-      - name: PHPStan
-        uses: docker://oskarstark/phpstan-ga
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          args: analyse --level=max src
+          php-version: ${{ matrix.php }}
+          extensions: json, mbstring
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction
+
+      - name: Start Static Analyze
+        run: composer phpstan -n
 
   phpunit:
     name: PHPUnit - PHP ${{ matrix.php }}

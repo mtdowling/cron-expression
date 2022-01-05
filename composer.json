@@ -35,7 +35,7 @@
         "mtdowling/cron-expression": "^1.0"
     },
     "scripts": {
-        "phpstan": "./vendor/bin/phpstan analyse -l max src",
+        "phpstan": "./vendor/bin/phpstan analyse -l max src tests",
         "test": "phpunit"
     }
 }
