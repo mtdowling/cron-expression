@@ -1,5 +1,16 @@
 # Change Log
 
+## [3.2.2] - 2022-01-05
+
+### Added
+- N/A
+
+### Changed
+- Marked some methods `@internal` (#124)
+
+### Fixed
+- Fixed issue with small ranges and large steps that caused an error with `range()` (#88)
+- Fixed issue where wraparound logic incorrectly considered high bound on range (#89)
 ## [3.2.1] - 2022-01-04
 
 ### Added
