@@ -240,10 +240,10 @@ class CronExpression
     public function getMultipleRunDates(int $total, $currentTime = 'now', bool $invert = false, bool $allowCurrentDate = false, $timeZone = null): array
     {
         $matches = [];
-        $max = max(0, $total);
-        for ($i = 0; $i < $max; ++$i) {
+        for ($i = 0; $i < $total; ++$i) {
             try {
-                $matches[] = $this->getRunDate($currentTime, $i, $invert, $allowCurrentDate, $timeZone);
+                $currentTime = $this->getRunDate($currentTime, 0, $invert, $i === 0 ? $allowCurrentDate : false, $timeZone);
+                $matches[] = $currentTime;
             } catch (RuntimeException $e) {
                 break;
             }
