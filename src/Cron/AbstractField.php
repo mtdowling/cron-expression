@@ -50,6 +50,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Check to see if a field is satisfied by a value.
      *
+     * @internal
      * @param int $dateValue Date value to check
      * @param string $value Value to test
      *
@@ -71,6 +72,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Check if a value is a range.
      *
+     * @internal
      * @param string $value Value to test
      *
      * @return bool
@@ -83,6 +85,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Check if a value is an increments of ranges.
      *
+     * @internal
      * @param string $value Value to test
      *
      * @return bool
@@ -95,6 +98,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Test if a value is within a range.
      *
+     * @internal
      * @param int $dateValue Set date value
      * @param string $value Value to test
      *
@@ -117,6 +121,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Test if a value is within an increments of ranges (offset[-to]/step size).
      *
+     * @internal
      * @param int $dateValue Set date value
      * @param string $value Value to test
      *
