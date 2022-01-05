@@ -168,7 +168,11 @@ abstract class AbstractField implements FieldInterface
         if ($step > $this->rangeEnd) {
             $thisRange = [$this->fullRange[$step % \count($this->fullRange)]];
         } else {
-            $thisRange = range($rangeStart, $rangeEnd, (int) $step);
+            if ($step > ($rangeEnd - $rangeStart)) {
+                $thisRange[$rangeStart] = (int) $rangeStart;
+            } else {
+                $thisRange = range($rangeStart, $rangeEnd, (int) $step);
+            }
         }
 
         return \in_array($dateValue, $thisRange, true);

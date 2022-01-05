@@ -203,6 +203,7 @@ class CronExpressionTest extends TestCase
             ['0-59/59 10 * * *', strtotime('2021-08-25 09:00:00'), strtotime('2021-08-25 10:00:00'), false],
             ['0-59/59 10 * * *', strtotime('2021-08-25 10:01:00'), strtotime('2021-08-25 10:59:00'), false],
             ['0-59/65 10 * * *', strtotime('2021-08-25 10:01:00'), strtotime('2021-08-25 10:05:00'), false],
+            ['41-59/24 5 * * *', strtotime('2021-08-25 10:00:00'), strtotime('2021-08-26 05:41:00'), false],
         ];
     }
 
