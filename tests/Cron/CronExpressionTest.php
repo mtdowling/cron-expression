@@ -199,6 +199,10 @@ class CronExpressionTest extends TestCase
             // Issue #76, DOW and DOM do not support ?
             ['0 12 * * ?', strtotime('2020-08-20 00:00:00'), strtotime('2020-08-20 12:00:00'), false],
             ['0 12 ? * *', strtotime('2020-08-20 00:00:00'), strtotime('2020-08-20 12:00:00'), false],
+            ['0-59/59 10 * * *', strtotime('2021-08-25 10:00:00'), strtotime('2021-08-25 10:00:00'), true],
+            ['0-59/59 10 * * *', strtotime('2021-08-25 09:00:00'), strtotime('2021-08-25 10:00:00'), false],
+            ['0-59/59 10 * * *', strtotime('2021-08-25 10:01:00'), strtotime('2021-08-25 10:59:00'), false],
+            ['0-59/65 10 * * *', strtotime('2021-08-25 10:01:00'), strtotime('2021-08-25 10:05:00'), false],
         ];
     }
 

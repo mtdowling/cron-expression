@@ -157,8 +157,15 @@ abstract class AbstractField implements FieldInterface
             throw new \OutOfRangeException('Invalid range end requested');
         }
 
-        // Steps larger than the range need to wrap around and be handled slightly differently than smaller steps
-        if ($step >= $this->rangeEnd) {
+        // Steps larger than the range need to wrap around and be handled
+        // slightly differently than smaller steps
+
+        // UPDATE - This is actually false. The C implementation will allow a
+        // larger step as valid syntax, it never wraps around. It will stop
+        // once it hits the end. Unfortunately this means in future versions
+        // we will not wrap around. However, because the logic exists today
+        // per the above documentation, fixing the bug from #89
+        if ($step > $this->rangeEnd) {
             $thisRange = [$this->fullRange[$step % \count($this->fullRange)]];
         } else {
             $thisRange = range($rangeStart, $rangeEnd, (int) $step);
