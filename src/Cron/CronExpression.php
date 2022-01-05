@@ -394,6 +394,9 @@ class CronExpression
             usort($combined, function ($a, $b) {
                 return $a->format('Y-m-d H:i:s') <=> $b->format('Y-m-d H:i:s');
             });
+            if ($invert) {
+                $combined = array_reverse($combined);
+            }
 
             return $combined[$nth];
         }

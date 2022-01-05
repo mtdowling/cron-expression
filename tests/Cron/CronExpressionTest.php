@@ -443,6 +443,22 @@ class CronExpressionTest extends TestCase
     }
 
     /**
+     * If both day of month and day of week are set in an expression,
+     * we have to return a date which among dates matching either of two criteria is closest to the current date.
+     *
+     * Previously the earliest of dates was always returned, which was incorrect for previous run date.
+     *
+     * @covers \Cron\CronExpression::getRunDate
+     */
+    public function testGetRunDateHandlesSimultaneousDayOfMonthAndDayOfWeek(): void
+    {
+        $cron = new CronExpression('0 0 13 * 3');
+        $date = new DateTime("2021-07-15 00:00:00");
+        $this->assertEquals(new DateTime("2021-07-21 00:00:00"), $cron->getNextRunDate($date));
+        $this->assertEquals(new DateTime("2021-07-14 00:00:00"), $cron->getPreviousRunDate($date));
+    }
+
+    /**
      * @covers \Cron\CronExpression::getRunDate
      */
     public function testSkipsCurrentDateByDefault(): void
