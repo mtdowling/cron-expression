@@ -32,7 +32,7 @@ class CronExpression
     public const DAY = 2;
     public const MONTH = 3;
     public const WEEKDAY = 4;
-    
+
     /** @deprecated */
     public const YEAR = 5;
 
@@ -42,6 +42,7 @@ class CronExpression
         '@monthly' => '0 0 1 * *',
         '@weekly' => '0 0 * * 0',
         '@daily' => '0 0 * * *',
+        '@midnight' => '0 0 * * *',
         '@hourly' => '0 * * * *',
     ];
 

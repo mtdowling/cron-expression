@@ -26,6 +26,8 @@ class CronExpressionTest extends TestCase
         $this->assertSame('0 0 1 1 *', (new CronExpression('@annually'))->getExpression());
         $this->assertSame('0 0 1 1 *', (new CronExpression('@yearly'))->getExpression());
         $this->assertSame('0 0 * * 0', (new CronExpression('@weekly'))->getExpression());
+        $this->assertSame('0 0 * * *', (new CronExpression('@daily'))->getExpression());
+        $this->assertSame('0 0 * * *', (new CronExpression('@midnight'))->getExpression());
     }
 
     /**
