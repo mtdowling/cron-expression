@@ -29,7 +29,7 @@ class FieldFactoryTest extends TestCase
         $f = new FieldFactory();
 
         foreach ($mappings as $position => $class) {
-            $this->assertSame($class, \get_class($f->getField($position)));
+            $this->assertInstanceOf($class, $f->getField($position));
         }
     }
 
