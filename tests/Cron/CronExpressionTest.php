@@ -670,4 +670,12 @@ class CronExpressionTest extends TestCase
         $this->assertSame('*', $parts[3]);
         $this->assertSame('1-5', $parts[4]);
     }
+
+    public function testBerlinShouldAdvanceProperlyOverDST()
+    {
+        $e = new CronExpression('0 0 1 * *');
+        $expected = new \DateTime('2022-11-01 00:00:00', new \DateTimeZone('Europe/Berlin'));
+        $next = $e->getNextRunDate(new \DateTime('2022-10-30', new \DateTimeZone('Europe/Berlin')));
+        $this->assertEquals($expected, $next);
+    }
 }
