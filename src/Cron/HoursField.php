@@ -125,7 +125,12 @@ class HoursField extends AbstractField
         // allow us to go back or forwards and hour even
         // if DST will be changed between the hours.
         if (null === $parts || '*' === $parts) {
-            $date = $this->timezoneSafeModify($date, ($invert ? "-" : "+") ."1 hour");
+            if ($invert) {
+                $date = $date->sub(new \DateInterval('PT1H'));
+            } else {
+                $date = $date->add(new \DateInterval('PT1H'));
+            }
+
             $date = $this->setTimeHour($date, $invert, $originalTimestamp);
             return $this;
         }

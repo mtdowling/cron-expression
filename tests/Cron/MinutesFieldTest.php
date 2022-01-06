@@ -89,4 +89,42 @@ class MinutesFieldTest extends TestCase
         $f = new MinutesField();
         $this->assertFalse($f->validate('0/5'));
     }
+
+    /**
+     * @covers \Cron\MinutesField::increment
+     */
+    public function testIncrementAcrossDstChangeBerlin(): void
+    {
+        $tz = new \DateTimeZone("Europe/Berlin");
+        $d = \DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", "2021-03-28 01:59:00", $tz);
+        $f = new MinutesField();
+        $f->increment($d);
+        $this->assertSame("2021-03-28 03:00:00", $d->format("Y-m-d H:i:s"));
+
+        $f->increment($d, true);
+        $this->assertSame("2021-03-28 01:59:00", $d->format("Y-m-d H:i:s"));
+        $f->increment($d, true);
+        $this->assertSame("2021-03-28 01:58:00", $d->format("Y-m-d H:i:s"));
+    }
+
+    /**
+     * @covers \Cron\MinutesField::increment
+     */
+    public function testIncrementAcrossDstChangeLondon(): void
+    {
+        $tz = new \DateTimeZone("Europe/London");
+        $d = \DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", "2021-03-28 00:59:00", $tz);
+        $f = new MinutesField();
+        $f->increment($d);
+        $this->assertSame("2021-03-28 02:00:00", $d->format("Y-m-d H:i:s"));
+        $f->increment($d);
+        $this->assertSame("2021-03-28 02:01:00", $d->format("Y-m-d H:i:s"));
+
+        $f->increment($d, true);
+        $this->assertSame("2021-03-28 02:00:00", $d->format("Y-m-d H:i:s"));
+        $f->increment($d, true);
+        $this->assertSame("2021-03-28 00:59:00", $d->format("Y-m-d H:i:s"));
+        $f->increment($d, true);
+        $this->assertSame("2021-03-28 00:58:00", $d->format("Y-m-d H:i:s"));
+    }
 }
