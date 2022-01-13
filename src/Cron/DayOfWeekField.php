@@ -151,10 +151,10 @@ class DayOfWeekField extends AbstractField
     public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface
     {
         if (! $invert) {
-            $date = $this->timezoneSafeModify($date, '+1 day');
+            $date = $date->add(new \DateInterval('P1D'));
             $date = $date->setTime(0, 0);
         } else {
-            $date = $this->timezoneSafeModify($date, '-1 day');
+            $date = $date->sub(new \DateInterval('P1D'));
             $date = $date->setTime(23, 59);
         }
 

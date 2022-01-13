@@ -687,12 +687,12 @@ class CronExpressionTest extends TestCase
     public function testIssue131()
     {
         $e = new CronExpression('* * * * 2');
-        $expected = new \DateTime('2020-10-27 00:00:00');
-        $next = $e->getNextRunDate(new DateTime('2020-10-23 15:31:45'));
+        $expected = new \DateTime('2020-10-27 00:00:00', new \DateTimeZone('Europe/Berlin'));
+        $next = $e->getNextRunDate(new DateTime('2020-10-23 15:31:45', new \DateTimeZone('Europe/Berlin')));
         $this->assertEquals($expected, $next);
 
-        $expected = new \DateTime('2020-10-20 23:59:00');
-        $prev = $e->getPreviousRunDate(new DateTime('2020-10-23 15:31:45'));
+        $expected = new \DateTime('2020-10-20 23:59:00', new \DateTimeZone('Europe/Berlin'));
+        $prev = $e->getPreviousRunDate(new DateTime('2020-10-23 15:31:45', new \DateTimeZone('Europe/Berlin')));
         $this->assertEquals($expected, $prev);
 
         $e = new CronExpression('15 1 1 9,11 *');
