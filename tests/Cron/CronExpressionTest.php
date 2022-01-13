@@ -704,4 +704,24 @@ class CronExpressionTest extends TestCase
         $prev = $e->getPreviousRunDate(new \DateTime('2022-08-20 03:44:02'));
         $this->assertEquals($expected, $prev);
     }
+
+    public function testIssue128()
+    {
+        $e = new CronExpression('0 20 L 6,12 ?');
+        $expected = new \DateTime('2022-12-31 20:00:00');
+        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $this->assertEquals($expected, $next);
+
+        $expected = new \DateTime('2023-12-31 20:00:00');
+        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'), 2);
+        $this->assertEquals($expected, $next);
+
+        $expected = new \DateTime('2022-06-30 20:00:00');
+        $prev = $e->getPreviousRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $this->assertEquals($expected, $prev);
+
+        $expected = new \DateTime('2021-12-31 20:00:00');
+        $prev = $e->getPreviousRunDate(new \DateTime('2022-08-20 03:44:02'), 1);
+        $this->assertEquals($expected, $prev);
+    }
 }

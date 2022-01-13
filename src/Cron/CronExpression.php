@@ -410,6 +410,14 @@ class CronExpression
             $domRunDates = $domExpression->getMultipleRunDates($nth + 1, $currentTime, $invert, $allowCurrentDate, $timeZone);
             $dowRunDates = $dowExpression->getMultipleRunDates($nth + 1, $currentTime, $invert, $allowCurrentDate, $timeZone);
 
+            if ($parts[self::DAY] === '?' || $parts[self::DAY] === '*') {
+                $domRunDates = [];
+            }
+
+            if ($parts[self::WEEKDAY] === '?' || $parts[self::WEEKDAY] === '*') {
+                $dowRunDates = [];
+            }
+
             $combined = array_merge($domRunDates, $dowRunDates);
             usort($combined, function ($a, $b) {
                 return $a->format('Y-m-d H:i:s') <=> $b->format('Y-m-d H:i:s');
