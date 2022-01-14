@@ -13,12 +13,12 @@
     ],
     "require": {
         "php": "^7.2|^8.0",
-        "webmozart/assert": "^1.7.0"
+        "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan": "^1.0",
         "phpunit/phpunit": "^7.0|^8.0|^9.0",
-        "phpstan/phpstan-webmozart-assert": "^0.12.7",
+        "phpstan/phpstan-webmozart-assert": "^1.0",
         "phpstan/extension-installer": "^1.0"
     },
     "autoload": {
@@ -35,7 +35,7 @@
         "mtdowling/cron-expression": "^1.0"
     },
     "scripts": {
-        "phpstan": "./vendor/bin/phpstan analyse -l max src tests",
+        "phpstan": "./vendor/bin/phpstan analyze",
         "test": "phpunit"
     }
 }

@@ -69,7 +69,6 @@ class DayOfWeekField extends AbstractField
 
         // Find out if this is the last specific weekday of the month
         if (strpos($value, 'L')) {
-            /** @phpstan-ignore-next-line */
             $weekday = $this->convertLiterals(substr($value, 0, strpos($value, 'L')));
             $weekday %= 7;
 

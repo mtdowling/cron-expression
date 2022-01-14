@@ -146,8 +146,9 @@ abstract class AbstractField implements FieldInterface
 
         // Generate the requested small range
         $rangeChunks = explode('-', $range, 2);
-        $rangeStart = $rangeChunks[0];
+        $rangeStart = (int) $rangeChunks[0];
         $rangeEnd = $rangeChunks[1] ?? $rangeStart;
+        $rangeEnd = (int) $rangeEnd;
 
         if ($rangeStart < $this->rangeStart || $rangeStart > $this->rangeEnd || $rangeStart > $rangeEnd) {
             throw new \OutOfRangeException('Invalid range start requested');

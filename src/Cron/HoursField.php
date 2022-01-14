@@ -50,7 +50,7 @@ class HoursField extends AbstractField
 
         // Are we on the edge of a transition
         $lastTransition = $this->getPastTransition($date);
-        if (($lastTransition !== null) && ($lastTransition["ts"] > ($date->format('U') - 3600))) {
+        if (($lastTransition !== null) && ($lastTransition["ts"] > ((int) $date->format('U') - 3600))) {
             $dtLastOffset = clone $date;
             $this->timezoneSafeModify($dtLastOffset, "-1 hour");
             $lastOffset = $dtLastOffset->getOffset();
