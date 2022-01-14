@@ -76,7 +76,7 @@ This library also supports a few macros:
 Requirements
 ============
 
-- PHP 7.1+
+- PHP 7.2+
 - PHPUnit is required to run the unit tests
 - Composer is required to run the unit tests
 
