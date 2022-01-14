@@ -10,6 +10,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use Webmozart\Assert\Assert;
 
@@ -723,5 +724,61 @@ class CronExpressionTest extends TestCase
         $expected = new \DateTime('2021-12-31 20:00:00');
         $prev = $e->getPreviousRunDate(new \DateTime('2022-08-20 03:44:02'), 1);
         $this->assertEquals($expected, $prev);
+    }
+
+    public function testItCanRegisterAnValidExpression(): void
+    {
+        CronExpression::registerAlias('@every', '* * * * *');
+
+        self::assertCount(8, CronExpression::getAliases());
+        self::assertArrayHasKey('@every', CronExpression::getAliases());
+        self::assertTrue(CronExpression::supportsAlias('@every'));
+        self::assertEquals(new CronExpression('@every'), new CronExpression('* * * * *'));
+
+        self::assertTrue(CronExpression::unregisterAlias('@every'));
+        self::assertFalse(CronExpression::unregisterAlias('@every'));
+
+        self::assertCount(7, CronExpression::getAliases());
+        self::assertArrayNotHasKey('@every', CronExpression::getAliases());
+        self::assertFalse(CronExpression::supportsAlias('@every'));
+
+        $this->expectException(LogicException::class);
+        new CronExpression('@every');
+    }
+
+    public function testItWillFailToRegisterAnInvalidExpression(): void
+    {
+        $this->expectException(LogicException::class);
+
+        CronExpression::registerAlias('@every', 'foobar');
+    }
+
+    public function testItWillFailToRegisterAnInvalidName(): void
+    {
+        $this->expectException(LogicException::class);
+
+        CronExpression::registerAlias('every', '* * * * *');
+    }
+
+    public function testItWillFailToRegisterAnInvalidName2(): void
+    {
+        $this->expectException(LogicException::class);
+
+        CronExpression::registerAlias('@évery', '* * * * *');
+    }
+
+    public function testItWillFailToRegisterAValidNameTwice(): void
+    {
+        CronExpression::registerAlias('@Ev_eR_y', '* * * * *');
+
+        $this->expectException(LogicException::class);
+        CronExpression::registerAlias('@eV_Er_Y', '2 2 2 2 2');
+    }
+
+    public function testItWillFailToUnregisterADefaultExpression(): void
+    {
+        $this->expectException(LogicException::class);
+
+        CronExpression::unregisterAlias('@daily');
     }
 }
