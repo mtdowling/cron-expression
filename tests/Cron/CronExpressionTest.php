@@ -724,6 +724,31 @@ class CronExpressionTest extends TestCase
         $expected = new \DateTime('2021-12-31 20:00:00');
         $prev = $e->getPreviousRunDate(new \DateTime('2022-08-20 03:44:02'), 1);
         $this->assertEquals($expected, $prev);
+
+        $e = new CronExpression('0 20 L 6,12 0-6');
+        $expected = new \DateTime('2022-12-01 20:00:00');
+        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $this->assertEquals($expected, $next);
+
+        $e = new CronExpression('0 20 L 6,12 0-6');
+        $expected = new \DateTime('2022-12-02 20:00:00');
+        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'), 1);
+        $this->assertEquals($expected, $next);
+
+        $e = new CronExpression('0 20 L 6,12 0-6');
+        $expected = new \DateTime('2022-12-03 20:00:00');
+        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'), 2);
+        $this->assertEquals($expected, $next);
+
+        $e = new CronExpression('0 20 * 6,12 *');
+        $expected = new \DateTime('2022-12-01 20:00:00');
+        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $this->assertEquals($expected, $next);
+
+        $e = new CronExpression('0 20 * 6,12 *');
+        $expected = new \DateTime('2022-12-06 20:00:00');
+        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'), 5);
+        $this->assertEquals($expected, $next);
     }
 
     public function testItCanRegisterAnValidExpression(): void
