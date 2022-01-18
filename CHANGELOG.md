@@ -1,5 +1,16 @@
 # Change Log
 
+## [3.3.1] - 2022-01-18
+
+### Added
+- N/A
+
+### Changed
+- N/A
+
+### Fixed
+- Fixed issue when timezones had no transition, which can occur over very short timespans (#134)
+
 ## [3.3.0] - 2022-01-13
 
 ### Added

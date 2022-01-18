@@ -92,6 +92,9 @@ class HoursField extends AbstractField
                 $dtLimitStart->getTimestamp(),
                 $dtLimitEnd->getTimestamp()
             );
+            if ($this->transitions === false) {
+                return null;
+            }
             $this->transitionsStart = $dtLimitStart->getTimestamp();
             $this->transitionsEnd = $dtLimitEnd->getTimestamp();
         }

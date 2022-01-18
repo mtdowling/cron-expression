@@ -806,4 +806,11 @@ class CronExpressionTest extends TestCase
 
         CronExpression::unregisterAlias('@daily');
     }
+
+    public function testIssue134ForeachInvalidArgumentOnHours()
+    {
+        $cron = new CronExpression('0 0 1 1 *');
+        $prev = $cron->getPreviousRunDate(new \DateTimeImmutable('2021-09-07T09:36:00Z'));
+        $this->assertEquals(new \DateTime('2021-01-01 00:00:00'), $prev);
+    }
 }
