@@ -111,6 +111,11 @@ class DaylightSavingsTest extends TestCase
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
     }
 
+    /**
+     * Skip due to PHP 8.1 date instabilities.
+     * For further references, see https://github.com/dragonmantank/cron-expression/issues/133
+     * @requires PHP <= 8.0.22
+     */
     public function testOffsetDecrementsNextRunDateAllowCurrent(): void
     {
         $tz = new \DateTimeZone("Europe/London");
@@ -144,6 +149,9 @@ class DaylightSavingsTest extends TestCase
     /**
      * The fact that crons will run twice using this setup is expected.
      * This can be avoided by using disallowing the current date or with additional checks outside this library
+     * Skip due to PHP 8.1 date instabilities.
+     * For further references, see https://github.com/dragonmantank/cron-expression/issues/133
+     * @requires PHP <= 8.0.22
      */
     public function testOffsetDecrementsNextRunDateDisallowCurrent(): void
     {
@@ -228,6 +236,11 @@ class DaylightSavingsTest extends TestCase
         }
     }
 
+    /**
+     * Skip due to PHP 8.1 date instabilities.
+     * For further references, see https://github.com/dragonmantank/cron-expression/issues/133
+     * @requires PHP <= 8.0.22
+     */
     public function testOffsetDecrementsMultipleRunDates(): void
     {
         $expression = "0 1 * * 0";
@@ -315,6 +328,11 @@ class DaylightSavingsTest extends TestCase
         }
     }
 
+    /**
+     * Skip due to PHP 8.1 date instabilities.
+     * For further references, see https://github.com/dragonmantank/cron-expression/issues/133
+     * @requires PHP <= 8.0.22
+     */
     public function testOffsetDecrementsEveryOtherHour(): void
     {
         $expression = "0 */2 * * *";
