@@ -25,7 +25,7 @@ class HoursField extends AbstractField
     /**
      * @var array|null Transitions returned by DateTimeZone::getTransitions()
      */
-    protected $transitions = null;
+    protected $transitions = [];
 
     /**
      * @var int|null Timestamp of the start of the transitions range
@@ -92,7 +92,7 @@ class HoursField extends AbstractField
                 $dtLimitStart->getTimestamp(),
                 $dtLimitEnd->getTimestamp()
             );
-            if ($this->transitions === false) {
+            if (empty($this->transitions)) {
                 return null;
             }
             $this->transitionsStart = $dtLimitStart->getTimestamp();
