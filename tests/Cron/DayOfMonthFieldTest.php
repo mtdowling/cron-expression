@@ -115,4 +115,10 @@ class DayOfMonthFieldTest extends TestCase
         $f->increment($d, true);
         $this->assertSame("2021-03-27 23:59:00", $d->format("Y-m-d H:i:s"));
     }
+
+    public function testIssue151DOMFieldSupportLW()
+    {
+        $f = new DayOfMonthField();
+        $this->assertTrue($f->validate('LW'));
+    }
 }

@@ -820,4 +820,11 @@ class CronExpressionTest extends TestCase
         $prev = $cron->getPreviousRunDate(new \DateTimeImmutable('2021-09-07T09:36:00Z'));
         $this->assertEquals(new \DateTime('2021-01-01 00:00:00'), $prev);
     }
+
+    public function testIssue151ExpressionSupportLW()
+    {
+        $cron = new CronExpression('0 10 LW * *');
+        $this->assertTrue($cron->isDue(new \DateTimeImmutable('2023-08-31 10:00:00')));
+        $this->assertFalse($cron->isDue(new \DateTimeImmutable('2023-08-30 10:00:00')));
+    }
 }
