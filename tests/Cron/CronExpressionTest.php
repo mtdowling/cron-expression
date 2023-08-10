@@ -563,6 +563,13 @@ class CronExpressionTest extends TestCase
         // Issue #125, this is just all sorts of wrong
         $this->assertFalse(CronExpression::isValidExpression('990 14 * * mon-fri0345345'));
 
+        // Issue #137, multiple question marks are not allowed
+        $this->assertFalse(CronExpression::isValidExpression('0 8 ? * ?'));
+        // Question marks are only allowed in dom and dow part
+        $this->assertFalse(CronExpression::isValidExpression('? * * * *'));
+        $this->assertFalse(CronExpression::isValidExpression('* ? * * *'));
+        $this->assertFalse(CronExpression::isValidExpression('* * * ? *'));
+
         // see https://github.com/dragonmantank/cron-expression/issues/5
         $this->assertTrue(CronExpression::isValidExpression('2,17,35,47 5-7,11-13 * * *'));
     }
