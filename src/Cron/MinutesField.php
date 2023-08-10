@@ -14,7 +14,7 @@ class MinutesField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    protected $rangeStart = 0;
+    protected $rangeStart = 0; 
 
     /**
      * {@inheritdoc}
@@ -24,7 +24,7 @@ class MinutesField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert):bool
+    public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert):bool 
     {
         if ($value === '?') {
             return true;
@@ -43,15 +43,16 @@ class MinutesField extends AbstractField
     {
         if (is_null($parts)) {
             $date = $this->timezoneSafeModify($date, ($invert ? "-" : "+") ."1 minute");
-            return $this;
+            return $this; 
         }
 
-        $current_minute = (int) $date->format('i');
+        $current_minute = (int) $date->format('i'); 
 
-        $parts = false !== strpos($parts, ',') ? explode(',', $parts) : [$parts];
-        $minutes = [];
+        $parts = false !== strpos($parts, ',') ? explode(',', $parts) : [$parts]; 
+        sort($parts);
+        $minutes = []; 
         foreach ($parts as $part) {
-            $minutes = array_merge($minutes, $this->getRangeForExpression($part, 59));
+            $minutes = array_merge($minutes, $this->getRangeForExpression($part, 59)); 
         }
 
         $position = $invert ? \count($minutes) - 1 : 0;
@@ -67,7 +68,7 @@ class MinutesField extends AbstractField
         }
 
         $target = (int) $minutes[$position];
-        $originalMinute = (int) $date->format("i");
+        $originalMinute = (int) $date->format("i"); 
 
         if (! $invert) {
             if ($originalMinute >= $target) {
@@ -78,7 +79,7 @@ class MinutesField extends AbstractField
             }
 
             $distance = $target - $originalMinute;
-            $date = $this->timezoneSafeModify($date, "+{$distance} minutes");
+            $date = $this->timezoneSafeModify($date, "+{$distance} minutes"); 
         } else {
             if ($originalMinute <= $target) {
                 $distance = ($originalMinute + 1);
