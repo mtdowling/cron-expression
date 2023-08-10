@@ -177,6 +177,7 @@ class CronExpression
      *
      * @param string $expression CRON expression (e.g. '8 * * * *')
      * @param null|FieldFactoryInterface $fieldFactory Factory to create cron fields
+     * @throws InvalidArgumentException
      */
     public function __construct(string $expression, FieldFactoryInterface $fieldFactory = null)
     {
