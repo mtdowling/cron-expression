@@ -43,5 +43,6 @@
             "ocramius/package-versions": true,
             "phpstan/extension-installer": true
         }
-    }
+    },
+    "abandoned": "dragonmantank/cron-expression"
 }
