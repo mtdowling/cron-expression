@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron\Tests;
 
 use Cron\FieldFactory;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,29 +16,29 @@ class FieldFactoryTest extends TestCase
     /**
      * @covers \Cron\FieldFactory::getField
      */
-    public function testRetrievesFieldInstances()
+    public function testRetrievesFieldInstances(): void
     {
-        $mappings = array(
+        $mappings = [
             0 => 'Cron\MinutesField',
             1 => 'Cron\HoursField',
             2 => 'Cron\DayOfMonthField',
             3 => 'Cron\MonthField',
             4 => 'Cron\DayOfWeekField',
-        );
+        ];
 
         $f = new FieldFactory();
 
         foreach ($mappings as $position => $class) {
-            $this->assertSame($class, get_class($f->getField($position)));
+            $this->assertInstanceOf($class, $f->getField($position));
         }
     }
 
     /**
      * @covers \Cron\FieldFactory::getField
-     * @expectedException InvalidArgumentException
      */
-    public function testValidatesFieldPosition()
+    public function testValidatesFieldPosition(): void
     {
+        $this->expectException(InvalidArgumentException::class);
         $f = new FieldFactory();
         $f->getField(-1);
     }

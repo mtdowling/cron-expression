@@ -1,17 +1,32 @@
 language: php
 
-php:
-  - 7.0
-  - 7.1
-  - hhvm
-
-sudo: false
-
-install: travis_retry composer install --no-interaction --prefer-dist
-
-script: phpunit --coverage-text
+dist: bionic
 
 matrix:
-  allow_failures:
-    - php: hhvm
-  fast_finish: true
+  include:
+    - php: 7.1
+    - php: 7.1
+      env: dependencies=lowest
+    - php: 7.2
+    - php: 7.2
+      env: dependencies=lowest
+    - php: 7.3
+    - php: 7.3
+      env: dependencies=lowest
+    - php: 7.4
+    - php: 7.4
+      env: dependencies=lowest
+    - php: nightly
+      install: travis_retry composer install --no-interaction --prefer-dist --ignore-platform-reqs
+
+install:
+    - |
+        if [[ "$dependencies" = "lowest" ]]; then
+          travis_retry composer update --no-interaction --prefer-lowest --prefer-stable -n
+        else
+          travis_retry composer install --no-interaction --prefer-dist
+        fi
+
+script:
+  - vendor/bin/phpunit --coverage-text
+  - composer phpstan
