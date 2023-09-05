@@ -189,6 +189,30 @@ class CronExpression
     }
 
     /**
+     * @param string $value
+     * @return bool TRUE if the expression is valid
+     */
+    public static function isValid(string $value) : bool {
+        $split = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
+        if (!is_array($split)) return FALSE;
+
+        $notEnoughParts = \count($split) < 5;
+
+        $questionMarkInInvalidPart = array_key_exists(0, $split) && $split[0] === '?'
+            || array_key_exists(1, $split) && $split[1] === '?'
+            || array_key_exists(3, $split) && $split[3] === '?';
+
+        $tooManyQuestionMarks = array_key_exists(2, $split) && $split[2] === '?'
+            && array_key_exists(4, $split) && $split[4] === '?';
+
+        if ($notEnoughParts || $questionMarkInInvalidPart || $tooManyQuestionMarks) {
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    /**
      * Set or change the CRON expression.
      *
      * @param string $value CRON expression (e.g. 8 * * * *)
@@ -202,16 +226,7 @@ class CronExpression
         $split = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
         Assert::isArray($split);
 
-        $notEnoughParts = \count($split) < 5;
-
-        $questionMarkInInvalidPart = array_key_exists(0, $split) && $split[0] === '?'
-            || array_key_exists(1, $split) && $split[1] === '?'
-            || array_key_exists(3, $split) && $split[3] === '?';
-
-        $tooManyQuestionMarks = array_key_exists(2, $split) && $split[2] === '?'
-            && array_key_exists(4, $split) && $split[4] === '?';
-
-        if ($notEnoughParts || $questionMarkInInvalidPart || $tooManyQuestionMarks) {
+        if (!self::isValid($value)) {
             throw new InvalidArgumentException(
                 $value . ' is not a valid CRON expression'
             );
