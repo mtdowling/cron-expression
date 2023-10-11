@@ -1,19 +1,25 @@
 {
-    "name": "mtdowling/cron-expression",
+    "name": "dragonmantank/cron-expression",
     "type": "library",
     "description": "CRON for PHP: Calculate the next or previous run date and determine if a CRON expression is due",
     "keywords": ["cron", "schedule"],
     "license": "MIT",
-    "authors": [{
-        "name": "Michael Dowling",
-        "email": "mtdowling@gmail.com",
-        "homepage": "https://github.com/mtdowling"
-    }],
+    "authors": [
+        {
+            "name": "Chris Tankersley",
+            "email": "chris@ctankersley.com",
+            "homepage": "https://github.com/dragonmantank"
+        }
+    ],
     "require": {
-        "php": ">=7.0.0"
+        "php": "^7.2|^8.0",
+        "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.7"
+        "phpstan/phpstan": "^1.0",
+        "phpunit/phpunit": "^7.0|^8.0|^9.0",
+        "phpstan/phpstan-webmozart-assert": "^1.0",
+        "phpstan/extension-installer": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -22,7 +28,20 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/Cron/"
+            "Cron\\Tests\\": "tests/Cron/"
+        }
+    },
+    "replace": {
+        "mtdowling/cron-expression": "^1.0"
+    },
+    "scripts": {
+        "phpstan": "./vendor/bin/phpstan analyze",
+        "test": "phpunit"
+    },
+    "config": {
+        "allow-plugins": {
+            "ocramius/package-versions": true,
+            "phpstan/extension-installer": true
         }
     },
     "abandoned": "dragonmantank/cron-expression"
